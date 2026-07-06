@@ -16,7 +16,7 @@ namespace Lanternfall
             new(){Id=SkillId.RadiantSweep, Name="Radiant Sweep", Range=1, Cooldown=2, Hint="2 damage around you"}
         };
         public static SkillDefinition Get(SkillId id) => All[(int)id];
-        public static HashSet<Vector2Int> Targets(GridModel grid, PlayerModel player, SkillId id, System.Func<Vector2Int,bool> occupied)
+        public static HashSet<Vector2Int> Targets(GridModel grid, PlayerModel player, SkillId id, System.Func<Vector2Int,bool> occupied, int rangeBonus=0)
         {
             var result = new HashSet<Vector2Int>(); var def = Get(id);
             foreach (var p in grid.Floors())
@@ -24,9 +24,9 @@ namespace Lanternfall
                 int d = Mathf.Abs(p.x-player.Position.x)+Mathf.Abs(p.y-player.Position.y);
                 bool valid = id switch
                 {
-                    SkillId.EmberBolt => d > 0 && d <= def.Range && occupied(p),
-                    SkillId.LanternDash => d > 0 && d <= def.Range && !occupied(p),
-                    _ => d > 0 && d <= def.Range
+                    SkillId.EmberBolt => d > 0 && d <= def.Range+rangeBonus && occupied(p),
+                    SkillId.LanternDash => d > 0 && d <= def.Range+rangeBonus && !occupied(p),
+                    _ => d > 0 && d <= def.Range+rangeBonus
                 };
                 if (valid) result.Add(p);
             }

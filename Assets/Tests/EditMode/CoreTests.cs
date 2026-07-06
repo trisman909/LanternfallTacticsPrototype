@@ -1,6 +1,8 @@
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 namespace Lanternfall.Tests
 {
@@ -15,5 +17,10 @@ namespace Lanternfall.Tests
         [Test] public void WinLoss_ResolveClearly(){var p=new PlayerModel();var dead=new[]{new EnemyModel(EnemyKind.Ashling,Vector2Int.zero)};dead[0].Damage(99);Assert.AreEqual(TurnPhase.Won,GameRules.ResolveOutcome(p,dead,5));p.Damage(99);Assert.AreEqual(TurnPhase.Lost,GameRules.ResolveOutcome(p,dead,1));}
         [Test] public void DifficultyCurve_UsesFixedReadableEncounters(){Assert.That(Enumerable.Range(1,5).Select(BalanceConfig.EnemyCount),Is.EqualTo(new[]{2,2,3,3,1}));Assert.AreEqual(EnemyKind.LanternWarden,BalanceConfig.EnemyFor(5,0));Assert.AreEqual(15,BalanceConfig.EnemyStats(EnemyKind.LanternWarden).health);}
         [Test] public void Recovery_IsCappedAndNeverOverheals(){var p=new PlayerModel();p.Damage(5);Assert.AreEqual(2,p.Recover(BalanceConfig.BetweenRoomRecovery));Assert.AreEqual(9,p.Health);Assert.AreEqual(3,p.Recover(99));Assert.AreEqual(p.MaxHealth,p.Health);}
+        [Test] public void Biomes_AllFiveThemesLoadWithStableIdentity(){Assert.AreEqual(5,BiomeCatalog.All.Length);Assert.AreEqual(5,BiomeCatalog.All.Select(b=>b.StableId).Distinct().Count());Assert.That(BiomeCatalog.All.All(b=>!string.IsNullOrWhiteSpace(b.Name)&&!string.IsNullOrWhiteSpace(b.HazardRule)));}
+        [Test] public void Biomes_AllMapsStayConnectedAndBossReachable(){var gen=new RoomGenerator();for(int room=1;room<=5;room++){var r=gen.Generate(900+room,room);Assert.True(gen.IsConnected(r.Grid),r.Theme.Name);Assert.AreEqual(BiomeCatalog.ForRoom(room).Id,r.Theme.Id);Assert.AreEqual(5,r.HazardTiles.Count);Assert.True(r.Grid.ShortestPath(r.PlayerSpawn,r.EnemySpawns[0],_=>false).Count>0);}}
+        [Test] public void Biomes_EachHazardRuleWorks(){var p=new PlayerModel{Position=Vector2Int.zero};var tile=new HashSet<Vector2Int>{Vector2Int.zero};Assert.AreEqual(2,BiomeRules.MoveRange(p,BiomeCatalog.Get(BiomeId.DrownedNarthex),tile));Assert.AreEqual(2,BiomeRules.SkillRangeBonus(BiomeCatalog.Get(BiomeId.SiltglassObservatory),p.Position,tile,SkillId.EmberBolt));Assert.AreEqual(1,BiomeRules.SkillDamageBonus(BiomeCatalog.Get(BiomeId.SiltglassObservatory),p.Position,tile,SkillId.EmberBolt));Assert.AreEqual(2,BiomeRules.HazardDamage(BiomeCatalog.Get(BiomeId.EmberOssuary),p.Position,tile));Assert.AreEqual(1,BiomeRules.MoveRange(p,BiomeCatalog.Get(BiomeId.GloamOrchard),tile));Assert.AreEqual(2,BiomeRules.HazardDamage(BiomeCatalog.Get(BiomeId.StormvaultFoundry),Vector2Int.right,tile));Assert.AreEqual(0,BiomeRules.HazardDamage(BiomeCatalog.Get(BiomeId.StormvaultFoundry),new Vector2Int(3,3),tile));}
+        [Test] public void Biomes_PalettesAndDressingRemainMobileReadable(){var gen=new RoomGenerator();foreach(var b in BiomeCatalog.All)Assert.That(b.TileContrast,Is.GreaterThan(.06f),b.Name);for(int room=1;room<=5;room++){var r=gen.Generate(1200+room,room);int floors=r.Grid.Floors().Count();Assert.LessOrEqual(r.HazardTiles.Count,floors/5);Assert.LessOrEqual(r.PropTiles.Count,floors/10);}}
+        [Test] public void Isolation_NoRealtimeActionSystemsWereImported(){string[] banned={"PlayerMotor","Dodge","RealtimeCombat","ActionCombat"};var names=typeof(GridModel).Assembly.GetTypes().Select(t=>t.Name).ToArray();Assert.False(names.Any(n=>banned.Any(b=>n.Contains(b,StringComparison.OrdinalIgnoreCase))));}
     }
 }

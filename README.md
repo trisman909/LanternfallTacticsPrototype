@@ -20,7 +20,12 @@ One Warden class, three skills, one connected crypt biome generator, three enemy
 - Phase 1 — playable vertical slice (complete)
 - Phase 2 — core-loop and mobile-readability polish (complete)
 - Phase 3 — playtesting and numerical tuning (complete)
+- Phase 3.5 — original Lanternfall biome identity reuse (complete)
 - Phase 4 — mobile build readiness and device validation
 - Phase 5 — final prototype verification
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
+
+## Five-room biome rotation
+
+The run now visits The Drowned Narthex, Siltglass Observatory, The Ember Ossuary, The Gloam Orchard, and Stormvault Foundry in order. Each room uses a lightweight palette adapted from the original Lanternfall production materials and one readable tactical hazard. See [BIOME_IDENTITY.md](BIOME_IDENTITY.md) for reuse details and manual theme notes.

@@ -10,6 +10,9 @@ namespace Lanternfall
         public GridModel Grid;
         public Vector2Int PlayerSpawn;
         public List<Vector2Int> EnemySpawns = new();
+        public BiomeTheme Theme;
+        public HashSet<Vector2Int> HazardTiles = new();
+        public HashSet<Vector2Int> PropTiles = new();
     }
 
     public sealed class RoomGenerator
@@ -32,7 +35,9 @@ namespace Lanternfall
             var player = new Vector2Int(4, 1); grid.SetFloor(player);
             var candidates = grid.Floors().Where(v => v.y >= 6).OrderBy(_ => rng.Next()).ToList();
             int count = BalanceConfig.EnemyCount(roomNumber);
-            return new GeneratedRoom { Grid = grid, PlayerSpawn = player, EnemySpawns = candidates.Take(count).ToList() };
+            var enemies=candidates.Take(count).ToList();
+            var dressing=grid.Floors().Where(v=>v!=player&&!enemies.Contains(v)&&v.y>2).OrderBy(_=>rng.Next()).ToList();
+            return new GeneratedRoom { Grid = grid, PlayerSpawn = player, EnemySpawns = enemies, Theme=BiomeCatalog.ForRoom(roomNumber), HazardTiles=dressing.Take(5).ToHashSet(), PropTiles=dressing.Skip(5).Take(3).ToHashSet() };
         }
 
         public bool IsConnected(GridModel grid)

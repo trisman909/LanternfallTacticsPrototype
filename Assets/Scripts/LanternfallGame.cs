@@ -16,6 +16,10 @@ namespace Lanternfall
         public string Message { get; private set; } = "Choose a glowing tile.";
         public SkillId? SelectedSkill { get; set; }
         public HashSet<Vector2Int> ValidTargets { get; private set; } = new();
+        public BiomeTheme Theme { get; private set; }
+        public HashSet<Vector2Int> HazardTiles { get; private set; } = new();
+        public HashSet<Vector2Int> ArmedHazards { get; private set; } = new();
+        public HashSet<Vector2Int> PropTiles { get; private set; } = new();
         public event Action Changed;
         RoomGenerator generator = new();
 
@@ -25,13 +29,13 @@ namespace Lanternfall
         }
         void LoadRoom()
         {
-            var r=generator.Generate(Environment.TickCount + RoomNumber*97, RoomNumber); Grid=r.Grid; Player.Position=r.PlayerSpawn; Enemies.Clear();
+            var r=generator.Generate(Environment.TickCount + RoomNumber*97, RoomNumber); Grid=r.Grid; Player.Position=r.PlayerSpawn;Theme=r.Theme;HazardTiles=r.HazardTiles;PropTiles=r.PropTiles;ArmedHazards.Clear();Enemies.Clear();
             for(int i=0;i<r.EnemySpawns.Count;i++)
             {
                 var kind = BalanceConfig.EnemyFor(RoomNumber, i);
                 Enemies.Add(new EnemyModel(kind,r.EnemySpawns[i]));
             }
-            Turns.BeginPlayerTurn(); SelectedSkill=null; RefreshTargets(); RefreshPreviews(); Message=RoomNumber==5?"BOSS: The Lantern Warden awakens.":$"Room {RoomNumber}: Player Turn"; Changed?.Invoke();
+            Turns.BeginPlayerTurn(); SelectedSkill=null; RefreshTargets(); RefreshPreviews(); Message=RoomNumber==5?$"{Theme.Name}: The Lantern Warden awakens.":$"{Theme.Name} — {Theme.HazardRule}"; Changed?.Invoke();
         }
         public bool Occupied(Vector2Int p) => Enemies.Any(e=>e.Alive&&e.Position==p);
         public int LivingEnemies => Enemies.Count(e=>e.Alive);
@@ -57,7 +61,7 @@ namespace Lanternfall
         void UseTargetedSkill(SkillId id,Vector2Int p)
         {
             var def=SkillBook.Get(id);
-            if(id==SkillId.EmberBolt){var e=Enemies.FirstOrDefault(x=>x.Alive&&x.Position==p);if(e==null){Reject("Ember Bolt needs an enemy.");return;}e.Damage(3+Player.Power);Message=$"Ember Bolt hits for {3+Player.Power}.";}
+            if(id==SkillId.EmberBolt){var e=Enemies.FirstOrDefault(x=>x.Alive&&x.Position==p);if(e==null){Reject("Ember Bolt needs an enemy.");return;}int damage=3+Player.Power+BiomeRules.SkillDamageBonus(Theme,Player.Position,HazardTiles,id);e.Damage(damage);Message=$"Ember Bolt hits for {damage}.";}
             else {Player.Position=p;foreach(var e in Enemies.Where(x=>x.Alive&&Manhattan(x.Position,p)==1))e.Damage(2+Player.Power);Message="Lantern Dash scorches nearby foes.";}
             Player.Cooldowns[def.Name]=def.Cooldown+1;SelectedSkill=null;EndPlayerAction();
         }
@@ -77,6 +81,8 @@ namespace Lanternfall
         IEnumerator EnemyTurn()
         {
             Message="Enemy Turn — committed attacks resolve.";Changed?.Invoke();yield return new WaitForSeconds(.35f);
+            ResolveArmedHazards();
+            if(!Player.Alive){Turns.Lose();Message="YOUR LANTERN IS EXTINGUISHED";Changed?.Invoke();yield break;}
             foreach(var e in Enemies.Where(x=>x.Alive).ToList())
             {
                 if(e.Preview.Contains(Player.Position)){Player.Damage(e.AttackDamage);Message=$"{NameOf(e.Kind)} strikes for {e.AttackDamage}.";}
@@ -88,10 +94,23 @@ namespace Lanternfall
                 Changed?.Invoke();yield return new WaitForSeconds(.2f);
             }
             if(!Player.Alive){Turns.Lose();Message="YOUR LANTERN IS EXTINGUISHED";Changed?.Invoke();yield break;}
-            Player.TickCooldowns();Turns.BeginPlayerTurn();RefreshTargets();RefreshPreviews();Message=IntentSummary;Changed?.Invoke();
+            var outcome=GameRules.ResolveOutcome(Player,Enemies,RoomNumber);
+            if(outcome==TurnPhase.Reward){int healed=Player.Recover(BalanceConfig.BetweenRoomRecovery);Turns.ShowReward();Message=$"Room cleared — recovered {healed} HP. Choose one blessing.";Changed?.Invoke();yield break;}
+            if(outcome==TurnPhase.Won){Turns.Win();Message="LANTERN RESTORED — RUN COMPLETE";Changed?.Invoke();yield break;}
+            Player.TickCooldowns();ArmHazards();Turns.BeginPlayerTurn();RefreshTargets();RefreshPreviews();Message=IntentSummary+" • "+Theme.HazardRule;Changed?.Invoke();
         }
-        void RefreshTargets(){ValidTargets=SelectedSkill.HasValue?SkillBook.Targets(Grid,Player,SelectedSkill.Value,Occupied):Grid.Reachable(Player.Position,Player.MoveRange,Occupied);}
+        void RefreshTargets(){ValidTargets=SelectedSkill.HasValue?SkillBook.Targets(Grid,Player,SelectedSkill.Value,Occupied,BiomeRules.SkillRangeBonus(Theme,Player.Position,HazardTiles,SelectedSkill.Value)):Grid.Reachable(Player.Position,BiomeRules.MoveRange(Player,Theme,HazardTiles),Occupied);}
         public void RefreshPreviews(){foreach(var e in Enemies.Where(x=>x.Alive))e.Preview=EnemyAI.BuildPreview(e,Player.Position,Grid);}
+        void ArmHazards(){ArmedHazards=BiomeRules.IsDelayedDamage(Theme)?new HashSet<Vector2Int>(HazardTiles):new HashSet<Vector2Int>();}
+        void ResolveArmedHazards()
+        {
+            int playerDamage=BiomeRules.HazardDamage(Theme,Player.Position,ArmedHazards);
+            if(playerDamage>0){Player.Damage(playerDamage);Message=Theme.Hazard==HazardKind.EmberVent?"An ember vent erupts for 2 damage.":"Charged plates arc for 2 damage.";}
+            if(Theme.Hazard==HazardKind.ChargedFloor)
+            {
+                foreach(var e in Enemies.Where(e=>e.Alive)){int damage=BiomeRules.HazardDamage(Theme,e.Position,ArmedHazards);if(damage>0)e.Damage(damage);}
+            }
+        }
         public void ChooseReward(int choice)
         {
             if(Turns.Phase!=TurnPhase.Reward)return;
