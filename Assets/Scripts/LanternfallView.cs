@@ -10,6 +10,7 @@ namespace Lanternfall
         static void Boot(){if(FindAnyObjectByType<LanternfallGame>()==null)new GameObject("Lanternfall Tactics").AddComponent<LanternfallView>();}
         void Awake()
         {
+            Application.targetFrameRate=30;QualitySettings.vSyncCount=0;Input.multiTouchEnabled=false;
             game=gameObject.AddComponent<LanternfallGame>();cam=new GameObject("Camera").AddComponent<Camera>();cam.orthographic=true;cam.transform.position=new Vector3(4,5,-10);cam.backgroundColor=new Color(.025f,.02f,.06f);cam.orthographicSize=6.7f;
             game.Changed+=()=>{};game.StartRun();
         }
@@ -23,24 +24,17 @@ namespace Lanternfall
         void OnGUI()
         {
             if(title==null)InitStyles();
-            bool portrait=Screen.height>Screen.width;
-            if(portrait)
-            {
-                float panelH=Mathf.Clamp(Screen.height*.37f,330,460);
-                DrawBoard(new Rect(0,0,Screen.width,Screen.height-panelH));
-                DrawPortraitPanel(new Rect(0,Screen.height-panelH,Screen.width,panelH));
-            }
-            else
-            {
-                float ui=Mathf.Clamp(Screen.width*.32f,310,390);float boardW=Screen.width-ui;
-                DrawBoard(new Rect(0,0,boardW,Screen.height));DrawPanel(new Rect(boardW,0,ui,Screen.height));
-            }
+            Rect safe=Screen.safeArea;var guiSafe=new Rect(safe.x,Screen.height-safe.yMax,safe.width,safe.height);GUI.BeginGroup(guiSafe);
+            var layout=MobileLayout.Compute(guiSafe.width,guiSafe.height);
+            DrawBoard(layout.Board,layout.CompactLandscape);
+            if(layout.Portrait)DrawPortraitPanel(layout.Panel);else DrawPanel(layout.Panel,layout.CompactLandscape);
+            GUI.EndGroup();
         }
-        void DrawBoard(Rect area)
+        void DrawBoard(Rect area,bool compact=false)
         {
-            DrawRect(area,game.Theme.Background);float top=72;tile=Mathf.Min((area.width-24)/game.Grid.Width,(area.height-top-24)/game.Grid.Height);float ox=(area.width-game.Grid.Width*tile)/2;float oy=top+(area.height-top-game.Grid.Height*tile)/2;
-            GUI.Label(new Rect(0,2,area.width,38),game.Turns.Phase==TurnPhase.Enemy?"ENEMY TURN":"PLAYER TURN",title);
-            GUI.Label(new Rect(0,38,area.width,28),game.Theme.Name,center);
+            DrawRect(area,game.Theme.Background);float top=compact?54:72;tile=Mathf.Min((area.width-24)/game.Grid.Width,(area.height-top-16)/game.Grid.Height);float ox=(area.width-game.Grid.Width*tile)/2;float oy=area.y+top+(area.height-top-game.Grid.Height*tile)/2;
+            GUI.Label(new Rect(area.x,area.y+2,area.width,compact?28:38),game.Turns.Phase==TurnPhase.Enemy?"ENEMY TURN":"PLAYER TURN",title);
+            GUI.Label(new Rect(area.x,area.y+(compact?28:38),area.width,compact?22:28),game.Theme.Name,center);
             foreach(var p in game.Grid.Floors())
             {
                 var r=new Rect(ox+p.x*tile,oy+(game.Grid.Height-1-p.y)*tile,tile-2,tile-2);Color c=(p.x+p.y)%2==0?game.Theme.Floor:game.Theme.Alternate;
@@ -49,6 +43,8 @@ namespace Lanternfall
                 if(game.ValidTargets.Contains(p)&&game.Turns.Phase==TurnPhase.Player)c=game.SelectedSkill.HasValue?new Color(.65f,.48f,.08f):new Color(.08f,.5f,.55f);
                 DrawRect(r,c);if(Event.current.type==EventType.MouseDown&&r.Contains(Event.current.mousePosition)){game.TapTile(p);Event.current.Use();}
             }
+            string hazardGlyph=game.Theme.Hazard switch{HazardKind.ShallowWater=>"~",HazardKind.Prism=>"◇",HazardKind.EmberVent=>"!",HazardKind.GraspingRoots=>"⌁",_=>"⚡"};
+            foreach(var p in game.HazardTiles){var r=new Rect(ox+p.x*tile,oy+(game.Grid.Height-1-p.y)*tile,tile-2,tile-2);GUI.Label(r,hazardGlyph,new GUIStyle(center){fontSize=Mathf.Max(14,Mathf.RoundToInt(tile*.32f)),fontStyle=FontStyle.Bold,normal={textColor=Color.white}});}
             foreach(var p in game.PropTiles)
             {
                 var r=new Rect(ox+p.x*tile,oy+(game.Grid.Height-1-p.y)*tile,tile-2,tile-2);
@@ -61,17 +57,17 @@ namespace Lanternfall
         {
             var r=new Rect(ox+p.x*tile+tile*.12f,oy+(game.Grid.Height-1-p.y)*tile+tile*.08f,tile*.72f,tile*.72f);DrawRect(r,c);var st=new GUIStyle(center){fontSize=Mathf.RoundToInt(tile*.42f),fontStyle=FontStyle.Bold,normal={textColor=Color.black}};GUI.Label(r,glyph,st);if(hp!="")GUI.Label(new Rect(r.x,r.y+r.height-18,r.width,20),hp,new GUIStyle(center){fontSize=14,fontStyle=FontStyle.Bold,normal={textColor=Color.white}});
         }
-        void DrawPanel(Rect r)
+        void DrawPanel(Rect r,bool compact)
         {
-            DrawRect(r,new Color(.045f,.04f,.075f));float x=r.x+12,w=r.width-24,y=12;GUI.Label(new Rect(x,y,w,42),"LANTERNFALL",title);y+=48;
-            GUI.Label(new Rect(x,y,w,110),$"{game.Theme.Name}\nRoom {game.RoomNumber}/5  •  HP {game.Player.Health}/{game.Player.MaxHealth}  •  Foes {game.LivingEnemies}\n{game.Message}",body);y+=116;
-            if(game.Turns.Phase==TurnPhase.Reward){GUI.Label(new Rect(x,y,w,45),"CHOOSE A BLESSING",title);y+=50;RewardButton(0,"VITAL EMBER\n+3 max HP",ref y,x,w);RewardButton(1,"BRIGHT WICK\n+1 skill damage",ref y,x,w);RewardButton(2,"SWIFT FLAME\n+1 move range",ref y,x,w);return;}
+            DrawRect(r,new Color(.045f,.04f,.075f));float x=r.x+10,w=r.width-20,y=compact?2:12;GUI.Label(new Rect(x,y,w,compact?30:42),"LANTERNFALL",title);y+=compact?30:48;
+            GUI.Label(new Rect(x,y,w,compact?58:110),compact?$"R{game.RoomNumber}/5 • HP {game.Player.Health}/{game.Player.MaxHealth} • {game.Turns.Phase.ToString().ToUpper()}\n{game.Message}":$"{game.Theme.Name}\nRoom {game.RoomNumber}/5  •  HP {game.Player.Health}/{game.Player.MaxHealth}  •  Foes {game.LivingEnemies}\n{game.Message}",compact?center:body);y+=compact?62:116;
+            if(game.Turns.Phase==TurnPhase.Reward){GUI.Label(new Rect(x,y,w,compact?32:45),"CHOOSE A BLESSING",title);y+=compact?34:50;if(compact)DrawCompactRewards(x,w,ref y);else{RewardButton(0,"VITAL EMBER\n+3 max HP",ref y,x,w);RewardButton(1,"BRIGHT WICK\n+1 skill damage",ref y,x,w);RewardButton(2,"SWIFT FLAME\n+1 move range",ref y,x,w);}return;}
             if(game.Turns.Phase==TurnPhase.Won||game.Turns.Phase==TurnPhase.Lost){GUI.Label(new Rect(x,y,w,100),game.Turns.Phase==TurnPhase.Won?"VICTORY\nThe Warden falls.":"DEFEAT\nThe dark closes in.",title);y+=120;if(GUI.Button(new Rect(x,y,w,64),"START NEW RUN",button))game.Restart();return;}
-            GUI.Label(new Rect(x,y,w,34),"SKILLS",title);y+=40;
-            foreach(var s in SkillBook.All){int cd=game.Player.Cooldowns[s.Name];string label=$"{s.Name}  {(cd>0?$"[{cd}]":"[READY]")}\n{s.Hint}";GUI.enabled=game.Turns.Phase==TurnPhase.Player&&cd==0;if(GUI.Button(new Rect(x,y,w,68),label,button))game.SelectSkill(s.Id);GUI.enabled=true;y+=76;}
-            if(game.SelectedSkill.HasValue&&GUI.Button(new Rect(x,y,w,54),"CANCEL SKILL",button)){game.CancelSkill();}y+=62;
-            GUI.enabled=game.Turns.Phase==TurnPhase.Player;if(GUI.Button(new Rect(x,y,w,58),"WAIT",button))game.WaitTurn();GUI.enabled=true;y+=66;
-            GUI.Label(new Rect(x,y,w,170),$"{game.Theme.HazardName}: {game.Theme.HazardRule}\n\nRED: enemy attack  •  CYAN: move\nGOLD: skill target\n\nA Ashling • G Archer • S Sentinel",body);
+            if(!compact){GUI.Label(new Rect(x,y,w,34),"SKILLS",title);y+=40;}
+            foreach(var s in SkillBook.All){int cd=game.Player.Cooldowns[s.Name];string selected=game.SelectedSkill==s.Id?"▶ ":"";string label=compact?$"{selected}{s.Name} • {(cd>0?$"CD {cd}":"READY")}":$"{selected}{s.Name}  {(cd>0?$"[{cd}]":"[READY]")}\n{s.Hint}";GUI.enabled=game.Turns.Phase==TurnPhase.Player&&cd==0;if(GUI.Button(new Rect(x,y,w,compact?50:68),label,button))game.SelectSkill(s.Id);GUI.enabled=true;y+=compact?56:76;}
+            float actionH=compact?48:54;if(game.SelectedSkill.HasValue&&GUI.Button(new Rect(x,y,w*.48f,actionH),"CANCEL",button)){game.CancelSkill();}
+            GUI.enabled=game.Turns.Phase==TurnPhase.Player;if(GUI.Button(new Rect(x+w*.52f,y,w*.48f,actionH),"WAIT",button))game.WaitTurn();GUI.enabled=true;y+=actionH+4;
+            GUI.Label(new Rect(x,y,w,compact?38:150),compact?$"{game.Theme.HazardName}: {game.Theme.HazardRule}":$"{game.Theme.HazardName}: {game.Theme.HazardRule}\n\nRED: enemy attack  •  CYAN: move\nGOLD: skill target",compact?center:body);
         }
         void DrawPortraitPanel(Rect r)
         {
@@ -85,7 +81,7 @@ namespace Lanternfall
             {
                 var s=SkillBook.All[i];int cd=game.Player.Cooldowns[s.Name];GUI.enabled=game.Turns.Phase==TurnPhase.Player&&cd==0;
                 string shortName=s.Id==SkillId.EmberBolt?"EMBER BOLT":s.Id==SkillId.LanternDash?"LANTERN DASH":"RADIANT SWEEP";
-                if(GUI.Button(new Rect(x+i*(bw+gap),y,bw,72),$"{shortName}\n{(cd>0?$"COOLDOWN {cd}":"READY")}",button))game.SelectSkill(s.Id);
+                string selected=game.SelectedSkill==s.Id?"▶ ":"";if(GUI.Button(new Rect(x+i*(bw+gap),y,bw,64),$"{selected}{shortName}\n{(cd>0?$"COOLDOWN {cd}":"READY")}",button))game.SelectSkill(s.Id);
             }
             GUI.enabled=true;y+=80;
             if(game.SelectedSkill.HasValue){if(GUI.Button(new Rect(x,y,w*.48f,54),"CANCEL SKILL",button))game.CancelSkill();}
@@ -98,6 +94,7 @@ namespace Lanternfall
             string[] labels={"VITAL EMBER\n+3 MAX HP","BRIGHT WICK\n+1 DAMAGE","SWIFT FLAME\n+1 MOVE"};
             for(int i=0;i<3;i++)if(GUI.Button(new Rect(x+i*(bw+gap),y,bw,82),labels[i],button))game.ChooseReward(i);
         }
+        void DrawCompactRewards(float x,float w,ref float y){float gap=6,bw=(w-gap*2)/3f;string[] labels={"VITAL\n+3 HP","WICK\n+1 DMG","SWIFT\n+1 MOVE"};for(int i=0;i<3;i++)if(GUI.Button(new Rect(x+i*(bw+gap),y,bw,76),labels[i],button))game.ChooseReward(i);}
         void RewardButton(int id,string text,ref float y,float x,float w){if(GUI.Button(new Rect(x,y,w,76),text,button))game.ChooseReward(id);y+=84;}
         void DrawRect(Rect r,Color c){var old=GUI.color;GUI.color=c;GUI.DrawTexture(r,Texture2D.whiteTexture);GUI.color=old;}
     }

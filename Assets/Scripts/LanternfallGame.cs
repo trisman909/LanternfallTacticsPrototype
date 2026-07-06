@@ -15,6 +15,7 @@ namespace Lanternfall
         public int RoomNumber { get; private set; } = 1;
         public string Message { get; private set; } = "Choose a glowing tile.";
         public SkillId? SelectedSkill { get; set; }
+        public bool LastInputAccepted { get; private set; } = true;
         public HashSet<Vector2Int> ValidTargets { get; private set; } = new();
         public BiomeTheme Theme { get; private set; }
         public HashSet<Vector2Int> HazardTiles { get; private set; } = new();
@@ -48,15 +49,15 @@ namespace Lanternfall
             var def=SkillBook.Get(id); if(Turns.Phase!=TurnPhase.Player) return;
             if(Player.Cooldowns[def.Name]>0){Reject($"{def.Name} is cooling down.");return;}
             if(id==SkillId.RadiantSweep){UseSweep();return;}
-            SelectedSkill=id; RefreshTargets(); Message=ValidTargets.Count==0?$"No valid targets for {def.Name}.":$"{def.Name}: choose a gold target."; Changed?.Invoke();
+            LastInputAccepted=true;SelectedSkill=id; RefreshTargets(); Message=ValidTargets.Count==0?$"No valid targets for {def.Name}.":$"{def.Name}: choose a gold target."; Changed?.Invoke();
         }
-        public void CancelSkill(){SelectedSkill=null;RefreshTargets();Message="Skill cancelled.";Changed?.Invoke();}
+        public void CancelSkill(){LastInputAccepted=true;SelectedSkill=null;RefreshTargets();Message="Skill cancelled.";Changed?.Invoke();}
         public void TapTile(Vector2Int p)
         {
             if(Turns.Phase!=TurnPhase.Player) return;
             if(!Grid.IsFloor(p)){Reject("The void cannot be crossed.");return;}
             if(!ValidTargets.Contains(p)){Reject(SelectedSkill.HasValue?"Invalid skill target.":"Tile is blocked or out of range.");return;}
-            if(SelectedSkill.HasValue) UseTargetedSkill(SelectedSkill.Value,p); else {Player.Position=p;Message="Moved.";EndPlayerAction();}
+            LastInputAccepted=true;if(SelectedSkill.HasValue) UseTargetedSkill(SelectedSkill.Value,p); else {Player.Position=p;Message="Moved.";EndPlayerAction();}
         }
         void UseTargetedSkill(SkillId id,Vector2Int p)
         {
@@ -114,12 +115,13 @@ namespace Lanternfall
         public void ChooseReward(int choice)
         {
             if(Turns.Phase!=TurnPhase.Reward)return;
+            LastInputAccepted=true;
             if(choice==0){Player.MaxHealth+=3;Player.Health=Mathf.Min(Player.MaxHealth,Player.Health+3);Message="Vital Ember: +3 max HP.";}
             else if(choice==1){Player.Power+=1;Message="Bright Wick: +1 skill damage.";} else {Player.MoveRange+=1;Message="Swift Flame: +1 move range.";}
             RoomNumber++;LoadRoom();
         }
         public void Restart(){StopAllCoroutines();StartRun();}
-        void Reject(string why){Message="✕ "+why;Changed?.Invoke();}
+        void Reject(string why){LastInputAccepted=false;Message="✕ "+why;Changed?.Invoke();}
         static int Manhattan(Vector2Int a,Vector2Int b)=>Mathf.Abs(a.x-b.x)+Mathf.Abs(a.y-b.y);
         public static string NameOf(EnemyKind k)=>k switch{EnemyKind.Ashling=>"Ashling",EnemyKind.GloomArcher=>"Gloom Archer",EnemyKind.StoneSentinel=>"Stone Sentinel",_=>"Lantern Warden"};
     }
