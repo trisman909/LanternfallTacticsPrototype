@@ -22,7 +22,13 @@ namespace Lanternfall
             foreach (var p in grid.Floors())
             {
                 int d = Mathf.Abs(p.x-player.Position.x)+Mathf.Abs(p.y-player.Position.y);
-                if (id == SkillId.LanternDash ? d > 0 && d <= def.Range && !occupied(p) : d > 0 && d <= def.Range) result.Add(p);
+                bool valid = id switch
+                {
+                    SkillId.EmberBolt => d > 0 && d <= def.Range && occupied(p),
+                    SkillId.LanternDash => d > 0 && d <= def.Range && !occupied(p),
+                    _ => d > 0 && d <= def.Range
+                };
+                if (valid) result.Add(p);
             }
             return result;
         }

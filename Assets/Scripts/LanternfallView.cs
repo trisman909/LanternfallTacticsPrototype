@@ -15,14 +15,26 @@ namespace Lanternfall
         }
         void InitStyles()
         {
-            int s=Mathf.Clamp(Screen.width/28,18,34);title=new GUIStyle(GUI.skin.label){fontSize=s+5,fontStyle=FontStyle.Bold,alignment=TextAnchor.MiddleCenter,normal={textColor=new Color(1,.78f,.28f)}};
+            int s=Mathf.Clamp(Mathf.Min(Screen.width,Screen.height)/28,18,30);title=new GUIStyle(GUI.skin.label){fontSize=s+5,fontStyle=FontStyle.Bold,alignment=TextAnchor.MiddleCenter,normal={textColor=new Color(1,.78f,.28f)}};
             body=new GUIStyle(GUI.skin.label){fontSize=s,alignment=TextAnchor.MiddleLeft,normal={textColor=Color.white}};center=new GUIStyle(body){alignment=TextAnchor.MiddleCenter};
             button=new GUIStyle(GUI.skin.button){fontSize=s,fontStyle=FontStyle.Bold,wordWrap=true,normal={textColor=Color.white,background=Tex(new Color(.12f,.12f,.2f))},hover={background=Tex(new Color(.23f,.2f,.32f))},active={background=Tex(new Color(.5f,.3f,.1f))}};
         }
         Texture2D Tex(Color c){var t=new Texture2D(1,1);t.SetPixel(0,0,c);t.Apply();return t;}
         void OnGUI()
         {
-            if(title==null)InitStyles();float ui=Mathf.Min(360,Screen.width*.32f);float boardW=Screen.width-ui;DrawBoard(new Rect(0,0,boardW,Screen.height));DrawPanel(new Rect(boardW,0,ui,Screen.height));
+            if(title==null)InitStyles();
+            bool portrait=Screen.height>Screen.width;
+            if(portrait)
+            {
+                float panelH=Mathf.Clamp(Screen.height*.37f,330,460);
+                DrawBoard(new Rect(0,0,Screen.width,Screen.height-panelH));
+                DrawPortraitPanel(new Rect(0,Screen.height-panelH,Screen.width,panelH));
+            }
+            else
+            {
+                float ui=Mathf.Clamp(Screen.width*.32f,310,390);float boardW=Screen.width-ui;
+                DrawBoard(new Rect(0,0,boardW,Screen.height));DrawPanel(new Rect(boardW,0,ui,Screen.height));
+            }
         }
         void DrawBoard(Rect area)
         {
@@ -45,7 +57,7 @@ namespace Lanternfall
         void DrawPanel(Rect r)
         {
             DrawRect(r,new Color(.045f,.04f,.075f));float x=r.x+12,w=r.width-24,y=12;GUI.Label(new Rect(x,y,w,42),"LANTERNFALL",title);y+=48;
-            GUI.Label(new Rect(x,y,w,66),$"Room {game.RoomNumber}/5  •  HP {game.Player.Health}/{game.Player.MaxHealth}\n{game.Message}",body);y+=74;
+            GUI.Label(new Rect(x,y,w,88),$"Room {game.RoomNumber}/5  •  HP {game.Player.Health}/{game.Player.MaxHealth}  •  Foes {game.LivingEnemies}\n{game.Message}",body);y+=94;
             if(game.Turns.Phase==TurnPhase.Reward){GUI.Label(new Rect(x,y,w,45),"CHOOSE A BLESSING",title);y+=50;RewardButton(0,"VITAL EMBER\n+3 max HP",ref y,x,w);RewardButton(1,"BRIGHT WICK\n+1 skill damage",ref y,x,w);RewardButton(2,"SWIFT FLAME\n+1 move range",ref y,x,w);return;}
             if(game.Turns.Phase==TurnPhase.Won||game.Turns.Phase==TurnPhase.Lost){GUI.Label(new Rect(x,y,w,100),game.Turns.Phase==TurnPhase.Won?"VICTORY\nThe Warden falls.":"DEFEAT\nThe dark closes in.",title);y+=120;if(GUI.Button(new Rect(x,y,w,64),"START NEW RUN",button))game.Restart();return;}
             GUI.Label(new Rect(x,y,w,34),"SKILLS",title);y+=40;
@@ -53,6 +65,31 @@ namespace Lanternfall
             if(game.SelectedSkill.HasValue&&GUI.Button(new Rect(x,y,w,54),"CANCEL SKILL",button)){game.CancelSkill();}y+=62;
             GUI.enabled=game.Turns.Phase==TurnPhase.Player;if(GUI.Button(new Rect(x,y,w,58),"WAIT",button))game.WaitTurn();GUI.enabled=true;y+=66;
             GUI.Label(new Rect(x,y,w,150),"RED tiles: enemy's next attack\nCYAN tiles: valid movement\nGOLD tiles: valid skill targets\n\nEnemies: A Ashling • G Archer • S Sentinel",body);
+        }
+        void DrawPortraitPanel(Rect r)
+        {
+            DrawRect(r,new Color(.045f,.04f,.075f));float pad=10,x=r.x+pad,w=r.width-pad*2,y=r.y+6;
+            GUI.Label(new Rect(x,y,w,32),$"ROOM {game.RoomNumber}/5  •  HP {game.Player.Health}/{game.Player.MaxHealth}  •  FOES {game.LivingEnemies}",center);y+=34;
+            GUI.Label(new Rect(x,y,w,50),game.Message,center);y+=54;
+            if(game.Turns.Phase==TurnPhase.Reward){DrawPortraitRewards(x,w,ref y);return;}
+            if(game.Turns.Phase==TurnPhase.Won||game.Turns.Phase==TurnPhase.Lost){GUI.Label(new Rect(x,y,w,72),game.Turns.Phase==TurnPhase.Won?"VICTORY — THE LANTERN IS RESTORED":"DEFEAT — YOUR LANTERN IS EXTINGUISHED",title);y+=78;if(GUI.Button(new Rect(x,y,w,62),"START NEW RUN",button))game.Restart();return;}
+            float gap=8,bw=(w-gap*2)/3f;
+            for(int i=0;i<SkillBook.All.Length;i++)
+            {
+                var s=SkillBook.All[i];int cd=game.Player.Cooldowns[s.Name];GUI.enabled=game.Turns.Phase==TurnPhase.Player&&cd==0;
+                string shortName=s.Id==SkillId.EmberBolt?"EMBER BOLT":s.Id==SkillId.LanternDash?"LANTERN DASH":"RADIANT SWEEP";
+                if(GUI.Button(new Rect(x+i*(bw+gap),y,bw,72),$"{shortName}\n{(cd>0?$"COOLDOWN {cd}":"READY")}",button))game.SelectSkill(s.Id);
+            }
+            GUI.enabled=true;y+=80;
+            if(game.SelectedSkill.HasValue){if(GUI.Button(new Rect(x,y,w*.48f,54),"CANCEL SKILL",button))game.CancelSkill();}
+            GUI.enabled=game.Turns.Phase==TurnPhase.Player;if(GUI.Button(new Rect(x+w*.52f,y,w*.48f,54),"WAIT",button))game.WaitTurn();GUI.enabled=true;y+=58;
+            GUI.Label(new Rect(x,y,w,34),"RED = incoming attack   •   CYAN = move   •   GOLD = skill",center);
+        }
+        void DrawPortraitRewards(float x,float w,ref float y)
+        {
+            GUI.Label(new Rect(x,y,w,38),"CHOOSE ONE BLESSING",title);y+=42;float gap=8,bw=(w-gap*2)/3f;
+            string[] labels={"VITAL EMBER\n+3 MAX HP","BRIGHT WICK\n+1 DAMAGE","SWIFT FLAME\n+1 MOVE"};
+            for(int i=0;i<3;i++)if(GUI.Button(new Rect(x+i*(bw+gap),y,bw,82),labels[i],button))game.ChooseReward(i);
         }
         void RewardButton(int id,string text,ref float y,float x,float w){if(GUI.Button(new Rect(x,y,w,76),text,button))game.ChooseReward(id);y+=84;}
         void DrawRect(Rect r,Color c){var old=GUI.color;GUI.color=c;GUI.DrawTexture(r,Texture2D.whiteTexture);GUI.color=old;}

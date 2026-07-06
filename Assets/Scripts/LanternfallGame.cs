@@ -34,12 +34,17 @@ namespace Lanternfall
             Turns.BeginPlayerTurn(); SelectedSkill=null; RefreshTargets(); RefreshPreviews(); Message=RoomNumber==5?"BOSS: The Lantern Warden awakens.":$"Room {RoomNumber}: Player Turn"; Changed?.Invoke();
         }
         public bool Occupied(Vector2Int p) => Enemies.Any(e=>e.Alive&&e.Position==p);
+        public int LivingEnemies => Enemies.Count(e=>e.Alive);
+        public int ThreatDamageAt(Vector2Int p) => Enemies.Where(e=>e.Alive&&e.Preview.Contains(p)).Sum(e=>e.AttackDamage);
+        public string IntentSummary => ThreatDamageAt(Player.Position) > 0
+            ? $"DANGER: {ThreatDamageAt(Player.Position)} incoming damage on your tile"
+            : "Safe tile — red spaces will be struck after your action";
         public void SelectSkill(SkillId id)
         {
             var def=SkillBook.Get(id); if(Turns.Phase!=TurnPhase.Player) return;
             if(Player.Cooldowns[def.Name]>0){Reject($"{def.Name} is cooling down.");return;}
             if(id==SkillId.RadiantSweep){UseSweep();return;}
-            SelectedSkill=id; RefreshTargets(); Message=$"{def.Name}: choose a gold target."; Changed?.Invoke();
+            SelectedSkill=id; RefreshTargets(); Message=ValidTargets.Count==0?$"No valid targets for {def.Name}.":$"{def.Name}: choose a gold target."; Changed?.Invoke();
         }
         public void CancelSkill(){SelectedSkill=null;RefreshTargets();Message="Skill cancelled.";Changed?.Invoke();}
         public void TapTile(Vector2Int p)
@@ -83,7 +88,7 @@ namespace Lanternfall
                 Changed?.Invoke();yield return new WaitForSeconds(.2f);
             }
             if(!Player.Alive){Turns.Lose();Message="YOUR LANTERN IS EXTINGUISHED";Changed?.Invoke();yield break;}
-            Player.TickCooldowns();Turns.BeginPlayerTurn();RefreshTargets();RefreshPreviews();Message="Player Turn — red tiles will be attacked next.";Changed?.Invoke();
+            Player.TickCooldowns();Turns.BeginPlayerTurn();RefreshTargets();RefreshPreviews();Message=IntentSummary;Changed?.Invoke();
         }
         void RefreshTargets(){ValidTargets=SelectedSkill.HasValue?SkillBook.Targets(Grid,Player,SelectedSkill.Value,Occupied):Grid.Reachable(Player.Position,Player.MoveRange,Occupied);}
         public void RefreshPreviews(){foreach(var e in Enemies.Where(x=>x.Alive))e.Preview=EnemyAI.BuildPreview(e,Player.Position,Grid);}
