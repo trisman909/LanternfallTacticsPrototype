@@ -1,0 +1,5 @@
+{
+  "name": "Lanternfall.Core",
+  "rootNamespace": "Lanternfall",
+  "autoReferenced": true
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Lanternfall.Tests",
+  "references": ["Lanternfall.Core"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": false
+}
