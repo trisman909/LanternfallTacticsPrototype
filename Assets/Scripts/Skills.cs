@@ -12,8 +12,8 @@ namespace Lanternfall
     {
         public static readonly SkillDefinition[] All = {
             new(){Id=SkillId.EmberBolt, Name="Ember Bolt", Range=4, Cooldown=2, Hint="3 damage at range"},
-            new(){Id=SkillId.LanternDash, Name="Lantern Dash", Range=4, Cooldown=3, Hint="Dash; scorch adjacent foes"},
-            new(){Id=SkillId.RadiantSweep, Name="Radiant Sweep", Range=1, Cooldown=3, Hint="2 damage around you"}
+            new(){Id=SkillId.LanternDash, Name="Lantern Dash", Range=4, Cooldown=2, Hint="Dash; deal 2 to adjacent foes"},
+            new(){Id=SkillId.RadiantSweep, Name="Radiant Sweep", Range=1, Cooldown=2, Hint="2 damage around you"}
         };
         public static SkillDefinition Get(SkillId id) => All[(int)id];
         public static HashSet<Vector2Int> Targets(GridModel grid, PlayerModel player, SkillId id, System.Func<Vector2Int,bool> occupied)

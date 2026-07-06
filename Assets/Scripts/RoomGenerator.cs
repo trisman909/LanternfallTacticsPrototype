@@ -31,7 +31,7 @@ namespace Lanternfall
             for (int y = 1; y <= 9; y++) for (int x = 2; x <= 6; x++) if (x == 4 || y % 3 != 0) grid.SetFloor(new Vector2Int(x, y));
             var player = new Vector2Int(4, 1); grid.SetFloor(player);
             var candidates = grid.Floors().Where(v => v.y >= 6).OrderBy(_ => rng.Next()).ToList();
-            int count = roomNumber == 5 ? 1 : Mathf.Min(2 + (roomNumber - 1) / 2, 4);
+            int count = BalanceConfig.EnemyCount(roomNumber);
             return new GeneratedRoom { Grid = grid, PlayerSpawn = player, EnemySpawns = candidates.Take(count).ToList() };
         }
 

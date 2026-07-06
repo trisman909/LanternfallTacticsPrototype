@@ -28,7 +28,7 @@ namespace Lanternfall
             var r=generator.Generate(Environment.TickCount + RoomNumber*97, RoomNumber); Grid=r.Grid; Player.Position=r.PlayerSpawn; Enemies.Clear();
             for(int i=0;i<r.EnemySpawns.Count;i++)
             {
-                var kind = RoomNumber==5 ? EnemyKind.LanternWarden : (EnemyKind)((RoomNumber+i-1)%3);
+                var kind = BalanceConfig.EnemyFor(RoomNumber, i);
                 Enemies.Add(new EnemyModel(kind,r.EnemySpawns[i]));
             }
             Turns.BeginPlayerTurn(); SelectedSkill=null; RefreshTargets(); RefreshPreviews(); Message=RoomNumber==5?"BOSS: The Lantern Warden awakens.":$"Room {RoomNumber}: Player Turn"; Changed?.Invoke();
@@ -58,7 +58,7 @@ namespace Lanternfall
         {
             var def=SkillBook.Get(id);
             if(id==SkillId.EmberBolt){var e=Enemies.FirstOrDefault(x=>x.Alive&&x.Position==p);if(e==null){Reject("Ember Bolt needs an enemy.");return;}e.Damage(3+Player.Power);Message=$"Ember Bolt hits for {3+Player.Power}.";}
-            else {Player.Position=p;foreach(var e in Enemies.Where(x=>x.Alive&&Manhattan(x.Position,p)==1))e.Damage(1+Player.Power);Message="Lantern Dash scorches nearby foes.";}
+            else {Player.Position=p;foreach(var e in Enemies.Where(x=>x.Alive&&Manhattan(x.Position,p)==1))e.Damage(2+Player.Power);Message="Lantern Dash scorches nearby foes.";}
             Player.Cooldowns[def.Name]=def.Cooldown+1;SelectedSkill=null;EndPlayerAction();
         }
         void UseSweep()
@@ -70,7 +70,7 @@ namespace Lanternfall
         void EndPlayerAction()
         {
             Changed?.Invoke(); var outcome=GameRules.ResolveOutcome(Player,Enemies,RoomNumber);
-            if(outcome==TurnPhase.Reward){Turns.ShowReward();Message="Room cleared — choose one blessing.";Changed?.Invoke();return;}
+            if(outcome==TurnPhase.Reward){int healed=Player.Recover(BalanceConfig.BetweenRoomRecovery);Turns.ShowReward();Message=$"Room cleared — recovered {healed} HP. Choose one blessing.";Changed?.Invoke();return;}
             if(outcome==TurnPhase.Won){Turns.Win();Message="LANTERN RESTORED — RUN COMPLETE";Changed?.Invoke();return;}
             Turns.TryBeginEnemyTurn();StartCoroutine(EnemyTurn());
         }

@@ -21,6 +21,7 @@ namespace Lanternfall
         public readonly Dictionary<string, int> Cooldowns = new();
         public PlayerModel() { MaxHealth = Health = 12; Cooldowns["Ember Bolt"] = 0; Cooldowns["Lantern Dash"] = 0; Cooldowns["Radiant Sweep"] = 0; }
         public void TickCooldowns() { foreach (var key in new List<string>(Cooldowns.Keys)) Cooldowns[key] = Mathf.Max(0, Cooldowns[key] - 1); }
+        public int Recover(int amount) { int before = Health; Health = Mathf.Min(MaxHealth, Health + amount); return Health - before; }
     }
 
     public sealed class EnemyModel : UnitModel
@@ -32,11 +33,7 @@ namespace Lanternfall
         public EnemyModel(EnemyKind kind, Vector2Int position)
         {
             Kind = kind; Position = position;
-            (MaxHealth, AttackDamage, MoveRange) = kind switch
-            {
-                EnemyKind.Ashling => (3, 2, 2), EnemyKind.GloomArcher => (4, 2, 1),
-                EnemyKind.StoneSentinel => (6, 3, 1), _ => (18, 3, 2)
-            };
+            (MaxHealth, AttackDamage, MoveRange) = BalanceConfig.EnemyStats(kind);
             Health = MaxHealth;
         }
     }
