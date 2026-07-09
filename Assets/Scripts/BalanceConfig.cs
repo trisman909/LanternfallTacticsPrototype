@@ -4,7 +4,7 @@ namespace Lanternfall
 {
     public static class BalanceConfig
     {
-        public const int BetweenRoomRecovery = 2;
+        public const int BetweenRoomRecovery = 3;
         public static int EnemyCount(int room) => room switch { 1 => 2, 2 => 2, 3 => 3, 4 => 3, _ => 1 };
         public static EnemyKind EnemyFor(int room, int slot)
         {
@@ -23,7 +23,7 @@ namespace Lanternfall
             EnemyKind.Ashling => (3, 2, 2),
             EnemyKind.GloomArcher => (4, 2, 1),
             EnemyKind.StoneSentinel => (6, 3, 1),
-            _ => (15, 3, 2)
+            _ => (14, 3, 2)
         };
     }
 }

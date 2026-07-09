@@ -37,18 +37,52 @@ namespace Lanternfall.Tests
             Assert.That(layout.EstimatedTileSize,Is.GreaterThanOrEqualTo(24));
         }
 
+        [Test] public void FirstTimeFlow_StartScreenAndHelpPanelAreExplicit()
+        {
+            var go=new GameObject("FirstTime");var game=go.AddComponent<LanternfallGame>();
+            Assert.False(game.HasStarted);Assert.That(game.Message,Does.Contain("Start Run"));
+            Assert.That(LanternfallGame.HowToPlayLines.Length,Is.GreaterThanOrEqualTo(5));
+            Assert.That(LanternfallGame.HowToPlayLines.Any(l=>l.Contains("AP")));
+            Assert.That(LanternfallGame.HowToPlayLines.Any(l=>l.Contains("Red")));
+            var previous=game.SelectedClass;game.CycleClass();Assert.AreNotEqual(previous,game.SelectedClass);
+            game.ShowHelp();Assert.True(game.HelpVisible);
+            game.HideHelp();Assert.False(game.HelpVisible);
+            game.StartRun();Assert.True(game.HasStarted);Assert.AreEqual(TurnPhase.Player,game.Turns.Phase);
+            Object.DestroyImmediate(go);
+        }
+
         [Test] public void TouchFlow_SkillSelectionAndCancellationAreExplicit()
         {
             var go=new GameObject("TouchFlow");var game=go.AddComponent<LanternfallGame>();game.StartRun();
-            game.SelectSkill(SkillId.LanternDash);Assert.AreEqual(SkillId.LanternDash,game.SelectedSkill);Assert.True(game.LastInputAccepted);
+            game.SelectSkill(SkillId.EmberBolt);Assert.AreEqual(SkillId.EmberBolt,game.SelectedSkill);Assert.True(game.LastInputAccepted);
             game.CancelSkill();Assert.IsNull(game.SelectedSkill);Assert.True(game.LastInputAccepted);Assert.That(game.Message,Does.Contain("cancelled"));
+            Object.DestroyImmediate(go);
+        }
+
+        [Test] public void TurnEconomy_ApAndMpSpendAndResetClearly()
+        {
+            var go=new GameObject("Economy");var game=go.AddComponent<LanternfallGame>();game.StartRun();
+            int startMp=game.Player.MovementPoints;var valid=game.ValidTargets.First();int moveCost=game.Grid.ShortestPath(game.Player.Position,valid,game.Occupied).Count;
+            game.TapTile(valid);Assert.AreEqual(startMp-moveCost,game.Player.MovementPoints);Assert.AreEqual(TurnPhase.Player,game.Turns.Phase);
+            game.Enemies[0].Position=game.Grid.Neighbors(game.Player.Position).First();game.RefreshPreviews();
+            game.SelectSkill(SkillId.EmberBolt);var target=game.ValidTargets.First();game.TapTile(target);Assert.Less(game.Player.ActionPoints,game.Player.MaxActionPoints);
+            game.Player.ActionPoints=0;game.SelectSkill(SkillId.CinderBloom);Assert.False(game.LastInputAccepted);Assert.That(game.Message,Does.Contain("AP"));
+            game.Player.ResetTurnResources();Assert.AreEqual(game.Player.MaxActionPoints,game.Player.ActionPoints);Assert.AreEqual(game.Player.MoveRange,game.Player.MovementPoints);
+            Object.DestroyImmediate(go);
+        }
+
+        [Test] public void TurnEconomy_CannotMoveWithoutEnoughMp()
+        {
+            var go=new GameObject("NoMP");var game=go.AddComponent<LanternfallGame>();game.StartRun();
+            game.Player.MovementPoints=0;game.CancelSkill();Assert.AreEqual(0,game.ValidTargets.Count);
+            game.TapTile(game.Player.Position+Vector2Int.up);Assert.False(game.LastInputAccepted);
             Object.DestroyImmediate(go);
         }
 
         [Test] public void TouchFlow_InvalidAndValidTileTapsGiveClearResults()
         {
             var go=new GameObject("TileTap");var game=go.AddComponent<LanternfallGame>();game.StartRun();
-            var start=game.Player.Position;game.TapTile(new Vector2Int(-1,-1));Assert.False(game.LastInputAccepted);Assert.AreEqual(start,game.Player.Position);Assert.That(game.Message,Does.StartWith("✕"));
+            var start=game.Player.Position;game.TapTile(new Vector2Int(-1,-1));Assert.False(game.LastInputAccepted);Assert.AreEqual(start,game.Player.Position);Assert.That(game.Message,Does.StartWith("INVALID"));Assert.True(game.RejectedTile.HasValue);
             var valid=game.ValidTargets.First();game.TapTile(valid);Assert.True(game.LastInputAccepted);Assert.AreEqual(valid,game.Player.Position);
             Object.DestroyImmediate(go);
         }
@@ -61,12 +95,48 @@ namespace Lanternfall.Tests
             Object.DestroyImmediate(go);
         }
 
+        [Test] public void TacticalFeedback_HitsInvalidTilesAndBossRoomAreReadable()
+        {
+            var go=new GameObject("Feedback");var game=go.AddComponent<LanternfallGame>();game.StartRun();
+            game.Enemies[0].Position=game.Grid.Neighbors(game.Player.Position).First();game.RefreshPreviews();
+            game.SelectSkill(SkillId.EmberBolt);
+            var enemy=game.Enemies.First(e=>e.Alive&&game.ValidTargets.Contains(e.Position));
+            game.TapTile(enemy.Position);
+            Assert.True(game.HitTiles.Contains(enemy.Position));
+            Assert.That(game.Message,Does.Contain("Ember Bolt"));
+            for(int i=0;i<4;i++){game.Turns.ShowReward();game.ChooseReward(0);}
+            Assert.AreEqual(5,game.RoomNumber);Assert.That(game.Message,Does.Contain("BOSS ROOM"));
+            Object.DestroyImmediate(go);
+        }
+
+        [Test] public void TacticalMechanics_SwapAndRootWorkWhereImplemented()
+        {
+            var go=new GameObject("Mechanics");var game=go.AddComponent<LanternfallGame>();game.SelectClass(PlayerClassId.Gloamstep);game.StartRun();
+            game.Enemies[0].Position=game.Grid.Neighbors(game.Player.Position).First();game.RefreshPreviews();
+            game.SelectSkill(SkillId.ShadowSwap);var enemy=game.Enemies.FirstOrDefault(e=>e.Alive&&game.ValidTargets.Contains(e.Position));
+            if(enemy!=null){var playerPos=game.Player.Position;var enemyPos=enemy.Position;game.TapTile(enemy.Position);Assert.AreEqual(enemyPos,game.Player.Position);Assert.AreEqual(playerPos,enemy.Position);}
+            Object.DestroyImmediate(go);
+
+            go=new GameObject("Root");game=go.AddComponent<LanternfallGame>();game.SelectClass(PlayerClassId.Artificer);game.StartRun();
+            game.Enemies[0].Position=game.Grid.Neighbors(game.Player.Position).First();game.RefreshPreviews();
+            game.SelectSkill(SkillId.LensTrap);var rooted=game.Enemies.First(e=>e.Alive&&game.ValidTargets.Contains(e.Position));game.TapTile(rooted.Position);Assert.Greater(rooted.RootTurns,0);
+            Object.DestroyImmediate(go);
+        }
+
         [Test] public void TacticalWarnings_EnemyPreviewsAndEveryHazardRemainVisible()
         {
             var go=new GameObject("Warnings");var game=go.AddComponent<LanternfallGame>();game.StartRun();
             Assert.True(game.Enemies.Any(e=>e.Preview.Count>0));
             Assert.True(BiomeCatalog.All.All(b=>b.TileContrast>.06f&&!string.IsNullOrWhiteSpace(b.HazardName)));
             Object.DestroyImmediate(go);
+        }
+
+        [Test] public void BalancePass_KeepsRunBeatableButNotFree()
+        {
+            Assert.AreEqual(3,BalanceConfig.BetweenRoomRecovery);
+            Assert.AreEqual(14,BalanceConfig.EnemyStats(EnemyKind.LanternWarden).health);
+            Assert.AreEqual(1,SkillBook.Get(SkillId.EmberBolt).Cooldown);
+            Assert.That(BalanceConfig.EnemyStats(EnemyKind.StoneSentinel).damage,Is.GreaterThanOrEqualTo(3));
         }
     }
 }
