@@ -1,8 +1,58 @@
+# Unity generated folders
 /Library/
 /Temp/
 /Obj/
 /Logs/
 /UserSettings/
+/MemoryCaptures/
+/Recordings/
+
+# Local builds and exported players
+/Build/
 /Builds/
+/Builds-*/
+*.apk
+*.aab
+*.ipa
+
+# Crash reports and diagnostics
+/CrashReports/
+/crash_reports/
+crash.dmp
+*.dmp
+*.mdmp
+sysinfo.txt
+
+# IDE/editor cache
+/.vs/
+/.vscode/
+/.idea/
 *.csproj
 *.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# Unity generated metadata/cache files
+*.pidb.meta
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# OS noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local environment / credentials
+.env
+.env.*
+*.pem
+*.p12
+*.pfx
+*.keystore
+*.mobileprovision
