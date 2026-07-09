@@ -21,6 +21,22 @@ namespace Lanternfall.Tests
             Assert.That(layout.EstimatedTileSize,Is.GreaterThanOrEqualTo(24));Assert.That(layout.Panel.x,Is.EqualTo(layout.Board.xMax).Within(.01f));
         }
 
+        [Test] public void IPhonePortrait_DynamicIslandAndHomeIndicatorStayOutsideUI()
+        {
+            var safe=MobileLayout.ToGuiSafeArea(852,new Rect(0,34,393,759));
+            Assert.AreEqual(new Rect(0,59,393,759),safe);
+            var layout=MobileLayout.Compute(safe.width,safe.height);Assert.True(layout.Portrait);Assert.False(layout.HasOverlap);Assert.True(layout.TouchTargetsValid);
+            Assert.That(layout.SkillButtons.All(r=>r.width>=48&&r.height>=48));Assert.That(layout.RewardButtons.All(r=>r.width>=48&&r.height>=48));Assert.That(layout.RestartButton.height,Is.GreaterThanOrEqualTo(48));
+        }
+
+        [Test] public void IPhoneLandscape_NotchInsetsPreserveReadableControls()
+        {
+            var safe=MobileLayout.ToGuiSafeArea(393,new Rect(59,21,734,372));
+            Assert.AreEqual(new Rect(59,0,734,372),safe);
+            var layout=MobileLayout.Compute(safe.width,safe.height);Assert.False(layout.Portrait);Assert.True(layout.CompactLandscape);Assert.False(layout.HasOverlap);Assert.True(layout.TouchTargetsValid);
+            Assert.That(layout.EstimatedTileSize,Is.GreaterThanOrEqualTo(24));
+        }
+
         [Test] public void TouchFlow_SkillSelectionAndCancellationAreExplicit()
         {
             var go=new GameObject("TouchFlow");var game=go.AddComponent<LanternfallGame>();game.StartRun();

@@ -10,7 +10,7 @@ namespace Lanternfall
         static void Boot(){if(FindAnyObjectByType<LanternfallGame>()==null)new GameObject("Lanternfall Tactics").AddComponent<LanternfallView>();}
         void Awake()
         {
-            Application.targetFrameRate=30;QualitySettings.vSyncCount=0;Input.multiTouchEnabled=false;
+            Application.targetFrameRate=30;QualitySettings.vSyncCount=0;QualitySettings.antiAliasing=0;QualitySettings.shadows=ShadowQuality.Disable;QualitySettings.shadowDistance=0;QualitySettings.softParticles=false;QualitySettings.realtimeReflectionProbes=false;QualitySettings.anisotropicFiltering=AnisotropicFiltering.Disable;Input.multiTouchEnabled=false;
             game=gameObject.AddComponent<LanternfallGame>();cam=new GameObject("Camera").AddComponent<Camera>();cam.orthographic=true;cam.transform.position=new Vector3(4,5,-10);cam.backgroundColor=new Color(.025f,.02f,.06f);cam.orthographicSize=6.7f;
             game.Changed+=()=>{};game.StartRun();
         }
@@ -24,7 +24,7 @@ namespace Lanternfall
         void OnGUI()
         {
             if(title==null)InitStyles();
-            Rect safe=Screen.safeArea;var guiSafe=new Rect(safe.x,Screen.height-safe.yMax,safe.width,safe.height);GUI.BeginGroup(guiSafe);
+            var guiSafe=MobileLayout.ToGuiSafeArea(Screen.height,Screen.safeArea);GUI.BeginGroup(guiSafe);
             var layout=MobileLayout.Compute(guiSafe.width,guiSafe.height);
             DrawBoard(layout.Board,layout.CompactLandscape);
             if(layout.Portrait)DrawPortraitPanel(layout.Panel);else DrawPanel(layout.Panel,layout.CompactLandscape);
