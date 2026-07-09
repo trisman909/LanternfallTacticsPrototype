@@ -48,6 +48,19 @@ namespace Lanternfall.EditorTools
             Debug.Log("IOS_EXPORT_OK "+report.summary.totalSize);
         }
 
+        public static void BuildWebGL()
+        {
+            ConfigureMobileFriendlyDefaults();
+            ConfigureWebGLDefaults();
+            Directory.CreateDirectory("Assets/Scenes");
+            var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene,NewSceneMode.Single);
+            EditorSceneManager.SaveScene(scene,"Assets/Scenes/Main.unity");
+            Directory.CreateDirectory("Builds/WebGL/LanternfallTactics");
+            var report=BuildPipeline.BuildPlayer(new[]{"Assets/Scenes/Main.unity"},"Builds/WebGL/LanternfallTactics",BuildTarget.WebGL,BuildOptions.None);
+            if(report.summary.result!=BuildResult.Succeeded)throw new System.Exception("WebGL build failed: "+report.summary.result);
+            Debug.Log("WEBGL_BUILD_OK "+report.summary.totalSize);
+        }
+
         static void ConfigureMobileFriendlyDefaults()
         {
             PlayerSettings.productName="Lanternfall Tactics Prototype";
@@ -66,6 +79,16 @@ namespace Lanternfall.EditorTools
             PlayerSettings.iOS.buildNumber="1";
             PlayerSettings.iOS.targetDevice=iOSTargetDevice.iPhoneOnly;
             PlayerSettings.iOS.targetOSVersionString="15.0";
+        }
+
+        static void ConfigureWebGLDefaults()
+        {
+            PlayerSettings.WebGL.compressionFormat=WebGLCompressionFormat.Disabled;
+            PlayerSettings.WebGL.decompressionFallback=false;
+            PlayerSettings.WebGL.dataCaching=false;
+            PlayerSettings.WebGL.exceptionSupport=WebGLExceptionSupport.None;
+            PlayerSettings.WebGL.memorySize=128;
+            PlayerSettings.WebGL.threadsSupport=false;
         }
     }
 }

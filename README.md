@@ -26,6 +26,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 4.5 - iOS export preparation (complete; Xcode export and device test pending)
 - Phase 5 - playable candidate polish and final prototype verification (complete)
 - Phase 5B - tactical combat foundation with AP/MP and class skills (complete)
+- Phase 5C - WebGL preview and GitHub Pages preparation (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -39,8 +40,33 @@ Portrait and short-landscape layouts are safe-area aware, use 48-pixel-or-larger
 
 iPhone settings, notch/Dynamic Island layout checks, low-end quality defaults, and an Xcode export method are prepared. Unity iOS Build Support is not installed here, and a Mac with Xcode is still required to compile, sign, and install the application. See [IOS_TESTING.md](IOS_TESTING.md).
 
+## Build and test commands
+
+Use Unity 6000.5.1f1.
+
+- Open in Unity: open this project folder and press Play.
+- Run EditMode tests: use Unity Test Runner, or run Unity batchmode with `-runTests -testPlatform EditMode`.
+- Build Windows: run editor method `Lanternfall.EditorTools.BuildPrototype.BuildWindows`.
+- Build WebGL: run editor method `Lanternfall.EditorTools.BuildPrototype.BuildWebGL`.
+
+Current local Windows build path:
+
+`Builds/Windows/LanternfallTactics.exe`
+
+Current local WebGL build path:
+
+`Builds/WebGL/LanternfallTactics`
+
+GitHub Pages-ready WebGL files are prepared under:
+
+`docs`
+
+For GitHub Pages setup and WebGL limitations, see [WEBGL_PREVIEW.md](WEBGL_PREVIEW.md).
+
 ## Playable candidate notes
 
 Phase 5 adds the start screen, help panel, clearer invalid-tap feedback, stronger tile/readability highlights, reward/end-state polish, and a small balance pass while preserving the original content cap. See [PROTOTYPE_NOTES.md](PROTOTYPE_NOTES.md).
 
 Phase 5B adds an original class-based tactical foundation inspired by classic grid tactics: AP for skills, MP for movement, line-of-sight checks, reusable effects, and five small class kits. It does not add rooms, biomes, bosses, online features, monetization, or final art.
+
+Phase 5C adds a browser-playable WebGL preview path and GitHub Pages-ready static files when Unity WebGL Build Support is installed. Compression is disabled for simple static hosting.
