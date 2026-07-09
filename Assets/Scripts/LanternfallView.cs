@@ -278,7 +278,7 @@ namespace Lanternfall
         void DrawPortraitRewards(float x, float w, ref float y)
         {
             float gap = 8, bw = (w - gap * 2) / 3f;
-            string[] labels = {"VITAL EMBER\n+3 MAX HP", "BRIGHT WICK\n+1 DAMAGE", "SWIFT FLAME\n+1 MOVE"};
+            string[] labels = {"VITAL EMBER\n+3 MAX HP", "BRIGHT WICK\n+1 DAMAGE", "SWIFT FLAME\n+1 MP"};
             for (int i = 0; i < 3; i++)
                 if (GUI.Button(new Rect(x + i * (bw + gap), y, bw, 82), labels[i], button)) game.ChooseReward(i);
         }
@@ -286,7 +286,7 @@ namespace Lanternfall
         void DrawCompactRewards(float x, float w, ref float y)
         {
             float gap = 6, bw = (w - gap * 2) / 3f;
-            string[] labels = {"VITAL\n+3 HP", "WICK\n+1 DMG", "SWIFT\n+1 MOVE"};
+            string[] labels = {"VITAL\n+3 HP", "WICK\n+1 DMG", "SWIFT\n+1 MP"};
             for (int i = 0; i < 3; i++)
                 if (GUI.Button(new Rect(x + i * (bw + gap), y, bw, 76), labels[i], button)) game.ChooseReward(i);
         }

@@ -53,7 +53,7 @@ namespace Lanternfall
             {
                 PlayerClassId.Vanguard => (15, 6, 3),
                 PlayerClassId.Wayfinder => (11, 6, 3),
-                PlayerClassId.Gloamstep => (10, 6, 4),
+                PlayerClassId.Gloamstep => (11, 6, 4),
                 PlayerClassId.Artificer => (12, 7, 3),
                 _ => (12, 6, 3)
             };

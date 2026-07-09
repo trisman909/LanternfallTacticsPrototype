@@ -10,7 +10,7 @@ Open this folder in Unity 6000.5.1f1 and press Play. The runtime creates the pro
 - Tap a skill button, then a highlighted tile or enemy.
 - Red floor overlays show attacks enemies have committed to for their next turn.
 - Tap `How to Play` in-game if the color rules are unclear.
-- `Wait` spends the turn without moving.
+- `End Turn` resolves enemy previews when you are done spending AP/MP.
 
 ## Scope
 
@@ -27,6 +27,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5 - playable candidate polish and final prototype verification (complete)
 - Phase 5B - tactical combat foundation with AP/MP and class skills (complete)
 - Phase 5C - WebGL preview and GitHub Pages preparation (complete)
+- Phase 5D - playtest balance and fun pass (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -70,3 +71,5 @@ Phase 5 adds the start screen, help panel, clearer invalid-tap feedback, stronge
 Phase 5B adds an original class-based tactical foundation inspired by classic grid tactics: AP for skills, MP for movement, line-of-sight checks, reusable effects, and five small class kits. It does not add rooms, biomes, bosses, online features, monetization, or final art.
 
 Phase 5C adds a browser-playable WebGL preview path and GitHub Pages-ready static files when Unity WebGL Build Support is installed. Compression is disabled for simple static hosting.
+
+Phase 5D tunes the existing classes, skills, enemies, rewards, and hazards using deterministic seeded playtest notes. No new gameplay content was added. See [PLAYTEST_5D.md](PLAYTEST_5D.md).

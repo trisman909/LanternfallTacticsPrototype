@@ -84,3 +84,14 @@ Phase 5B adds a small original tactics foundation inspired by classic grid comba
 - No new enemy roster was added, so enemy variety is still intentionally small.
 - Line-of-sight feedback is color/validity based; it does not yet draw an explicit blocked ray.
 - Visuals remain placeholder IMGUI/code-driven art.
+
+## Phase 5D playtest balance notes
+
+- Added deterministic run seeds for repeatable playtest and test coverage.
+- Tuned the existing five class kits without adding new classes or skills.
+- Improved weak tactical buttons: Sun Charge, Marked Target, Piercing Prism, Delayed Blast, Backstab, Shadow Swap, and Lens Trap.
+- Reduced Stone Sentinel pacing drag and gave the Lantern Warden slightly more final-room presence.
+- Made Siltglass Prism useful for all damage skills.
+- Softened Gloam roots from a 1-tile bind to a 2-tile movement limit.
+- Updated reward wording so Swift Flame clearly grants +1 MP.
+- Added seeded playtest notes in `PLAYTEST_5D.md`.

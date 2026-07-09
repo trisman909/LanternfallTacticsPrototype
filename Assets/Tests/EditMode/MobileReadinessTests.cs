@@ -1,4 +1,5 @@
 using System.Linq;
+using System.IO;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -123,6 +124,46 @@ namespace Lanternfall.Tests
             Object.DestroyImmediate(go);
         }
 
+        [Test] public void Phase5D_EachClassCanCompleteBasicCombatFlow()
+        {
+            foreach(var cls in ClassCatalog.All)
+            {
+                var go=new GameObject("ClassFlow");var game=go.AddComponent<LanternfallGame>();game.SelectClass(cls.id);game.StartRun(7000+(int)cls.id);
+                game.Enemies[0].Position=game.Grid.Neighbors(game.Player.Position).First();game.RefreshPreviews();
+                var usable=SkillBook.ForClass(cls.id).First(s=>s.Effect!=SkillEffect.DashDamage&&s.Effect!=SkillEffect.DiagonalMove&&s.Effect!=SkillEffect.SelfShield);
+                int startAp=game.Player.ActionPoints;
+                game.SelectSkill(usable.Id);Assert.True(game.LastInputAccepted,cls.name);
+                var target=game.ValidTargets.FirstOrDefault(t=>game.Enemies.Any(e=>e.Alive&&e.Position==t));
+                Assert.AreNotEqual(default(Vector2Int),target,cls.name);
+                game.TapTile(target);
+                Assert.Less(game.Player.ActionPoints,startAp,cls.name);
+                Assert.That(game.HitTiles.Count,Is.GreaterThan(0),cls.name);
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        [Test] public void Phase5D_RewardsSupportDifferentClassNeeds()
+        {
+            var go=new GameObject("Rewards");var game=go.AddComponent<LanternfallGame>();game.StartRun(8010);game.Turns.ShowReward();
+            int hp=game.Player.MaxHealth;game.ChooseReward(0);Assert.AreEqual(hp+3,game.Player.MaxHealth);
+            game.Turns.ShowReward();int power=game.Player.Power;game.ChooseReward(1);Assert.AreEqual(power+1,game.Player.Power);
+            game.Turns.ShowReward();int mp=game.Player.MoveRange;game.ChooseReward(2);Assert.AreEqual(mp+1,game.Player.MoveRange);
+            Object.DestroyImmediate(go);
+        }
+
+        [Test] public void Phase5D_SeededRunsReachBossBiomeDeterministically()
+        {
+            foreach(int seed in new[]{1101,2202,3303})
+            {
+                var go=new GameObject("Seeded");var game=go.AddComponent<LanternfallGame>();game.StartRun(seed);
+                for(int i=0;i<4;i++){game.Turns.ShowReward();game.ChooseReward(i%3);}
+                Assert.AreEqual(5,game.RoomNumber,seed);
+                Assert.That(game.Theme.Id,Is.EqualTo(BiomeId.StormvaultFoundry),seed.ToString());
+                Assert.That(game.Enemies[0].Kind,Is.EqualTo(EnemyKind.LanternWarden),seed.ToString());
+                Object.DestroyImmediate(go);
+            }
+        }
+
         [Test] public void TacticalWarnings_EnemyPreviewsAndEveryHazardRemainVisible()
         {
             var go=new GameObject("Warnings");var game=go.AddComponent<LanternfallGame>();game.StartRun();
@@ -134,9 +175,17 @@ namespace Lanternfall.Tests
         [Test] public void BalancePass_KeepsRunBeatableButNotFree()
         {
             Assert.AreEqual(3,BalanceConfig.BetweenRoomRecovery);
-            Assert.AreEqual(14,BalanceConfig.EnemyStats(EnemyKind.LanternWarden).health);
+            Assert.AreEqual(15,BalanceConfig.EnemyStats(EnemyKind.LanternWarden).health);
             Assert.AreEqual(1,SkillBook.Get(SkillId.EmberBolt).Cooldown);
             Assert.That(BalanceConfig.EnemyStats(EnemyKind.StoneSentinel).damage,Is.GreaterThanOrEqualTo(3));
+        }
+
+        [Test] public void Phase5D_WebGLAndWindowsPreviewFilesRemainPrepared()
+        {
+            Assert.True(File.Exists("docs/index.html"));
+            Assert.True(File.Exists("docs/Build/LanternfallTactics.loader.js"));
+            Assert.True(File.Exists("docs/Build/LanternfallTactics.wasm"));
+            Assert.True(Directory.Exists("ProjectSettings"));
         }
     }
 }

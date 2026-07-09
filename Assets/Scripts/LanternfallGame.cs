@@ -20,6 +20,7 @@ namespace Lanternfall
         public bool HasStarted { get; private set; }
         public bool HelpVisible { get; private set; }
         public int BestRoomReached { get; private set; }
+        public int? RunSeed { get; private set; }
         public PlayerClassId SelectedClass { get; private set; } = PlayerClassId.Cantor;
         public SkillId? SelectedSkill { get; private set; }
         public bool LastInputAccepted { get; private set; } = true;
@@ -67,6 +68,12 @@ namespace Lanternfall
 
         public void StartRun()
         {
+            StartRun(null);
+        }
+
+        public void StartRun(int? seed)
+        {
+            RunSeed = seed;
             HasStarted = true;
             HelpVisible = false;
             RoomNumber = 1;
@@ -86,7 +93,8 @@ namespace Lanternfall
             LastTappedTile = null;
             RejectedTile = null;
 
-            var r = generator.Generate(Environment.TickCount + RoomNumber * 97, RoomNumber);
+            int seed = (RunSeed ?? Environment.TickCount) + RoomNumber * 97;
+            var r = generator.Generate(seed, RoomNumber);
             Grid = r.Grid;
             Player.Position = r.PlayerSpawn;
             Player.ResetTurnResources();
@@ -209,6 +217,7 @@ namespace Lanternfall
             switch (def.Effect)
             {
                 case SkillEffect.Mark:
+                    if (def.Damage > 0) target.Damage(def.Damage + Player.Power);
                     target.MarkedTurns = 2;
                     HitTiles.Add(target.Position);
                     Message = "Target marked for bonus damage.";
@@ -238,7 +247,7 @@ namespace Lanternfall
                     break;
                 case SkillEffect.Root:
                     target.Damage(def.Damage + Player.Power + MarkBonus(target));
-                    target.RootTurns = 1;
+                    target.RootTurns = Player.ClassId == PlayerClassId.Artificer ? 2 : 1;
                     HitTiles.Add(target.Position);
                     Message = "Lens Trap roots the target.";
                     break;
