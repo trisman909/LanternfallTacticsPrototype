@@ -47,25 +47,25 @@ namespace Lanternfall
     {
         public static readonly SkillDefinition[] All =
         {
-            new(){Id=SkillId.SpearThrust,ClassId=PlayerClassId.Vanguard,Name="Spear Thrust",Range=1,Cooldown=0,ApCost=3,Damage=3,Effect=SkillEffect.Damage,Hint="3 AP - melee hit; pushes"},
-            new(){Id=SkillId.GuardStance,ClassId=PlayerClassId.Vanguard,Name="Guard Stance",Range=0,Cooldown=2,ApCost=2,Damage=0,Effect=SkillEffect.SelfShield,RequiresLineOfSight=false,Hint="2 AP - gain 4 shield"},
-            new(){Id=SkillId.SunCharge,ClassId=PlayerClassId.Vanguard,Name="Sun Charge",Range=3,Cooldown=2,ApCost=4,Damage=3,Effect=SkillEffect.DashDamage,RequiresLineOfSight=false,Hint="4 AP - charge, hit, and push"},
+            new(){Id=SkillId.SpearThrust,ClassId=PlayerClassId.Vanguard,Name="Spear Thrust",Range=1,Cooldown=0,ApCost=3,Damage=3,Effect=SkillEffect.Damage,Hint="Melee hit + push"},
+            new(){Id=SkillId.GuardStance,ClassId=PlayerClassId.Vanguard,Name="Guard Stance",Range=0,Cooldown=2,ApCost=2,Damage=0,Effect=SkillEffect.SelfShield,RequiresLineOfSight=false,Hint="Gain 4 shield"},
+            new(){Id=SkillId.SunCharge,ClassId=PlayerClassId.Vanguard,Name="Sun Charge",Range=3,Cooldown=2,ApCost=4,Damage=3,Effect=SkillEffect.DashDamage,RequiresLineOfSight=false,Hint="Charge, hit, push"},
 
-            new(){Id=SkillId.StraightShot,ClassId=PlayerClassId.Wayfinder,Name="Straight Shot",Range=6,Cooldown=0,ApCost=3,Damage=3,Effect=SkillEffect.Damage,Hint="3 AP - line shot"},
-            new(){Id=SkillId.MarkedTarget,ClassId=PlayerClassId.Wayfinder,Name="Marked Target",Range=5,Cooldown=1,ApCost=2,Damage=1,Effect=SkillEffect.Mark,RequiresLineOfSight=false,Hint="2 AP - chip and mark"},
-            new(){Id=SkillId.PiercingPrism,ClassId=PlayerClassId.Wayfinder,Name="Piercing Prism",Range=6,Cooldown=2,ApCost=5,Damage=5,Effect=SkillEffect.Damage,Hint="5 AP - strong line hit"},
+            new(){Id=SkillId.StraightShot,ClassId=PlayerClassId.Wayfinder,Name="Straight Shot",Range=6,Cooldown=0,ApCost=3,Damage=3,Effect=SkillEffect.Damage,Hint="Long line shot"},
+            new(){Id=SkillId.MarkedTarget,ClassId=PlayerClassId.Wayfinder,Name="Marked Target",Range=5,Cooldown=1,ApCost=2,Damage=1,Effect=SkillEffect.Mark,RequiresLineOfSight=false,Hint="Chip + mark"},
+            new(){Id=SkillId.PiercingPrism,ClassId=PlayerClassId.Wayfinder,Name="Piercing Prism",Range=6,Cooldown=2,ApCost=5,Damage=5,Effect=SkillEffect.Damage,Hint="Heavy line hit"},
 
-            new(){Id=SkillId.EmberBolt,ClassId=PlayerClassId.Cantor,Name="Ember Bolt",Range=4,Cooldown=1,ApCost=3,Damage=3,Effect=SkillEffect.Damage,RequiresLineOfSight=false,Hint="3 AP - ranged ember"},
-            new(){Id=SkillId.CinderBloom,ClassId=PlayerClassId.Cantor,Name="Cinder Bloom",Range=4,Cooldown=2,ApCost=4,Damage=2,Effect=SkillEffect.AreaBurn,RequiresLineOfSight=false,Hint="4 AP - small burn area"},
-            new(){Id=SkillId.DelayedBlast,ClassId=PlayerClassId.Cantor,Name="Delayed Blast",Range=4,Cooldown=2,ApCost=5,Damage=4,Effect=SkillEffect.DelayedArea,RequiresLineOfSight=false,Hint="5 AP - preview, then blast"},
+            new(){Id=SkillId.EmberBolt,ClassId=PlayerClassId.Cantor,Name="Ember Bolt",Range=4,Cooldown=1,ApCost=3,Damage=3,Effect=SkillEffect.Damage,RequiresLineOfSight=false,Hint="Reliable range"},
+            new(){Id=SkillId.CinderBloom,ClassId=PlayerClassId.Cantor,Name="Cinder Bloom",Range=4,Cooldown=2,ApCost=4,Damage=2,Effect=SkillEffect.AreaBurn,RequiresLineOfSight=false,Hint="Small burn area"},
+            new(){Id=SkillId.DelayedBlast,ClassId=PlayerClassId.Cantor,Name="Delayed Blast",Range=4,Cooldown=2,ApCost=5,Damage=4,Effect=SkillEffect.DelayedArea,RequiresLineOfSight=false,Hint="Previewed blast"},
 
-            new(){Id=SkillId.DiagonalDash,ClassId=PlayerClassId.Gloamstep,Name="Diagonal Dash",Range=3,Cooldown=1,ApCost=3,Damage=0,Effect=SkillEffect.DiagonalMove,RequiresLineOfSight=false,Hint="3 AP - diagonal reposition"},
-            new(){Id=SkillId.Backstab,ClassId=PlayerClassId.Gloamstep,Name="Backstab",Range=1,Cooldown=0,ApCost=3,Damage=4,Effect=SkillEffect.Damage,Hint="3 AP - close burst"},
-            new(){Id=SkillId.ShadowSwap,ClassId=PlayerClassId.Gloamstep,Name="Shadow Swap",Range=4,Cooldown=1,ApCost=3,Damage=0,Effect=SkillEffect.Swap,Hint="3 AP - swap with foe"},
+            new(){Id=SkillId.DiagonalDash,ClassId=PlayerClassId.Gloamstep,Name="Diagonal Dash",Range=3,Cooldown=1,ApCost=3,Damage=0,Effect=SkillEffect.DiagonalMove,RequiresLineOfSight=false,Hint="Diagonal reposition"},
+            new(){Id=SkillId.Backstab,ClassId=PlayerClassId.Gloamstep,Name="Backstab",Range=1,Cooldown=0,ApCost=3,Damage=4,Effect=SkillEffect.Damage,Hint="Close burst"},
+            new(){Id=SkillId.ShadowSwap,ClassId=PlayerClassId.Gloamstep,Name="Shadow Swap",Range=4,Cooldown=1,ApCost=3,Damage=0,Effect=SkillEffect.Swap,Hint="Swap with foe"},
 
-            new(){Id=SkillId.LensTrap,ClassId=PlayerClassId.Artificer,Name="Lens Trap",Range=4,Cooldown=1,ApCost=3,Damage=2,Effect=SkillEffect.Root,Hint="3 AP - damage and root"},
-            new(){Id=SkillId.RedirectShot,ClassId=PlayerClassId.Artificer,Name="Redirect Shot",Range=5,Cooldown=1,ApCost=4,Damage=3,Effect=SkillEffect.Damage,Hint="4 AP - line control shot"},
-            new(){Id=SkillId.ShieldGadget,ClassId=PlayerClassId.Artificer,Name="Shield Gadget",Range=0,Cooldown=2,ApCost=2,Damage=0,Effect=SkillEffect.SelfShield,RequiresLineOfSight=false,Hint="2 AP - gain 3 shield"}
+            new(){Id=SkillId.LensTrap,ClassId=PlayerClassId.Artificer,Name="Lens Trap",Range=4,Cooldown=1,ApCost=3,Damage=2,Effect=SkillEffect.Root,Hint="Damage + root"},
+            new(){Id=SkillId.RedirectShot,ClassId=PlayerClassId.Artificer,Name="Redirect Shot",Range=5,Cooldown=1,ApCost=4,Damage=3,Effect=SkillEffect.Damage,Hint="Line control shot"},
+            new(){Id=SkillId.ShieldGadget,ClassId=PlayerClassId.Artificer,Name="Shield Gadget",Range=0,Cooldown=2,ApCost=2,Damage=0,Effect=SkillEffect.SelfShield,RequiresLineOfSight=false,Hint="Gain 3 shield"}
         };
 
         public static SkillDefinition Get(SkillId id) => All.First(s => s.Id == id);

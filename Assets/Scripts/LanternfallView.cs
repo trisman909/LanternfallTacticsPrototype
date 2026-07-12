@@ -86,21 +86,36 @@ namespace Lanternfall
         void DrawStartScreen(Rect area)
         {
             DrawRect(area, new Color(.025f, .02f, .055f));
+            bool compact = area.height < 500f;
             float pad = Mathf.Max(18, area.width * .06f);
             float w = area.width - pad * 2;
-            float y = Mathf.Max(26, area.height * .10f);
+            float y = compact ? 14 : Mathf.Max(26, area.height * .10f);
 
-            GUI.Label(new Rect(pad, y, w, 72), "LANTERNFALL TACTICS", title); y += 82;
-            GUI.Label(new Rect(pad, y, w, 118),
-                "A short turn-based roguelite prototype.\nMove on cyan tiles, read the red enemy previews, choose rewards, and survive five rooms.",
-                center); y += 128;
+            GUI.Label(new Rect(pad, y, w, compact ? 40 : 72), "LANTERNFALL TACTICS", title); y += compact ? 46 : 82;
+            GUI.Label(new Rect(pad, y, w, compact ? 54 : 118),
+                compact ? "Turn tactics: spend AP/MP, read red previews, survive five rooms."
+                        : "A short turn-based roguelite prototype.\nMove on cyan tiles, read the red enemy previews, choose rewards, and survive five rooms.",
+                center); y += compact ? 58 : 128;
             var cls = ClassCatalog.Get(game.SelectedClass);
-            GUI.Label(new Rect(pad, y, w, 72), $"{cls.name} / {cls.title}\n{cls.description}", center); y += 82;
-            if (GUI.Button(new Rect(pad, y, w, 58), "CHANGE CLASS", button)) game.CycleClass(); y += 70;
-            if (game.BestRoomReached > 0){GUI.Label(new Rect(pad, y, w, 34), $"Best run: room {game.BestRoomReached}/5", center); y += 42;}
-            if (GUI.Button(new Rect(pad, y, w, 66), "START RUN", button)) game.StartRun(); y += 78;
-            if (GUI.Button(new Rect(pad, y, w, 60), "HOW TO PLAY", button)) game.ShowHelp(); y += 76;
-            GUI.Label(new Rect(pad, y, w, 80), "Built for touch first. Mouse clicks work in the editor and Windows build.", small);
+            GUI.Label(new Rect(pad, y, w, compact ? 42 : 72), compact ? $"{cls.name} / {cls.title}" : $"{cls.name} / {cls.title}\n{cls.description}", center); y += compact ? 48 : 82;
+            if (game.BestRoomReached > 0 && !compact){GUI.Label(new Rect(pad, y, w, 34), $"Best run: room {game.BestRoomReached}/5", center); y += 42;}
+            float gap = compact ? 8 : 12;
+            float h = compact ? 46 : 62;
+            float bw = compact ? (w - gap * 2) / 3f : w;
+            if (compact)
+            {
+                if (GUI.Button(new Rect(pad, y, bw, h), "CLASS", button)) game.CycleClass();
+                if (GUI.Button(new Rect(pad + bw + gap, y, bw, h), "START", button)) game.StartRun();
+                if (GUI.Button(new Rect(pad + (bw + gap) * 2, y, bw, h), "HELP", button)) game.ShowHelp();
+                y += h + 10;
+            }
+            else
+            {
+                if (GUI.Button(new Rect(pad, y, w, 58), "CHANGE CLASS", button)) game.CycleClass(); y += 70;
+                if (GUI.Button(new Rect(pad, y, w, 66), "START RUN", button)) game.StartRun(); y += 78;
+                if (GUI.Button(new Rect(pad, y, w, 60), "HOW TO PLAY", button)) game.ShowHelp(); y += 76;
+            }
+            if(!compact)GUI.Label(new Rect(pad, y, w, 80), "Built for touch first. Mouse clicks work in the editor and Windows build.", small);
         }
 
         void DrawHelpOverlay(Rect area)
@@ -113,10 +128,11 @@ namespace Lanternfall
             GUI.Label(new Rect(pad, y, w, 44), "HOW TO PLAY", title); y += 54;
             foreach (var line in LanternfallGame.HowToPlayLines)
             {
-                GUI.Label(new Rect(pad, y, w, 54), "- " + line, body);
-                y += 58;
+                float lineH = area.height < 500f ? 34 : 54;
+                GUI.Label(new Rect(pad, y, w, lineH), "- " + line, area.height < 500f ? small : body);
+                y += lineH + 4;
             }
-            if (GUI.Button(new Rect(pad, area.height - y * .18f - 84, w, 62), game.HasStarted ? "BACK TO RUN" : "GOT IT", button))
+            if (GUI.Button(new Rect(pad, area.height - (area.height < 500f ? 58 : 84), w, area.height < 500f ? 46 : 62), game.HasStarted ? "BACK TO RUN" : "GOT IT", button))
                 game.HideHelp();
         }
 
@@ -262,7 +278,7 @@ namespace Lanternfall
             {
                 int cd = game.Player.Cooldowns[s.Name];
                 string selected = game.SelectedSkill == s.Id ? "> " : "";
-                string label = $"{selected}{s.Name}  {s.ApCost} AP  {(cd > 0 ? $"[CD {cd}]" : "[READY]")}\n{s.Hint}";
+                string label = $"{selected}{s.Name} - {s.ApCost} AP - {(cd > 0 ? $"CD {cd}" : "READY")}\n{s.Hint}";
                 GUI.enabled = game.Turns.Phase == TurnPhase.Player && cd == 0 && game.Player.ActionPoints >= s.ApCost;
                 if (GUI.Button(new Rect(x, y, w, 68), label, button)) game.SelectSkill(s.Id);
                 GUI.enabled = true; y += 76;

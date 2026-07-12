@@ -58,6 +58,7 @@ namespace Lanternfall.EditorTools
             Directory.CreateDirectory("Builds/WebGL/LanternfallTactics");
             var report=BuildPipeline.BuildPlayer(new[]{"Assets/Scenes/Main.unity"},"Builds/WebGL/LanternfallTactics",BuildTarget.WebGL,BuildOptions.None);
             if(report.summary.result!=BuildResult.Succeeded)throw new System.Exception("WebGL build failed: "+report.summary.result);
+            PatchWebGLForResponsivePreview("Builds/WebGL/LanternfallTactics");
             Debug.Log("WEBGL_BUILD_OK "+report.summary.totalSize);
         }
 
@@ -89,6 +90,28 @@ namespace Lanternfall.EditorTools
             PlayerSettings.WebGL.exceptionSupport=WebGLExceptionSupport.None;
             PlayerSettings.WebGL.memorySize=128;
             PlayerSettings.WebGL.threadsSupport=false;
+        }
+
+        static void PatchWebGLForResponsivePreview(string path)
+        {
+            var index=Path.Combine(path,"index.html");
+            if(File.Exists(index))
+            {
+                var html=File.ReadAllText(index);
+                html=html.Replace("canvas.style.width = \"960px\";","canvas.style.width = \"100vw\";");
+                html=html.Replace("canvas.style.height = \"600px\";","canvas.style.height = \"100vh\";");
+                File.WriteAllText(index,html);
+            }
+            var css=Path.Combine(path,"TemplateData","style.css");
+            if(File.Exists(css))
+            {
+                var text=File.ReadAllText(css);
+                text += "\nhtml, body { width: 100%; height: 100%; overflow: hidden; background: #000; }\n";
+                text += "#unity-container.unity-desktop { position: fixed; left: 0; top: 0; transform: none; width: 100vw; height: 100vh; }\n";
+                text += "#unity-canvas { width: 100vw !important; height: 100vh !important; display: block; }\n";
+                text += "#unity-footer { display: none; }\n";
+                File.WriteAllText(css,text);
+            }
         }
     }
 }

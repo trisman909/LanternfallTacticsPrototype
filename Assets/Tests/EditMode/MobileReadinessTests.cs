@@ -187,5 +187,16 @@ namespace Lanternfall.Tests
             Assert.True(File.Exists("docs/Build/LanternfallTactics.wasm"));
             Assert.True(Directory.Exists("ProjectSettings"));
         }
+
+        [Test] public void Phase5E_WebGLTemplateUsesResponsiveViewportCanvas()
+        {
+            var index=File.ReadAllText("docs/index.html");
+            var css=File.ReadAllText("docs/TemplateData/style.css");
+            Assert.That(index,Does.Contain("canvas.style.width = \"100vw\""));
+            Assert.That(index,Does.Contain("canvas.style.height = \"100vh\""));
+            Assert.That(css,Does.Contain("#unity-footer { display: none; }"));
+            Assert.That(css,Does.Contain("width: 100vw"));
+            Assert.That(css,Does.Contain("height: 100vh"));
+        }
     }
 }

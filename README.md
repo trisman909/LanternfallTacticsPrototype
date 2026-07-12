@@ -28,6 +28,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5B - tactical combat foundation with AP/MP and class skills (complete)
 - Phase 5C - WebGL preview and GitHub Pages preparation (complete)
 - Phase 5D - playtest balance and fun pass (complete)
+- Phase 5E - browser/mobile playtest QA and usability fixes (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -73,3 +74,5 @@ Phase 5B adds an original class-based tactical foundation inspired by classic gr
 Phase 5C adds a browser-playable WebGL preview path and GitHub Pages-ready static files when Unity WebGL Build Support is installed. Compression is disabled for simple static hosting.
 
 Phase 5D tunes the existing classes, skills, enemies, rewards, and hazards using deterministic seeded playtest notes. No new gameplay content was added. See [PLAYTEST_5D.md](PLAYTEST_5D.md).
+
+Phase 5E verifies the WebGL preview in a local browser, tests phone-sized viewports, and fixes usability/layout issues found during QA. See [QA_5E.md](QA_5E.md).

@@ -47,11 +47,13 @@ The build is configured for simple static hosting:
 - Threads disabled for broad browser compatibility.
 - 128 MB WebGL memory target.
 - Mouse and touch-style input are preserved.
+- The generated template is patched to use a full-viewport responsive canvas for desktop, phone portrait, and phone landscape browser previews.
 
 ## Known limitations
 
 - Browser performance can vary, especially on older phones.
 - iPhone Safari may behave differently from desktop browsers; physical-device testing is still needed.
+- GitHub Pages must be enabled manually from repository settings before the public URL can be claimed as live.
 - Full iPhone app testing still requires Unity iOS Build Support, a Mac, and Xcode.
 - The prototype uses placeholder IMGUI/code-driven visuals.
 - Audio and final art are not part of this preview milestone.
