@@ -164,7 +164,9 @@ namespace Lanternfall
         public string ThreatDetailAt(Vector2Int p)
         {
             var details = Enemies.Where(e => e.Alive && (e.Preview.Contains(p) || e.DelayedPreview.Contains(p)))
-                .Select(e => $"{NameOf(e.Kind)}: {ThreatReadability.ThreatName(e.Threat)} {(e.Preview.Contains(p) ? "now" : "next turn")}")
+                .Select(e => e.Kind == EnemyKind.LanternWarden
+                    ? $"{NameOf(e.Kind)}: {e.IntentLabel} {(e.Preview.Contains(p) ? $"now for {e.AttackDamage} damage" : "next turn")} - {EnemyAI.BossPhaseSummary(e)}"
+                    : $"{NameOf(e.Kind)}: {ThreatReadability.ThreatName(e.Threat)} {(e.Preview.Contains(p) ? "now" : "next turn")}")
                 .Distinct()
                 .ToArray();
             if (details.Length > 0) return string.Join(" | ", details);
@@ -377,6 +379,13 @@ namespace Lanternfall
                 e.TickStatuses();
                 if (!e.Alive){HitTiles.Add(e.Position); Message = $"{NameOf(e.Kind)} burns away."; Changed?.Invoke(); yield return new WaitForSeconds(.15f); continue;}
                 HitTiles.Clear();
+                if (TryAnnounceBossPhase(e))
+                {
+                    RefreshPreviews();
+                    Changed?.Invoke();
+                    yield return new WaitForSeconds(.45f);
+                    continue;
+                }
                 if (e.Preview.Contains(Player.Position))
                 {
                     Player.Damage(e.AttackDamage);
@@ -449,7 +458,25 @@ namespace Lanternfall
         {
             if (e.Threat == ThreatKind.AP || e.Threat == ThreatKind.Mixed) pendingApDrain += e.Kind == EnemyKind.LanternWarden ? 2 : 1;
             if (e.Threat == ThreatKind.MP || e.Threat == ThreatKind.Mixed) pendingMpDrain += 1;
-            if (e.Kind == EnemyKind.LanternWarden && EnemyAI.BossPhase(e) >= 3) Player.Damage(Mathf.Max(1, e.AttackDamage - 1));
+        }
+
+        bool TryAnnounceBossPhase(EnemyModel e)
+        {
+            if (e.Kind != EnemyKind.LanternWarden) return false;
+            int phase = EnemyAI.BossPhase(e);
+            if (phase <= e.BossPhaseAnnounced) return false;
+            e.BossPhaseAnnounced = phase;
+            if (phase == 2)
+            {
+                e.Shield += 4;
+                Message = "Lantern Warden enters Phase 2 - Stormvault Core Reignites. Overcharge Shield +4, range increased, AP/MP pressure.";
+            }
+            else
+            {
+                Message = "Lantern Warden enters Phase 3 - HEAVY BLAST telegraphs. Avoid red and purple danger tiles.";
+            }
+            HitTiles.Add(e.Position);
+            return true;
         }
 
         void ArmHazards()

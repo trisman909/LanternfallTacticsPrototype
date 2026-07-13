@@ -76,11 +76,13 @@ namespace Lanternfall
         public ThreatKind Threat = ThreatKind.HP;
         public int AttackDamage;
         public int MoveRange;
+        public int BossPhaseAnnounced;
         public EnemyModel(EnemyKind kind, Vector2Int position)
         {
             Kind = kind; Position = position;
             (MaxHealth, AttackDamage, MoveRange) = BalanceConfig.EnemyStats(kind);
             Health = MaxHealth;
+            BossPhaseAnnounced = kind == EnemyKind.LanternWarden ? 1 : 0;
         }
     }
 }

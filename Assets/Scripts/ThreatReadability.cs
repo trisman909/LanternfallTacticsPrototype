@@ -24,7 +24,7 @@ namespace Lanternfall
         {
             ThreatKind.AP => "AP",
             ThreatKind.MP => "MP",
-            ThreatKind.Mixed => EnemyAI.BossPhase(e) >= 3 ? "BLAST" : "MIX",
+            ThreatKind.Mixed => EnemyAI.BossPhase(e) >= 3 ? "BLAST" : e.Kind == EnemyKind.LanternWarden ? "OVER" : "MIX",
             _ => e.Kind == EnemyKind.Ashling ? "HP" : "CAST"
         };
 
@@ -32,7 +32,7 @@ namespace Lanternfall
         {
             ThreatKind.AP => "AP drain",
             ThreatKind.MP => "MP bind",
-            ThreatKind.Mixed => "HP + AP/MP threat",
+            ThreatKind.Mixed => "overcharge AP/MP threat",
             _ => "HP damage"
         };
 

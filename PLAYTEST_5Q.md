@@ -32,6 +32,15 @@ This phase responds to real phone WebGL screenshots after Phase 5P. The previous
 - Idling is penalized unless the enemy already has a direct preview on the player.
 - Enemy turn messaging now correctly reports when an enemy actually repositions.
 
+## Boss fairness follow-up
+
+- Low-health boss delayed AP/MP pressure no longer sneaks in hidden HP damage.
+- Phase 2 is now a clear transition beat: the Warden pauses, announces overcharge, and gains `Overcharge Shield +4`.
+- The Phase 2 message explains that range and AP/MP pressure increased.
+- Phase 3 announces `HEAVY BLAST` before acting.
+- Heavy boss preview tiles use a stronger `!!` marker and brighter outline.
+- Boss HUD threat details now include timing, damage, and phase summary.
+
 ## Manual phone verification needed
 
 On the live GitHub Pages build:
@@ -44,9 +53,12 @@ On the live GitHub Pages build:
 - Landscape: confirm skill cards and End Turn are comfortable.
 - Combat: confirm normal enemies move toward useful positions instead of sliding left or doing nothing.
 - Combat: confirm boss pressure still feels like Phase 5O/5P.
+- Boss: confirm Phase 2 clearly announces the shield/range/AP-MP change before the boss attacks.
+- Boss: confirm low-health attacks feel telegraphed and do not produce surprise hidden lethal bursts.
 
 ## Known issues
 
 - Mobile browser play is still constrained by Safari/Chrome address bars.
 - This is still IMGUI prototype UI, not a final mobile UI framework.
 - Real-device confirmation is still required because screenshots already proved idealized viewport tests were not enough.
+- Boss fairness still needs another real playtest pass because the original issue came from in-fight perception, not only numbers.

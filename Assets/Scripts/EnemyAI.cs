@@ -80,9 +80,16 @@ namespace Lanternfall
         {
             if (e.Kind == EnemyKind.GloomArcher) return "AP drain";
             if (e.Kind == EnemyKind.StoneSentinel) return "MP bind";
-            if (e.Kind == EnemyKind.LanternWarden) return BossPhase(e) switch { 1 => "ward strike", 2 => "line + AP", _ => "storm blast" };
+            if (e.Kind == EnemyKind.LanternWarden) return BossPhase(e) switch { 1 => "ward strike", 2 => "OVERCHARGE", _ => "HEAVY BLAST" };
             return "rush strike";
         }
+
+        public static string BossPhaseSummary(EnemyModel e) => BossPhase(e) switch
+        {
+            2 => "Phase 2: Overcharge Shield +4, range increased, AP/MP pressure.",
+            3 => "Phase 3: Heavy blast pattern. Avoid red/purple telegraphs.",
+            _ => "Phase 1: ward strike."
+        };
 
         static IEnumerable<Vector2Int> CrossLine(Vector2Int origin, GridModel grid, int range)
         {

@@ -257,14 +257,15 @@ namespace Lanternfall
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.Preview).Distinct())
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
-                DrawOutline(r, new Color(1f, .20f, .18f), Mathf.Max(2, tile * .05f));
-                DrawTileGlyph(r, "!", Color.white, .42f);
+                bool heavyBoss = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && EnemyAI.BossPhase(e) >= 3 && e.Preview.Contains(p));
+                DrawOutline(r, heavyBoss ? new Color(1f, .74f, .12f) : new Color(1f, .20f, .18f), Mathf.Max(2, tile * (heavyBoss ? .075f : .05f)));
+                DrawTileGlyph(r, heavyBoss ? "!!" : "!", Color.white, heavyBoss ? .34f : .42f);
             }
 
             DrawToken(game.Player.Position, ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), VisualReadability.ClassGlyph(game.Player.ClassId), "", game.Player, true);
             foreach (var e in game.Enemies.Where(e => e.Alive))
             {
-                DrawToken(e.Position, ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden);
+                DrawToken(e.Position, ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), e.Shield > 0 ? $"{e.Health}+{e.Shield}" : $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden);
                 var er = TileRect(e.Position, ox, oy, minX, maxY);
                 var badge = new Rect(er.xMax - tile * .42f, er.y - tile * .05f, tile * .48f, tile * .25f);
                 DrawRect(badge, new Color(.04f, .03f, .06f, .88f));
