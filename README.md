@@ -29,6 +29,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5C - WebGL preview and GitHub Pages preparation (complete)
 - Phase 5D - playtest balance and fun pass (complete)
 - Phase 5E - browser/mobile playtest QA and usability fixes (complete)
+- Phase 5F - visual identity polish (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -76,3 +77,5 @@ Phase 5C adds a browser-playable WebGL preview path and GitHub Pages-ready stati
 Phase 5D tunes the existing classes, skills, enemies, rewards, and hazards using deterministic seeded playtest notes. No new gameplay content was added. See [PLAYTEST_5D.md](PLAYTEST_5D.md).
 
 Phase 5E verifies the WebGL preview in a local browser, tests phone-sized viewports, and fixes usability/layout issues found during QA. See [QA_5E.md](QA_5E.md).
+
+Phase 5F keeps the prototype code-driven and lightweight while making the board, units, effects, biome hazards, reward cards, and panels feel more intentional and readable. See [VISUAL_POLISH_5F.md](VISUAL_POLISH_5F.md).

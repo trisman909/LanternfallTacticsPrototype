@@ -95,3 +95,13 @@ Phase 5B adds a small original tactics foundation inspired by classic grid comba
 - Softened Gloam roots from a 1-tile bind to a 2-tile movement limit.
 - Updated reward wording so Swift Flame clearly grants +1 MP.
 - Added seeded playtest notes in `PLAYTEST_5D.md`.
+
+## Phase 5F visual identity polish notes
+
+- Added a small visual-readability layer for tile states, class accents, enemy colors, biome glyphs, and status glyphs.
+- Improved board tiles with dark borders, subtle biome floor marks, stronger valid/invalid/preview outlines, and clearer hazard symbols.
+- Improved unit tokens with silhouettes, selection outlines, class glyphs, enemy glyphs, boss emphasis, and compact status markers.
+- Improved simple effect readability for hit tiles, area previews, enemy danger tiles, armed hazards, rejected taps, shield, burn, root, and mark.
+- Improved UI presentation with framed panels, framed reward cards, framed skill buttons, stronger start/help panels, and clearer top-level board framing.
+- No new gameplay content, rooms, classes, enemies, bosses, biomes, or combat systems were added.
+- See `VISUAL_POLISH_5F.md` for biome-specific visual QA notes.
