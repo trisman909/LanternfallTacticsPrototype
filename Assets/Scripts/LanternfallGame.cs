@@ -36,6 +36,7 @@ namespace Lanternfall
         public event Action Changed;
 
         readonly RoomGenerator generator = new();
+        string pendingRoomIntro = "";
 
         public static readonly string[] HowToPlayLines =
         {
@@ -112,9 +113,11 @@ namespace Lanternfall
             SelectedSkill = null;
             RefreshTargets();
             RefreshPreviews();
-            Message = RoomNumber == 5
+            string intro = RoomNumber == 5
                 ? $"{Theme.Name}: BOSS ROOM - the Lantern Warden awakens."
                 : $"{Theme.Name}: {Theme.HazardRule}";
+            Message = string.IsNullOrEmpty(pendingRoomIntro) ? intro : $"{pendingRoomIntro} Next: {intro}";
+            pendingRoomIntro = "";
             Changed?.Invoke();
         }
 
@@ -205,10 +208,11 @@ namespace Lanternfall
                 foreach (var e in Enemies.Where(e => e.Alive && Manhattan(e.Position, p) == 1))
                 {
                     e.Damage(def.Damage + Player.Power + MarkBonus(e));
-                    TryPush(e, e.Position - p);
+                    bool pushed = TryPush(e, e.Position - p);
                     HitTiles.Add(e.Position);
+                    if (pushed) HitTiles.Add(e.Position);
                 }
-                Message = def.Effect == SkillEffect.DiagonalMove ? "Diagonal Dash repositions you." : "Sun Charge crashes forward.";
+                Message = def.Effect == SkillEffect.DiagonalMove ? "Diagonal Dash repositions you." : "Sun Charge crashes forward and pushes nearby foes.";
                 return;
             }
 
@@ -221,7 +225,7 @@ namespace Lanternfall
                     if (def.Damage > 0) target.Damage(def.Damage + Player.Power);
                     target.MarkedTurns = 2;
                     HitTiles.Add(target.Position);
-                    Message = "Target marked for bonus damage.";
+                    Message = "Marked: next hit deals bonus damage.";
                     break;
                 case SkillEffect.AreaBurn:
                     foreach (var e in Enemies.Where(e => e.Alive && PreviewArea.Contains(e.Position)))
@@ -230,7 +234,7 @@ namespace Lanternfall
                         e.BurnTurns = 2;
                         HitTiles.Add(e.Position);
                     }
-                    Message = "Cinder Bloom burns the area.";
+                    Message = $"Cinder Bloom burns {HitTiles.Count} tile(s).";
                     break;
                 case SkillEffect.DelayedArea:
                     foreach (var e in Enemies.Where(e => e.Alive && PreviewArea.Contains(e.Position)))
@@ -238,26 +242,26 @@ namespace Lanternfall
                         e.Damage(def.Damage + Player.Power + MarkBonus(e));
                         HitTiles.Add(e.Position);
                     }
-                    Message = "Delayed Blast detonates the previewed area.";
+                    Message = $"Delayed Blast detonates {HitTiles.Count} tile(s).";
                     break;
                 case SkillEffect.Swap:
                     (Player.Position, target.Position) = (target.Position, Player.Position);
                     HitTiles.Add(Player.Position);
                     HitTiles.Add(target.Position);
-                    Message = "Shadow Swap trades places.";
+                    Message = "Shadow Swap: positions traded.";
                     break;
                 case SkillEffect.Root:
                     target.Damage(def.Damage + Player.Power + MarkBonus(target));
                     target.RootTurns = Player.ClassId == PlayerClassId.Artificer ? 2 : 1;
                     HitTiles.Add(target.Position);
-                    Message = "Lens Trap roots the target.";
+                    Message = "Lens Trap: target rooted.";
                     break;
                 default:
                     int damage = def.Damage + Player.Power + MarkBonus(target) + BiomeRules.SkillDamageBonus(Theme, Player.Position, HazardTiles, def.Id);
                     target.Damage(damage);
                     HitTiles.Add(target.Position);
-                    if (def.Id == SkillId.SpearThrust || def.Id == SkillId.SunCharge) TryPush(target, target.Position - Player.Position);
-                    Message = target.Alive ? $"{def.Name} hits for {damage}." : $"{def.Name} defeats {NameOf(target.Kind)}.";
+                    bool pushed = (def.Id == SkillId.SpearThrust || def.Id == SkillId.SunCharge) && TryPush(target, target.Position - Player.Position);
+                    Message = target.Alive ? $"{def.Name}: {damage} damage{(pushed ? " + push" : "")}." : $"{def.Name}: {NameOf(target.Kind)} defeated.";
                     break;
             }
         }
@@ -269,11 +273,12 @@ namespace Lanternfall
             return 2;
         }
 
-        void TryPush(EnemyModel e, Vector2Int direction)
+        bool TryPush(EnemyModel e, Vector2Int direction)
         {
             direction = new Vector2Int(Mathf.Clamp(direction.x, -1, 1), Mathf.Clamp(direction.y, -1, 1));
             var next = e.Position + direction;
-            if (direction != Vector2Int.zero && Grid.IsFloor(next) && !Occupied(next) && next != Player.Position) e.Position = next;
+            if (direction != Vector2Int.zero && Grid.IsFloor(next) && !Occupied(next) && next != Player.Position){e.Position = next; return true;}
+            return false;
         }
 
         void ResolvePostAction()
@@ -290,7 +295,7 @@ namespace Lanternfall
             {
                 Turns.Win();
                 RecordProgress(5);
-                Message = "LANTERN RESTORED - RUN COMPLETE";
+                Message = "VICTORY - Lantern Warden defeated. Start New Run to replay.";
             }
             else
             {
@@ -304,7 +309,7 @@ namespace Lanternfall
         {
             if (Turns.Phase == TurnPhase.Player)
             {
-                Message = "End Turn - enemy previews resolve.";
+                Message = "ENEMY TURN - red previews resolve now.";
                 Turns.TryBeginEnemyTurn();
                 StartCoroutine(EnemyTurn());
             }
@@ -315,7 +320,7 @@ namespace Lanternfall
             Changed?.Invoke();
             yield return new WaitForSeconds(.35f);
             ResolveArmedHazards();
-            if (!Player.Alive){Turns.Lose(); RecordProgress(); Message = "YOUR LANTERN IS EXTINGUISHED"; Changed?.Invoke(); yield break;}
+            if (!Player.Alive){Turns.Lose(); RecordProgress(); Message = "DEFEAT - your lantern is extinguished. Start New Run to retry."; Changed?.Invoke(); yield break;}
 
             foreach (var e in Enemies.Where(x => x.Alive).ToList())
             {
@@ -326,7 +331,7 @@ namespace Lanternfall
                 {
                     Player.Damage(e.AttackDamage);
                     HitTiles.Add(Player.Position);
-                    Message = $"{NameOf(e.Kind)} strikes for {e.AttackDamage}.";
+                    Message = $"{NameOf(e.Kind)} strikes your tile for {e.AttackDamage}.";
                 }
                 else if (e.RootTurns <= 0)
                 {
@@ -340,7 +345,7 @@ namespace Lanternfall
                 yield return new WaitForSeconds(.2f);
             }
 
-            if (!Player.Alive){Turns.Lose(); RecordProgress(); Message = "YOUR LANTERN IS EXTINGUISHED"; Changed?.Invoke(); yield break;}
+            if (!Player.Alive){Turns.Lose(); RecordProgress(); Message = "DEFEAT - your lantern is extinguished. Start New Run to retry."; Changed?.Invoke(); yield break;}
             var outcome = GameRules.ResolveOutcome(Player, Enemies, RoomNumber);
             if (outcome == TurnPhase.Reward)
             {
@@ -350,7 +355,7 @@ namespace Lanternfall
                 Changed?.Invoke();
                 yield break;
             }
-            if (outcome == TurnPhase.Won){Turns.Win(); RecordProgress(5); Message = "LANTERN RESTORED - RUN COMPLETE"; Changed?.Invoke(); yield break;}
+            if (outcome == TurnPhase.Won){Turns.Win(); RecordProgress(5); Message = "VICTORY - Lantern Warden defeated. Start New Run to replay."; Changed?.Invoke(); yield break;}
 
             Player.TickStatuses();
             Player.TickCooldowns();
@@ -359,7 +364,7 @@ namespace Lanternfall
             Turns.BeginPlayerTurn();
             RefreshTargets();
             RefreshPreviews();
-            Message = IntentSummary + " - " + Theme.HazardRule;
+            Message = "PLAYER TURN - " + IntentSummary + " - " + Theme.HazardRule;
             Changed?.Invoke();
         }
 
@@ -411,9 +416,9 @@ namespace Lanternfall
             if (Turns.Phase != TurnPhase.Reward) return;
             LastInputAccepted = true;
             RejectedTile = null;
-            if (choice == 0){Player.MaxHealth += 3; Player.Health = Mathf.Min(Player.MaxHealth, Player.Health + 3); Message = "Vital Ember: +3 max HP.";}
-            else if (choice == 1){Player.Power += 1; Message = "Bright Wick: +1 skill damage.";}
-            else {Player.MoveRange += 1; Player.MovementPoints += 1; Message = "Swift Flame: +1 MP.";}
+            if (choice == 0){Player.MaxHealth += 3; Player.Health = Mathf.Min(Player.MaxHealth, Player.Health + 3); pendingRoomIntro = "Reward applied: Vital Ember (+3 max HP).";}
+            else if (choice == 1){Player.Power += 1; pendingRoomIntro = "Reward applied: Bright Wick (+1 skill damage).";}
+            else {Player.MoveRange += 1; Player.MovementPoints += 1; pendingRoomIntro = "Reward applied: Swift Flame (+1 MP).";}
             RoomNumber++;
             LoadRoom();
         }
@@ -438,7 +443,7 @@ namespace Lanternfall
         {
             LastInputAccepted = false;
             RejectedTile = LastTappedTile;
-            Message = "INVALID: " + why;
+            Message = "INVALID: " + why + " Cyan = move, gold = skill target, red = danger.";
             Changed?.Invoke();
         }
 

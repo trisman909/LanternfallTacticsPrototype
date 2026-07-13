@@ -91,7 +91,7 @@ namespace Lanternfall.Tests
         [Test] public void TouchFlow_InvalidAndValidTileTapsGiveClearResults()
         {
             var go=new GameObject("TileTap");var game=go.AddComponent<LanternfallGame>();game.StartRun();
-            var start=game.Player.Position;game.TapTile(new Vector2Int(-1,-1));Assert.False(game.LastInputAccepted);Assert.AreEqual(start,game.Player.Position);Assert.That(game.Message,Does.StartWith("INVALID"));Assert.True(game.RejectedTile.HasValue);
+            var start=game.Player.Position;game.TapTile(new Vector2Int(-1,-1));Assert.False(game.LastInputAccepted);Assert.AreEqual(start,game.Player.Position);Assert.That(game.Message,Does.StartWith("INVALID"));Assert.That(game.Message,Does.Contain("Cyan"));Assert.That(game.Message,Does.Contain("gold"));Assert.True(game.RejectedTile.HasValue);
             var valid=game.ValidTargets.First();game.TapTile(valid);Assert.True(game.LastInputAccepted);Assert.AreEqual(valid,game.Player.Position);
             Object.DestroyImmediate(go);
         }
@@ -99,7 +99,7 @@ namespace Lanternfall.Tests
         [Test] public void TouchFlow_RewardAdvancesRoomAndRestartRestoresRun()
         {
             var go=new GameObject("RewardTap");var game=go.AddComponent<LanternfallGame>();game.StartRun();game.Turns.ShowReward();
-            game.ChooseReward(1);Assert.AreEqual(2,game.RoomNumber);Assert.AreEqual(1,game.Player.Power);
+            game.ChooseReward(1);Assert.AreEqual(2,game.RoomNumber);Assert.AreEqual(1,game.Player.Power);Assert.That(game.Message,Does.Contain("Reward applied: Bright Wick"));
             game.Player.Damage(999);game.Turns.Lose();game.Restart();Assert.AreEqual(1,game.RoomNumber);Assert.True(game.Player.Alive);Assert.AreEqual(TurnPhase.Player,game.Turns.Phase);
             Object.DestroyImmediate(go);
         }
@@ -156,6 +156,18 @@ namespace Lanternfall.Tests
             int hp=game.Player.MaxHealth;game.ChooseReward(0);Assert.AreEqual(hp+3,game.Player.MaxHealth);
             game.Turns.ShowReward();int power=game.Player.Power;game.ChooseReward(1);Assert.AreEqual(power+1,game.Player.Power);
             game.Turns.ShowReward();int mp=game.Player.MoveRange;game.ChooseReward(2);Assert.AreEqual(mp+1,game.Player.MoveRange);
+            Object.DestroyImmediate(go);
+        }
+
+        [Test] public void Phase5I_GameFeelMessagesCallOutTransitionsAndOutcomes()
+        {
+            var go=new GameObject("FeelTurn");var game=go.AddComponent<LanternfallGame>();game.StartRun(9090);
+            game.WaitTurn();Assert.That(game.Message,Does.Contain("ENEMY TURN"));
+            Object.DestroyImmediate(go);
+
+            go=new GameObject("FeelBoss");game=go.AddComponent<LanternfallGame>();game.StartRun(9091);
+            for(int i=0;i<4;i++){game.Turns.ShowReward();game.ChooseReward(0);}
+            Assert.That(game.Message,Does.Contain("Reward applied").And.Contain("BOSS ROOM"));
             Object.DestroyImmediate(go);
         }
 
