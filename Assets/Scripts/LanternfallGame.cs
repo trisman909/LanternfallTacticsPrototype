@@ -42,18 +42,19 @@ namespace Lanternfall
         public static readonly string[] HowToPlayLines =
         {
             "Goal: clear four rooms, then defeat the Lantern Warden in room five.",
-            "Each player turn refreshes AP (skills) and MP (movement).",
-            "Tap cyan tiles to move. Tap a skill, then a gold target to attack or use it.",
-            "Red tiles are enemy danger previews. Move away before pressing End Turn.",
+            "AP means Action Points for skills. MP means Movement Points for tile movement.",
+            "Tap cyan tiles to move. Tap a skill, then tap a gold target to use it.",
+            "Red tiles preview enemy attacks. Move away before pressing End Turn.",
             "If a target is not gold, it is out of range, blocked, or not valid for that skill.",
-            "After each cleared room, pick one blessing and keep going."
+            "After each cleared room, pick one blessing. Win or lose, Start New Run restarts."
         };
 
         public static readonly string[] PlaytestInfoLines =
         {
             "Prototype v0.5L: short WebGL/Windows playtest build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
-            "Useful feedback: first confusion, tiny text, unclear AP/MP, unclear red danger, bugs.",
+            "Please note what confused you, what felt fun, and if anything broke.",
+            "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
             "If stuck, refresh the page or use Start New Run after win/loss.",
             "Known limits: placeholder art, no final audio, no physical iPhone Safari pass yet."
         };

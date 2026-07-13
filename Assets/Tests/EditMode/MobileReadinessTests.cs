@@ -302,7 +302,7 @@ namespace Lanternfall.Tests
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
             Assert.That(guide,Does.Contain("Did the game load?"));
-            Assert.That(guide,Does.Contain("Were AP/MP clear?"));
+            Assert.That(guide,Does.Contain("Were AP and MP clear?"));
             Assert.That(guide,Does.Contain("Did anything break?"));
         }
 
@@ -310,7 +310,7 @@ namespace Lanternfall.Tests
         {
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("Wait for the Unity loading bar"));
-            Assert.That(guide,Does.Contain("Was `End Turn` obvious?"));
+            Assert.That(guide,Does.Contain("Was End Turn easy to find?"));
             Assert.That(guide,Does.Contain("Known limitations"));
             if(File.Exists("docs/index.html"))
                 Assert.That(File.ReadAllText("docs/index.html"),Does.Contain("Loading Lanternfall Tactics"));
@@ -363,7 +363,10 @@ namespace Lanternfall.Tests
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("Prototype v0.5L"));
-            Assert.That(guide,Does.Contain("Playtest Info"));
+            Assert.That(guide,Does.Contain("what confused you"));
+            Assert.That(guide,Does.Contain("What device/browser did you use?"));
+            Assert.That(guide,Does.Contain("Which class felt best/worst?"));
+            Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("confused")&&l.Contains("fun")&&l.Contains("broke")));
         }
 
         [Test] public void Phase5L_UnityGeneratedAndCacheFoldersStayIgnored()

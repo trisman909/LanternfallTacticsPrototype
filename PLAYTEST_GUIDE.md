@@ -1,70 +1,70 @@
-# Lanternfall Tactics - External Playtest Guide
+# Lanternfall Tactics - First External Playtest Guide
 
-Expected playtest link:
+Playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
 Current visible build label: `Prototype v0.5L`.
 
-If the page does not load, GitHub Pages may still need to be enabled or may still be deploying the latest pushed build.
+This is a small prototype, not a finished game. Please note what confused you, what felt fun, and if anything broke.
 
 ## Quick start
 
 1. Open the link in a desktop browser first if possible. Mobile browser play is experimental.
 2. Wait for the Unity loading bar to finish.
 3. Press `How to Play` if this is your first run.
-4. Press `Playtest Info` if you want known limitations and feedback prompts.
-5. Press `Start Run`.
-6. Try to clear four rooms, then defeat the Lantern Warden in room five.
+4. Press `Start Run`.
+5. Clear four rooms, then defeat the Lantern Warden in room five.
 
-## How turns work
+## How to play
 
-- AP means Action Points. Skills cost AP.
-- MP means Movement Points. Moving across tiles costs MP.
+- AP means Action Points. Skills spend AP.
+- MP means Movement Points. Moving across tiles spends MP.
 - AP and MP refresh at the start of your turn.
-- Move by tapping/clicking cyan tiles.
-- Use a skill by tapping a skill button, then a gold target.
-- Red tiles show where enemies intend to attack after you press `End Turn`.
-- If a target is not highlighted, it is out of range, blocked, occupied, or invalid for the selected skill.
-- After clearing a room, choose one reward card and continue.
+- Tap/click cyan tiles to move.
+- Tap/click a skill, then tap/click a gold target to use it.
+- Red tiles show where enemies will attack after `End Turn`.
+- If a tile is not highlighted, it is blocked, out of range, occupied, or invalid.
+- After clearing a room, choose one reward card.
 - If you win or lose, press `Start New Run` to restart.
 
-## Known limitations
-
-- This is a prototype, not a finished game.
-- Art is still lightweight code-driven placeholder presentation.
-- Browser performance may vary, especially on older phones.
-- Best played first on a desktop browser; mobile browser testing is useful but still experimental.
-- iPhone Safari still needs physical-device testing.
-- There is no audio/final art pass yet.
-- There are no online saves, accounts, monetization, or multiplayer.
-- The run is intentionally short: five rooms total.
-
-## Tester checklist
+## Feedback checklist
 
 - Did the game load?
+- What device/browser did you use?
 - Did you understand what to do in the first minute?
-- Were AP/MP clear?
-- Were skills clear?
+- Were AP and MP clear?
+- Were skill targets clear?
 - Were enemy danger previews clear?
-- Was `End Turn` obvious?
-- Were reward choices clear?
-- Was the UI readable?
-- Was anything too small on phone?
+- Was the board large enough?
+- Was the HUD readable?
+- Was End Turn easy to find?
+- Was anything too small or clipped?
 - Was the game too easy, too hard, or too slow?
+- Which class did you try?
+- Which class felt best/worst?
 - What confused you most?
 - What was the most fun part?
 - Did anything break?
 
-## Useful feedback format
+## Known limitations
 
-You can copy notes into `PLAYTEST_FEEDBACK_LOG.md`.
+- Art is still lightweight prototype presentation.
+- Mobile browser play is useful to test but still experimental.
+- iPhone Safari still needs physical-device testing.
+- There is no final audio, account system, online save, monetization, or multiplayer.
+- The run is intentionally short: five rooms total.
+
+## Suggested note format
+
+You can copy these notes into `PLAYTEST_FEEDBACK_LOG.md`.
 
 - Device/browser:
-- Did it load:
+- Class tried:
 - Furthest room reached:
-- Class used:
 - Biggest confusion:
 - Most fun moment:
+- Board/HUD readability:
+- Difficulty/pacing:
 - Bug or broken thing:
 - Screenshot/video, if available:

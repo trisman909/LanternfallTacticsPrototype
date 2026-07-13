@@ -132,7 +132,7 @@ namespace Lanternfall
                 if (GUI.Button(new Rect(pad, y, w, 60), "HOW TO PLAY", button)) game.ShowHelp(); y += 76;
                 if (GUI.Button(new Rect(pad, y, w, 56), "PLAYTEST INFO", button)) game.ShowPlaytestInfo(); y += 66;
             }
-            if(!compact)GUI.Label(new Rect(pad, y, w, 80), "Built for touch first. Mouse clicks work in the editor and Windows build.\nPlaytest note: after a run, jot down what confused you most.", small);
+            if(!compact)GUI.Label(new Rect(pad, y, w, 90), "Prototype playtest - please note what confused you, what felt fun, and if anything broke.\nBuilt for touch first. Mouse clicks work in browser, editor, and Windows build.", small);
         }
 
         void DrawHelpOverlay(Rect area)

@@ -1,34 +1,32 @@
 # Lanternfall Tactics - Playtest Feedback Log
 
-Phase 5J status: no external tester feedback has been recorded in this repository yet.
+Status: no external tester feedback has been recorded in this repository yet.
 
-Use this file to capture first playtest notes from the public WebGL build:
+Live playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
-## How to use this log
-
-1. Add one entry per tester or play session.
-2. Keep raw tester wording where possible.
-3. Mark blockers separately from preferences.
-4. Do not add new content in response to feedback until the current prototype is clear and fun.
-5. Prefer small fixes for clarity, readability, layout, controls, and first-turn confusion.
+Use this log to capture real tester notes. Keep raw wording where possible. Do not invent feedback.
 
 ## Entry template
 
 ### YYYY-MM-DD - Tester name or initials
 
-- Device/browser:
-- Class used:
-- Furthest room reached:
 - Did the game load:
-- Understood first minute:
-- AP/MP clarity:
-- Skill clarity:
-- Enemy preview clarity:
-- Reward clarity:
-- UI/mobile readability:
+- Device/browser:
+- Class tried:
+- Furthest room reached:
+- Understood what to do in first minute:
+- AP and MP clarity:
+- Skill target clarity:
+- Enemy danger preview clarity:
+- Board large enough:
+- HUD readable:
+- Anything too small or clipped:
 - Difficulty/pacing:
+  - Too easy / Fair / Too hard / Too slow / Too fast
+- Class that felt best:
+- Class that felt worst:
 - Most confusing moment:
 - Most fun moment:
 - Bug or broken behavior:
@@ -46,6 +44,7 @@ No external feedback has been logged yet.
 
 - Fix blockers first.
 - Fix repeated confusion before adding content.
-- Do not add classes, enemies, bosses, biomes, rooms, monetization, online features, or large systems during feedback triage.
-- Do not rebalance broadly from one isolated comment.
-- Keep WebGL, Windows build support, mobile readability, AP/MP combat, five classes, and five biomes intact.
+- Treat one-off subjective balance comments as notes, not marching orders.
+- Keep first fixes small: clarity, layout, controls, invalid-action feedback, reward/restart wording.
+- Do not add classes, enemies, bosses, biomes, rooms, monetization, online features, or large systems during this pass.
+- Preserve WebGL, Windows build support, mobile readability, AP/MP combat, five classes, five biomes, and the five-room run.
