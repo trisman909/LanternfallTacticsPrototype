@@ -22,7 +22,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 2 - core-loop and mobile-readability polish (complete)
 - Phase 3 - playtesting and numerical tuning (complete)
 - Phase 3.5 - original Lanternfall biome identity reuse (complete)
-- Phase 4 - mobile build readiness and touch validation (complete; physical Android device pending)
+- Phase 4 - mobile build readiness and touch validation (complete; physical mobile-device test pending)
 - Phase 4.5 - iOS export preparation (complete; Xcode export and device test pending)
 - Phase 5 - playable candidate polish and final prototype verification (complete)
 - Phase 5B - tactical combat foundation with AP/MP and class skills (complete)
@@ -33,6 +33,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5G - external playtest release prep (complete)
 - Phase 5H - share-ready playtest polish (complete)
 - Phase 5I - lightweight game-feel polish (complete)
+- Phase 5J - first feedback fix pass setup (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -75,6 +76,8 @@ Expected GitHub Pages playtest URL after Pages is enabled:
 
 For first external testers, use [PLAYTEST_GUIDE.md](PLAYTEST_GUIDE.md).
 
+For recording first tester notes, use [PLAYTEST_FEEDBACK_LOG.md](PLAYTEST_FEEDBACK_LOG.md).
+
 ## Playable candidate notes
 
 Phase 5 adds the start screen, help panel, clearer invalid-tap feedback, stronger tile/readability highlights, reward/end-state polish, and a small balance pass while preserving the original content cap. See [PROTOTYPE_NOTES.md](PROTOTYPE_NOTES.md).
@@ -94,3 +97,5 @@ Phase 5G prepares the WebGL build for first external playtesting, adds the visib
 Phase 5H improves first-minute share clarity without adding content: clearer start/help instructions, a WebGL loading hint, known limitations for testers, and a feedback checklist suitable for friends trying the browser build.
 
 Phase 5I improves lightweight game feel through clearer transition, invalid-action, reward, skill-result, victory, and defeat feedback while keeping the prototype asset-light. See [GAME_FEEL_5I.md](GAME_FEEL_5I.md).
+
+Phase 5J prepares the project to receive first external playtest feedback. No external feedback is recorded yet, so it adds a feedback log/template and preserves scope for future triage. See [PLAYTEST_FEEDBACK_LOG.md](PLAYTEST_FEEDBACK_LOG.md).

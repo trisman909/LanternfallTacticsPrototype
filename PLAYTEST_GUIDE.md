@@ -54,6 +54,8 @@ If the page does not load, GitHub Pages may still need to be enabled or may stil
 
 ## Useful feedback format
 
+You can copy notes into `PLAYTEST_FEEDBACK_LOG.md`.
+
 - Device/browser:
 - Did it load:
 - Furthest room reached:

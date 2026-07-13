@@ -241,5 +241,17 @@ namespace Lanternfall.Tests
             if(File.Exists("docs/TemplateData/style.css"))
                 Assert.That(File.ReadAllText("docs/TemplateData/style.css"),Does.Contain("lanternfall-loading-copy"));
         }
+
+        [Test] public void Phase5J_FeedbackLogTemplateIsReadyForFirstPlaytests()
+        {
+            Assert.True(File.Exists("PLAYTEST_FEEDBACK_LOG.md"));
+            var log=File.ReadAllText("PLAYTEST_FEEDBACK_LOG.md");
+            Assert.That(log,Does.Contain("no external tester feedback"));
+            Assert.That(log,Does.Contain("Entry template"));
+            Assert.That(log,Does.Contain("Device/browser"));
+            Assert.That(log,Does.Contain("Severity"));
+            Assert.That(log,Does.Contain("Fixed in commit"));
+            Assert.That(File.ReadAllText("PLAYTEST_GUIDE.md"),Does.Contain("PLAYTEST_FEEDBACK_LOG.md"));
+        }
     }
 }
