@@ -330,5 +330,68 @@ namespace Lanternfall.Tests
             foreach(var pattern in new[]{"/Library/","/Temp/","/Obj/","/Logs/","/UserSettings/","/Builds/","/.vs/","*.dmp"})
                 Assert.That(ignore,Does.Contain(pattern),pattern);
         }
+
+        [Test] public void Phase5K_CombatHudShowsHpApAndMpAsSeparateReadableValues()
+        {
+            var player=new PlayerModel(PlayerClassId.Artificer);
+            Assert.AreEqual("HP 12/12",HudText.Hp(player.Health,player.MaxHealth));
+            Assert.AreEqual("AP 7/7",HudText.Ap(player.ActionPoints,player.MaxActionPoints));
+            Assert.AreEqual("MP 3/3",HudText.Mp(player.MovementPoints,player.MoveRange));
+            Assert.AreEqual("PLAYER TURN",HudText.TurnLabel(TurnPhase.Player));
+            Assert.AreEqual("END TURN",HudText.EndTurnButton);
+        }
+
+        [Test] public void Phase5K_AllSkillCardsExposeCostStateAndReadableSummary()
+        {
+            foreach(var cls in ClassCatalog.All)
+            foreach(var s in SkillBook.ForClass(cls.id))
+            {
+                var ready=HudText.SkillCard(s,0,9,TurnPhase.Player,false,false);
+                Assert.That(ready,Does.Contain(s.Name),cls.name);
+                Assert.That(ready,Does.Contain($"AP {s.ApCost}"),s.Name);
+                Assert.That(ready,Does.Contain("READY"),s.Name);
+                Assert.That(ready,Does.Contain(s.Hint),s.Name);
+                Assert.That(HudText.SkillState(s,2,9,TurnPhase.Player),Does.Contain("CD 2"));
+                Assert.That(HudText.SkillState(s,0,0,TurnPhase.Player),Does.Contain("AP"));
+            }
+        }
+
+        [Test] public void Phase5K_DesktopWebGLCombatHudFitsWithoutEssentialCropping()
+        {
+            var layout=MobileLayout.Compute(1280,720);
+            var hud=CombatHudLayout.Compute(layout.Panel,layout.Portrait,layout.CompactLandscape);
+            Assert.False(layout.HasOverlap);
+            Assert.True(hud.RequiredElementsFit(layout.Panel));
+            Assert.False(hud.HasEssentialOverlap());
+            Assert.True(hud.TouchTargetsValid());
+            Assert.AreEqual(3,hud.StatChips.Length);
+            Assert.AreEqual(3,hud.SkillCards.Length);
+            Assert.That(hud.SkillCards.All(r=>r.width>=MobileLayoutSnapshot.MinimumTouchTarget),Is.True);
+            Assert.That(hud.SkillCards.All(r=>r.height>=MobileLayoutSnapshot.MinimumTouchTarget),Is.True);
+        }
+
+        [Test] public void Phase5K_ShortMobileLandscapeKeepsAllSkillsAndEndTurnAccessible()
+        {
+            var safe=MobileLayout.ToGuiSafeArea(393,new Rect(59,21,734,372));
+            var layout=MobileLayout.Compute(safe.width,safe.height);
+            var hud=CombatHudLayout.Compute(layout.Panel,layout.Portrait,layout.CompactLandscape);
+            Assert.True(layout.CompactLandscape);
+            Assert.True(hud.RequiredElementsFit(layout.Panel));
+            Assert.False(hud.HasEssentialOverlap());
+            Assert.True(hud.TouchTargetsValid(42f));
+            Assert.That(hud.SkillCards.All(r=>r.height>=56f));
+            Assert.That(hud.EndTurnButton.height,Is.GreaterThanOrEqualTo(42f));
+        }
+
+        [Test] public void Phase5K_HelpIsCollapsedDuringCombatAndCanOpenClose()
+        {
+            var go=new GameObject("HudHelpContract");var game=go.AddComponent<LanternfallGame>();game.StartRun();
+            Assert.False(game.HelpVisible);
+            game.ShowHelp();Assert.True(game.HelpVisible);
+            game.HideHelp();Assert.False(game.HelpVisible);
+            game.ShowPlaytestInfo();Assert.True(game.PlaytestInfoVisible);
+            game.HidePlaytestInfo();Assert.False(game.PlaytestInfoVisible);
+            Object.DestroyImmediate(go);
+        }
     }
 }

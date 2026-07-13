@@ -34,6 +34,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5H - share-ready playtest polish (complete)
 - Phase 5I - lightweight game-feel polish (complete)
 - Phase 5J - first feedback fix pass setup (complete)
+- Phase 5K HUD clarity rework - combat HUD/skill panel fix from live WebGL playtest feedback (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -107,3 +108,5 @@ Phase 5K adds safe offline polish and automated QA hardening: clearer AP/MP word
 Phase 5L adds release-hardening instrumentation without analytics: `Prototype v0.5L`, a local Playtest Info panel, safer WebGL loading/recovery text, and additional generated-folder/runtime-log QA checks.
 
 Phase 5M strengthens automated regression coverage for invalid reward choices, cooldown rejection, invalid targets, class start/action labels, enemy preview tile validity, and future-safe WebGL/mobile contracts.
+
+Phase 5K HUD clarity rework responds to live WebGL playtest feedback by replacing the cramped in-combat status block with clear HP/AP/MP chips, contained combat messages, cleaner skill cards, collapsed Help/Info access, and layout tests for desktop WebGL plus mobile landscape.

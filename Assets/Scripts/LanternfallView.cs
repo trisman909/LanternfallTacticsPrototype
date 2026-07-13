@@ -249,40 +249,47 @@ namespace Lanternfall
         void DrawPanel(Rect r, bool compact)
         {
             DrawPanelFrame(r);
-            float x = r.x + 10, w = r.width - 20, y = compact ? 2 : 12;
-            GUI.Label(new Rect(x, y, w, compact ? 30 : 42), "LANTERNFALL", title); y += compact ? 30 : 48;
-            if (GUI.Button(new Rect(x, y, w, compact ? 38 : 44), "HOW TO PLAY", button)) game.ShowHelp(); y += compact ? 42 : 50;
-            GUI.Label(new Rect(x, y, w, compact ? 58 : 110),
-                compact ? $"R{game.RoomNumber}/5 - HP {game.Player.Health}/{game.Player.MaxHealth} - AP skills {game.Player.ActionPoints}/{game.Player.MaxActionPoints} - MP move {game.Player.MovementPoints}/{game.Player.MoveRange}\n{game.Message}"
-                        : $"{ClassCatalog.Get(game.Player.ClassId).name} - {game.Theme.Name}\nRoom {game.RoomNumber}/5 - HP {game.Player.Health}/{game.Player.MaxHealth} - AP skills {game.Player.ActionPoints}/{game.Player.MaxActionPoints} - MP move {game.Player.MovementPoints}/{game.Player.MoveRange}\n{game.Message}",
-                compact ? center : body); y += compact ? 62 : 116;
+            var hud = CombatHudLayout.Compute(r, false, compact);
+            DrawCombatHeader(hud.Header, compact);
+            DrawStatChips(hud.StatChips);
+            DrawMessageBox(hud.Message);
+            if (GUI.Button(hud.HelpButton, HudText.HelpButton, button)) game.ShowHelp();
+            if (GUI.Button(hud.InfoButton, HudText.InfoButton, button)) game.ShowPlaytestInfo();
 
+            float y = hud.SelectedSkill.y;
+            float x = hud.SelectedSkill.x, w = hud.SelectedSkill.width;
             if (DrawEndOrReward(x, w, ref y, compact)) return;
-            if (!compact){GUI.Label(new Rect(x, y, w, 34), "SKILLS", title); y += 40;}
-            DrawSkills(x, w, ref y, compact);
 
-            float actionH = compact ? 48 : 54;
-            if (game.SelectedSkill.HasValue && GUI.Button(new Rect(x, y, w * .48f, actionH), "CANCEL", button)) game.CancelSkill();
+            DrawSelectedSkillInfo(hud.SelectedSkill);
+            DrawSkills(hud.SkillCards, compact || hud.SkillCards[0].width < 140f);
+
+            if (game.SelectedSkill.HasValue && GUI.Button(hud.CancelButton, compact ? "CANCEL" : HudText.CancelSkillButton, button)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
-            if (GUI.Button(new Rect(x + w * .52f, y, w * .48f, actionH), "END TURN", button)) game.WaitTurn();
-            GUI.enabled = true; y += actionH + 4;
-            GUI.Label(new Rect(x, y, w, compact ? 48 : 150), $"{game.Theme.HazardName}: {game.Theme.HazardRule}\nRED attack - CYAN move - GOLD skill", compact ? center : body);
+            if (GUI.Button(hud.EndTurnButton, HudText.EndTurnButton, button)) game.WaitTurn();
+            GUI.enabled = true;
+            GUI.Label(hud.HazardLegend, $"{game.Theme.HazardName}: {game.Theme.HazardRule}\nRED danger  CYAN move  GOLD skill", compact ? center : body);
         }
 
         void DrawPortraitPanel(Rect r)
         {
             DrawPanelFrame(r);
-            float pad = 10, x = r.x + pad, w = r.width - pad * 2, y = r.y + 6;
-            GUI.Label(new Rect(x, y, w, 32), $"{ClassCatalog.Get(game.Player.ClassId).name.ToUpper()} - ROOM {game.RoomNumber}/5 - HP {game.Player.Health}/{game.Player.MaxHealth} - AP skills {game.Player.ActionPoints}/{game.Player.MaxActionPoints} - MP move {game.Player.MovementPoints}/{game.Player.MoveRange}", center); y += 34;
-            GUI.Label(new Rect(x, y, w, 46), game.Message, center); y += 48;
-            if (GUI.Button(new Rect(x, y, w, 46), "HOW TO PLAY", button)){game.ShowHelp(); return;} y += 52;
+            var hud = CombatHudLayout.Compute(r, true, false);
+            DrawCombatHeader(hud.Header, true);
+            DrawStatChips(hud.StatChips);
+            DrawMessageBox(hud.Message);
+            if (GUI.Button(hud.HelpButton, HudText.HelpButton, button)){game.ShowHelp(); return;}
+            if (GUI.Button(hud.InfoButton, HudText.InfoButton, button)){game.ShowPlaytestInfo(); return;}
+
+            float y = hud.SelectedSkill.y;
+            float x = hud.SelectedSkill.x, w = hud.SelectedSkill.width;
             if (DrawEndOrReward(x, w, ref y, false)) return;
-            DrawSkills(x, w, ref y, true); y += 4;
-            if (game.SelectedSkill.HasValue && GUI.Button(new Rect(x, y, w * .48f, 54), "CANCEL SKILL", button)) game.CancelSkill();
+            DrawSelectedSkillInfo(hud.SelectedSkill);
+            DrawSkills(hud.SkillCards, true);
+            if (game.SelectedSkill.HasValue && GUI.Button(hud.CancelButton, HudText.CancelSkillButton, button)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
-            if (GUI.Button(new Rect(x + w * .52f, y, w * .48f, 54), "END TURN", button)) game.WaitTurn();
-            GUI.enabled = true; y += 58;
-            GUI.Label(new Rect(x, y, w, 48), $"{game.Theme.HazardName}: {game.Theme.HazardRule}\nRED = attack   CYAN = move   GOLD = skill", center);
+            if (GUI.Button(hud.EndTurnButton, HudText.EndTurnButton, button)) game.WaitTurn();
+            GUI.enabled = true;
+            GUI.Label(hud.HazardLegend, $"{game.Theme.HazardName}: {game.Theme.HazardRule}\nRED danger  CYAN move  GOLD skill", center);
         }
 
         bool DrawEndOrReward(float x, float w, ref float y, bool compact)
@@ -304,35 +311,66 @@ namespace Lanternfall
             return false;
         }
 
-        void DrawSkills(float x, float w, ref float y, bool row)
+        void DrawCombatHeader(Rect r, bool compact)
         {
-            if (row)
-            {
-                float gap = 8, bw = (w - gap * 2) / 3f;
-                var skills = SkillBook.ForClass(game.Player.ClassId);
-                for (int i = 0; i < skills.Length; i++)
-                {
-                    var s = skills[i]; int cd = game.Player.Cooldowns[s.Name];
-                    GUI.enabled = game.Turns.Phase == TurnPhase.Player && cd == 0 && game.Player.ActionPoints >= s.ApCost;
-                    string selected = game.SelectedSkill == s.Id ? "> " : "";
-                    var r = new Rect(x + i * (bw + gap), y, bw, 64);
-                    DrawCardFrame(r, game.SelectedSkill == s.Id ? VisualReadability.ClassAccent(game.Player.ClassId) : new Color(.20f, .18f, .28f));
-                    if (GUI.Button(r, $"{selected}{ShortSkill(s)}\n{s.ApCost} AP {(cd > 0 ? $"CD {cd}" : "READY")}", button)) game.SelectSkill(s.Id);
-                }
-                GUI.enabled = true; y += 72;
-                return;
-            }
+            var cls = ClassCatalog.Get(game.Player.ClassId);
+            string label = compact
+                ? $"{HudText.TurnLabel(game.Turns.Phase)}  •  ROOM {game.RoomNumber}/5\n{cls.name}  •  {game.Theme.Name}"
+                : $"{HudText.TurnLabel(game.Turns.Phase)}  •  ROOM {game.RoomNumber}/5\n{cls.name}  •  {game.Theme.Name}";
+            GUI.Label(r, label, compact ? center : title);
+        }
 
-            foreach (var s in SkillBook.ForClass(game.Player.ClassId))
+        void DrawStatChips(Rect[] chips)
+        {
+            string[] values =
             {
+                HudText.Hp(game.Player.Health, game.Player.MaxHealth),
+                HudText.Ap(game.Player.ActionPoints, game.Player.MaxActionPoints),
+                HudText.Mp(game.Player.MovementPoints, game.Player.MoveRange)
+            };
+            for (int i = 0; i < chips.Length; i++)
+            {
+                DrawRect(chips[i], new Color(.08f, .075f, .13f));
+                DrawOutline(chips[i], i == 1 ? new Color(.92f, .68f, .22f) : i == 2 ? new Color(.35f, .88f, .95f) : new Color(.82f, .25f, .25f), 2);
+                GUI.Label(chips[i], values[i], center);
+            }
+        }
+
+        void DrawMessageBox(Rect r)
+        {
+            DrawRect(r, new Color(.03f, .03f, .055f));
+            DrawOutline(r, new Color(.24f, .22f, .34f), 1);
+            GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), Shorten(game.Message, 96), center);
+        }
+
+        void DrawSelectedSkillInfo(Rect r)
+        {
+            string label = "Selected skill: none";
+            if (game.SelectedSkill.HasValue)
+            {
+                var s = SkillBook.Get(game.SelectedSkill.Value);
+                label = $"Selected: {s.Name} - tap a GOLD target";
+            }
+            GUI.Label(r, label, small);
+        }
+
+        void DrawSkills(Rect[] cards, bool compact)
+        {
+            var skills = SkillBook.ForClass(game.Player.ClassId);
+            for (int i = 0; i < skills.Length && i < cards.Length; i++)
+            {
+                var s = skills[i];
                 int cd = game.Player.Cooldowns[s.Name];
-                string selected = game.SelectedSkill == s.Id ? "> " : "";
-                string label = $"{selected}{s.Name} - {s.ApCost} AP - {(cd > 0 ? $"CD {cd}" : "READY")}\n{s.Hint}";
-                GUI.enabled = game.Turns.Phase == TurnPhase.Player && cd == 0 && game.Player.ActionPoints >= s.ApCost;
-                var r = new Rect(x, y, w, 68);
-                DrawCardFrame(r, game.SelectedSkill == s.Id ? VisualReadability.ClassAccent(game.Player.ClassId) : new Color(.20f, .18f, .28f));
-                if (GUI.Button(r, label, button)) game.SelectSkill(s.Id);
-                GUI.enabled = true; y += 76;
+                bool selected = game.SelectedSkill == s.Id;
+                bool usable = game.Turns.Phase == TurnPhase.Player && cd == 0 && game.Player.ActionPoints >= s.ApCost;
+                var accent = selected ? VisualReadability.ClassAccent(game.Player.ClassId) : usable ? new Color(.24f, .22f, .34f) : new Color(.12f, .11f, .16f);
+                DrawCardFrame(cards[i], accent);
+                GUI.enabled = usable;
+                string label = HudText.SkillCard(s, cd, game.Player.ActionPoints, game.Turns.Phase, selected, compact);
+                if (compact && cards[i].width < 145f)
+                    label = $"{(selected ? "SEL - " : "")}{ShortSkill(s)}\nAP {s.ApCost} - {HudText.SkillState(s, cd, game.Player.ActionPoints, game.Turns.Phase)}\n{s.Hint}";
+                if (GUI.Button(cards[i], label, button)) game.SelectSkill(s.Id);
+                GUI.enabled = true;
             }
         }
 
@@ -340,6 +378,12 @@ namespace Lanternfall
         {
             var parts = s.Name.Split(' ');
             return parts.Length == 1 ? s.Name.ToUpper() : parts[0].ToUpper();
+        }
+
+        string Shorten(string text, int max)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length <= max) return text;
+            return text.Substring(0, max - 1) + "…";
         }
 
         void DrawPortraitRewards(float x, float w, ref float y)
