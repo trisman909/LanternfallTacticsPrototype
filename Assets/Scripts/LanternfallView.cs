@@ -95,7 +95,8 @@ namespace Lanternfall
             DrawRect(new Rect(pad * .55f, y - 10, area.width - pad * 1.1f, area.height - y * 1.35f), new Color(.055f, .045f, .085f));
             DrawOutline(new Rect(pad * .55f, y - 10, area.width - pad * 1.1f, area.height - y * 1.35f), new Color(.55f, .38f, .12f), 2);
 
-            GUI.Label(new Rect(pad, y, w, compact ? 40 : 72), "LANTERNFALL TACTICS", title); y += compact ? 46 : 82;
+            GUI.Label(new Rect(pad, y, w, compact ? 40 : 72), "LANTERNFALL TACTICS", title); y += compact ? 34 : 58;
+            GUI.Label(new Rect(pad, y, w, compact ? 22 : 28), PrototypeVersion, small); y += compact ? 24 : 34;
             GUI.Label(new Rect(pad, y, w, compact ? 54 : 118),
                 compact ? "Turn tactics: spend AP/MP, read red previews, survive five rooms."
                         : "A short turn-based roguelite prototype.\nMove on cyan tiles, read the red enemy previews, choose rewards, and survive five rooms.",
@@ -120,7 +121,6 @@ namespace Lanternfall
                 if (GUI.Button(new Rect(pad, y, w, 60), "HOW TO PLAY", button)) game.ShowHelp(); y += 76;
             }
             if(!compact)GUI.Label(new Rect(pad, y, w, 80), "Built for touch first. Mouse clicks work in the editor and Windows build.", small);
-            GUI.Label(new Rect(pad, area.height - 28, w, 22), PrototypeVersion, small);
         }
 
         void DrawHelpOverlay(Rect area)
