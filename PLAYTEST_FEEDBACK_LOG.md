@@ -1,6 +1,6 @@
 # Lanternfall Tactics - Playtest Feedback Log
 
-Status: first external tester feedback has been recorded and addressed through Phase 5N.
+Status: first external tester feedback has been recorded and addressed through Phase 5O.
 
 Live playtest link:
 
@@ -89,6 +89,32 @@ Use this log to capture real tester notes. Keep raw wording where possible. Do n
   - Medium
 - Follow-up action:
   - Fixed in commit: Phase 5N response
+
+### 2026-07-13 - Second follow-up live browser tester
+
+- Did the game load: Yes
+- Device/browser: Live WebGL, also phone browser; exact browsers not recorded
+- Class tried: Vanguard / spear
+- Furthest room reached: Won
+- Understood what to do in first minute: Improved
+- AP and MP clarity: Clear
+- Skill target clarity: Clear
+- Enemy danger preview clarity: Clear but too easy to avoid
+- Board large enough: Yes
+- HUD readable: Yes
+- Anything too small or clipped: No
+- Difficulty/pacing:
+  - Fair and fun, but too easy with guidance
+- Class that felt best: Vanguard / spear used
+- Class that felt worst: Not recorded
+- Most confusing moment: Healing pickups were not noticed
+- Most fun moment: Core tactical combat direction felt good
+- Bug or broken behavior: None reported
+- Screenshot/video link: Not included in repo
+- Severity:
+  - Medium
+- Follow-up action:
+  - Fixed in commit: Phase 5O response
 
 ## First-feedback rules
 

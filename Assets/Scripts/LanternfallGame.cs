@@ -34,25 +34,31 @@ namespace Lanternfall
         public HashSet<Vector2Int> HazardTiles { get; private set; } = new();
         public HashSet<Vector2Int> ArmedHazards { get; private set; } = new();
         public HashSet<Vector2Int> PropTiles { get; private set; } = new();
+        public HashSet<Vector2Int> BlockerTiles { get; private set; } = new();
         public Vector2Int? HealingPickup { get; private set; }
         public event Action Changed;
 
         readonly RoomGenerator generator = new();
         string pendingRoomIntro = "";
+        int pendingApDrain;
+        int pendingMpDrain;
+        public int PendingApDrain => pendingApDrain;
+        public int PendingMpDrain => pendingMpDrain;
 
         public static readonly string[] HowToPlayLines =
         {
             "Goal: clear four rooms, then defeat the Lantern Warden in room five.",
             "AP means Action Points for skills. MP means Movement Points for tile movement.",
             "Tap cyan tiles to move. Tap a skill, then tap a gold target to use it.",
-            "Red tiles preview enemy attacks. Move away before pressing End Turn.",
+            "Red tiles hit this turn. Purple intent tiles show AP/MP or delayed pressure.",
+            "Green HEAL tiles restore 3 HP when stepped on.",
             "If a target is not gold, it is out of range, blocked, or not valid for that skill.",
             "After each cleared room, pick one blessing. Win or lose, Start New Run restarts."
         };
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.5N: short WebGL/Windows playtest build.",
+            "Prototype v0.5O: short WebGL/Windows playtest build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -118,6 +124,7 @@ namespace Lanternfall
             Theme = r.Theme;
             HazardTiles = r.HazardTiles;
             PropTiles = r.PropTiles;
+            BlockerTiles = r.BlockerTiles;
             HealingPickup = r.HealingPickup;
             ArmedHazards.Clear();
             Enemies.Clear();
@@ -144,9 +151,14 @@ namespace Lanternfall
         public bool Occupied(Vector2Int p) => Enemies.Any(e => e.Alive && e.Position == p);
         public int LivingEnemies => Enemies.Count(e => e.Alive);
         public int ThreatDamageAt(Vector2Int p) => Enemies.Where(e => e.Alive && e.Preview.Contains(p)).Sum(e => e.AttackDamage);
+        public string ThreatIntentAt(Vector2Int p)
+        {
+            var intents = Enemies.Where(e => e.Alive && (e.Preview.Contains(p) || e.DelayedPreview.Contains(p))).Select(e => $"{e.IntentLabel} {e.Threat}").Distinct().ToArray();
+            return intents.Length == 0 ? "" : string.Join(", ", intents);
+        }
         public string IntentSummary => ThreatDamageAt(Player.Position) > 0
             ? $"DANGER: {ThreatDamageAt(Player.Position)} incoming damage on your tile"
-            : "Safe tile - red spaces strike after End Turn";
+            : Enemies.Any(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)) ? "WARNING: enemy intent targets your AP/MP or next tile" : "Safe tile - red spaces strike after End Turn";
 
         public void SelectSkill(SkillId id)
         {
@@ -353,6 +365,12 @@ namespace Lanternfall
                     HitTiles.Add(Player.Position);
                     Message = $"{NameOf(e.Kind)} strikes your tile for {e.AttackDamage}.";
                 }
+                else if (e.DelayedPreview.Contains(Player.Position))
+                {
+                    ApplyIntentPressure(e);
+                    HitTiles.Add(Player.Position);
+                    Message = $"{NameOf(e.Kind)} triggers {e.IntentLabel}.";
+                }
                 else if (e.RootTurns <= 0)
                 {
                     var next = EnemyAI.ChooseReposition(e, Player.Position, Grid, q => Occupied(q) || q == Player.Position, p => HazardTiles.Contains(p));
@@ -378,6 +396,9 @@ namespace Lanternfall
             Player.TickStatuses();
             Player.TickCooldowns();
             Player.ResetTurnResources();
+            if (pendingApDrain > 0) Player.ActionPoints = Mathf.Max(0, Player.ActionPoints - pendingApDrain);
+            if (pendingMpDrain > 0) Player.MovementPoints = Mathf.Max(0, Player.MovementPoints - pendingMpDrain);
+            pendingApDrain = pendingMpDrain = 0;
             ArmHazards();
             Turns.BeginPlayerTurn();
             RefreshTargets();
@@ -402,7 +423,14 @@ namespace Lanternfall
 
         public void RefreshPreviews()
         {
-            foreach (var e in Enemies.Where(x => x.Alive)) e.Preview = EnemyAI.BuildPreview(e, Player.Position, Grid);
+            foreach (var e in Enemies.Where(x => x.Alive)) EnemyAI.AssignIntent(e, Player.Position, Grid);
+        }
+
+        void ApplyIntentPressure(EnemyModel e)
+        {
+            if (e.Threat == ThreatKind.AP || e.Threat == ThreatKind.Mixed) pendingApDrain += e.Kind == EnemyKind.LanternWarden ? 2 : 1;
+            if (e.Threat == ThreatKind.MP || e.Threat == ThreatKind.Mixed) pendingMpDrain += 1;
+            if (e.Kind == EnemyKind.LanternWarden && EnemyAI.BossPhase(e) >= 3) Player.Damage(Mathf.Max(1, e.AttackDamage - 1));
         }
 
         void ArmHazards()

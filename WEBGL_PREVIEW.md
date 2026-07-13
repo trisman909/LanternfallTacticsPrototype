@@ -6,6 +6,8 @@ Unity WebGL Build Support is installed for Unity 6000.5.1f1 on this machine.
 
 The WebGL preview is intended as a lightweight browser-playable build for sharing the current prototype. It does not add gameplay content and should preserve the Phase 5B AP/MP, class, biome, room, boss, reward, and win/loss systems.
 
+Phase 5O keeps compression disabled for simple GitHub Pages hosting, enables Unity WebGL data caching for repeat loads where supported, and documents that first mobile browser loads may remain slow because Unity WebGL downloads a sizeable `.wasm` payload.
+
 ## Build output
 
 Local WebGL build output:

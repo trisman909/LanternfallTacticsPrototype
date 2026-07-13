@@ -299,7 +299,7 @@ namespace Lanternfall.Tests
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.5N",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.5O",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -364,7 +364,7 @@ namespace Lanternfall.Tests
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("mobile browser")));
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
-            Assert.That(guide,Does.Contain("Prototype v0.5N"));
+            Assert.That(guide,Does.Contain("Prototype v0.5O"));
             Assert.That(guide,Does.Contain("what confused you"));
             Assert.That(guide,Does.Contain("What device/browser did you use?"));
             Assert.That(guide,Does.Contain("Which class felt best/worst?"));
@@ -462,6 +462,28 @@ namespace Lanternfall.Tests
             Assert.AreEqual(max,game.Player.Health);
             Assert.False(game.HealingPickup.HasValue);
             Object.DestroyImmediate(go);
+        }
+
+        [Test] public void Phase5O_ApMpPressureCanBeQueuedForNextPlayerTurn()
+        {
+            var go=new GameObject("Pressure");var game=go.AddComponent<LanternfallGame>();game.StartRun(9191);
+            var archer=new EnemyModel(EnemyKind.GloomArcher,game.Grid.Neighbors(game.Player.Position).First());
+            EnemyAI.AssignIntent(archer,game.Player.Position,game.Grid);
+            typeof(LanternfallGame).GetMethod("ApplyIntentPressure",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(game,new object[]{archer});
+            Assert.That(game.PendingApDrain,Is.GreaterThan(0));
+            var sentinel=new EnemyModel(EnemyKind.StoneSentinel,game.Grid.Neighbors(game.Player.Position).Last());
+            EnemyAI.AssignIntent(sentinel,game.Player.Position,game.Grid);
+            typeof(LanternfallGame).GetMethod("ApplyIntentPressure",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(game,new object[]{sentinel});
+            Assert.That(game.PendingMpDrain,Is.GreaterThan(0));
+            Object.DestroyImmediate(go);
+        }
+
+        [Test] public void Phase5O_HealingPickupAndWebGLLoadingCopyAreVisible()
+        {
+            var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
+            Assert.That(guide,Does.Contain("green").And.Contain("HEAL"));
+            if(File.Exists("docs/index.html"))
+                Assert.That(File.ReadAllText("docs/index.html"),Does.Contain("v=5").And.Contain("Loading Lanternfall Tactics"));
         }
 
         [Test] public void Phase5K_ShortMobileLandscapeKeepsAllSkillsAndEndTurnAccessible()

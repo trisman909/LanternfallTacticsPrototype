@@ -5,6 +5,7 @@ namespace Lanternfall
 {
     public enum EnemyKind { Ashling, GloomArcher, StoneSentinel, LanternWarden }
     public enum PlayerClassId { Vanguard, Wayfinder, Cantor, Gloamstep, Artificer }
+    public enum ThreatKind { HP, AP, MP, Mixed }
 
     public abstract class UnitModel
     {
@@ -70,6 +71,9 @@ namespace Lanternfall
     {
         public EnemyKind Kind;
         public HashSet<Vector2Int> Preview = new();
+        public HashSet<Vector2Int> DelayedPreview = new();
+        public string IntentLabel = "strike";
+        public ThreatKind Threat = ThreatKind.HP;
         public int AttackDamage;
         public int MoveRange;
         public EnemyModel(EnemyKind kind, Vector2Int position)

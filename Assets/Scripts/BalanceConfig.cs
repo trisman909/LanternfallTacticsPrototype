@@ -32,7 +32,7 @@ namespace Lanternfall
             int depth = Mathf.Clamp(room - 1, 0, 4);
             if (enemy.Kind == EnemyKind.LanternWarden)
             {
-                enemy.MaxHealth += 6;
+                enemy.MaxHealth += 8;
                 enemy.Health = enemy.MaxHealth;
                 enemy.AttackDamage += 1;
                 enemy.MoveRange += 1;

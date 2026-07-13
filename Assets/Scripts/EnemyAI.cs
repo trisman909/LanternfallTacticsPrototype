@@ -6,6 +6,22 @@ namespace Lanternfall
 {
     public static class EnemyAI
     {
+        public static int BossPhase(EnemyModel e)
+        {
+            if (e.Kind != EnemyKind.LanternWarden) return 0;
+            if (e.Health * 3 <= e.MaxHealth) return 3;
+            if (e.Health * 3 <= e.MaxHealth * 2) return 2;
+            return 1;
+        }
+
+        public static void AssignIntent(EnemyModel e, Vector2Int player, GridModel grid)
+        {
+            e.Preview = BuildPreview(e, player, grid);
+            e.DelayedPreview = BuildDelayedPreview(e, player, grid);
+            e.Threat = IntentThreat(e);
+            e.IntentLabel = IntentLabel(e);
+        }
+
         public static HashSet<Vector2Int> BuildPreview(EnemyModel e, Vector2Int player, GridModel grid)
         {
             var r = new HashSet<Vector2Int>();
@@ -15,15 +31,67 @@ namespace Lanternfall
                 if (delta.x == 0 || delta.y == 0)
                 {
                     var step = new Vector2Int(System.Math.Sign(delta.x), System.Math.Sign(delta.y)); var p = e.Position + step;
-                    for(int i=0;i<4 && grid.IsFloor(p);i++,p+=step) r.Add(p);
+                    for(int i=0;i<5 && grid.IsFloor(p);i++,p+=step) r.Add(p);
                 }
             }
             else
             {
-                int radius = e.Kind == EnemyKind.LanternWarden ? (e.Health <= e.MaxHealth / 2 ? 3 : 2) : 1;
+                int radius = e.Kind == EnemyKind.LanternWarden ? (BossPhase(e) >= 2 ? 3 : 2) : 1;
                 foreach(var p in grid.Floors()) if(Mathf.Abs(p.x-e.Position.x)+Mathf.Abs(p.y-e.Position.y)<=radius && p!=e.Position) r.Add(p);
             }
             return r;
+        }
+
+        public static HashSet<Vector2Int> BuildDelayedPreview(EnemyModel e, Vector2Int player, GridModel grid)
+        {
+            var r = new HashSet<Vector2Int>();
+            if (e.Kind == EnemyKind.Ashling)
+            {
+                foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
+            }
+            else if (e.Kind == EnemyKind.GloomArcher)
+            {
+                foreach (var p in CrossLine(e.Position, grid, 5)) r.Add(p);
+            }
+            else if (e.Kind == EnemyKind.StoneSentinel)
+            {
+                foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
+            }
+            else
+            {
+                int phase = BossPhase(e);
+                if (phase == 1) foreach (var p in CrossLine(e.Position, grid, 3)) r.Add(p);
+                if (phase >= 2) foreach (var p in CrossLine(e.Position, grid, phase == 2 ? 5 : 7)) r.Add(p);
+                if (phase >= 3) foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
+            }
+            r.Remove(e.Position);
+            return r;
+        }
+
+        public static ThreatKind IntentThreat(EnemyModel e)
+        {
+            if (e.Kind == EnemyKind.GloomArcher) return ThreatKind.AP;
+            if (e.Kind == EnemyKind.StoneSentinel) return ThreatKind.MP;
+            if (e.Kind == EnemyKind.LanternWarden) return BossPhase(e) >= 2 ? ThreatKind.Mixed : ThreatKind.HP;
+            return ThreatKind.HP;
+        }
+
+        public static string IntentLabel(EnemyModel e)
+        {
+            if (e.Kind == EnemyKind.GloomArcher) return "AP drain";
+            if (e.Kind == EnemyKind.StoneSentinel) return "MP bind";
+            if (e.Kind == EnemyKind.LanternWarden) return BossPhase(e) switch { 1 => "ward strike", 2 => "line + AP", _ => "storm blast" };
+            return "rush strike";
+        }
+
+        static IEnumerable<Vector2Int> CrossLine(Vector2Int origin, GridModel grid, int range)
+        {
+            Vector2Int[] dirs = { Vector2Int.up, Vector2Int.right, Vector2Int.down, Vector2Int.left };
+            foreach (var d in dirs)
+            {
+                var p = origin + d;
+                for (int i = 0; i < range && grid.IsFloor(p); i++, p += d) yield return p;
+            }
         }
 
         public static Vector2Int ChooseReposition(EnemyModel e, Vector2Int player, GridModel grid, System.Func<Vector2Int, bool> blocked, System.Func<Vector2Int, bool> hazard = null)
@@ -37,13 +105,15 @@ namespace Lanternfall
             {
                 var ghost = new EnemyModel(e.Kind, c){AttackDamage = e.AttackDamage, MoveRange = e.MoveRange, MaxHealth = e.MaxHealth, Health = e.Health};
                 var preview = BuildPreview(ghost, player, grid);
+                var delayed = BuildDelayedPreview(ghost, player, grid);
                 int distance = Mathf.Abs(c.x - player.x) + Mathf.Abs(c.y - player.y);
                 int score = 0;
                 if (preview.Contains(player)) score += 100;
                 score += preview.Count(escapeTiles.Contains) * 10;
+                score += delayed.Count(escapeTiles.Contains) * 5;
                 score -= distance * 3;
                 if (e.Kind == EnemyKind.GloomArcher && (c.x == player.x || c.y == player.y)) score += 24;
-                if (e.Kind == EnemyKind.LanternWarden && distance <= 3) score += 18;
+                if (e.Kind == EnemyKind.LanternWarden && distance <= (BossPhase(e) >= 3 ? 4 : 3)) score += 22;
                 if (hazard != null && hazard(c)) score += e.Kind == EnemyKind.LanternWarden ? 8 : 3;
                 if (c == e.Position) score -= 8;
                 if (score > bestScore)

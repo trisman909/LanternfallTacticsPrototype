@@ -13,6 +13,7 @@ namespace Lanternfall
         public BiomeTheme Theme;
         public HashSet<Vector2Int> HazardTiles = new();
         public HashSet<Vector2Int> PropTiles = new();
+        public HashSet<Vector2Int> BlockerTiles = new();
         public Vector2Int? HealingPickup;
     }
 
@@ -37,6 +38,19 @@ namespace Lanternfall
             var candidates = grid.Floors().Where(v => v.y >= 6).OrderBy(_ => rng.Next()).ToList();
             int count = BalanceConfig.EnemyCount(roomNumber);
             var enemies=candidates.Take(count).ToList();
+            var blockers = new HashSet<Vector2Int>();
+            int blockerTarget = roomNumber <= 1 ? 0 : roomNumber >= 5 ? 3 : roomNumber / 2;
+            var blockerCandidates = grid.Floors()
+                .Where(v=>v!=player&&!enemies.Contains(v)&&v.y>=3&&v.y<=8&&v.x>=2&&v.x<=6)
+                .OrderBy(_=>rng.Next()).ToList();
+            foreach (var b in blockerCandidates)
+            {
+                if (blockers.Count >= blockerTarget) break;
+                grid.SetFloor(b,false);
+                bool fair = IsConnected(grid) && enemies.All(e=>grid.ShortestPath(player,e,_=>false).Count>0);
+                if (fair) blockers.Add(b);
+                else grid.SetFloor(b,true);
+            }
             var dressing=grid.Floors().Where(v=>v!=player&&!enemies.Contains(v)&&v.y>2).OrderBy(_=>rng.Next()).ToList();
             var hazards=dressing.Take(5).ToHashSet();
             var props=dressing.Skip(5).Take(3).ToHashSet();
@@ -51,7 +65,7 @@ namespace Lanternfall
                     .FirstOrDefault();
                 if(heal==Vector2Int.zero&&!grid.IsFloor(Vector2Int.zero))heal=null;
             }
-            return new GeneratedRoom { Grid = grid, PlayerSpawn = player, EnemySpawns = enemies, Theme=BiomeCatalog.ForRoom(roomNumber), HazardTiles=hazards, PropTiles=props, HealingPickup=heal };
+            return new GeneratedRoom { Grid = grid, PlayerSpawn = player, EnemySpawns = enemies, Theme=BiomeCatalog.ForRoom(roomNumber), HazardTiles=hazards, PropTiles=props, BlockerTiles=blockers, HealingPickup=heal };
         }
 
         public bool IsConnected(GridModel grid)

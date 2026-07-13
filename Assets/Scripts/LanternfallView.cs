@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.5N";
+        public const string PrototypeVersion = "Prototype v0.5O";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -217,6 +217,14 @@ namespace Lanternfall
                 if (Event.current.type == EventType.MouseDown && r.Contains(Event.current.mousePosition)){game.TapTile(p); Event.current.Use();}
             }
 
+            foreach (var p in game.BlockerTiles)
+            {
+                var r = TileRect(p, ox, oy, minX, maxY);
+                DrawRect(r, new Color(.025f, .022f, .035f));
+                DrawOutline(r, new Color(.38f, .32f, .48f), Mathf.Max(2, tile * .045f));
+                DrawTileGlyph(r, "■", new Color(.75f, .68f, .92f), .38f);
+            }
+
             string hazardGlyph = VisualReadability.HazardGlyph(game.Theme.Hazard);
             foreach (var p in game.HazardTiles)
             {
@@ -231,9 +239,17 @@ namespace Lanternfall
             if (game.HealingPickup.HasValue)
             {
                 var r = TileRect(game.HealingPickup.Value, ox, oy, minX, maxY);
-                DrawRect(new Rect(r.x + tile * .18f, r.y + tile * .18f, tile * .60f, tile * .60f), new Color(.24f, 1f, .55f, .88f));
-                DrawOutline(r, new Color(.60f, 1f, .70f), Mathf.Max(3, tile * .055f));
-                DrawTileGlyph(r, "+", Color.white, .46f);
+                DrawRect(new Rect(r.x + tile * .08f, r.y + tile * .08f, tile * .78f, tile * .78f), new Color(.16f, 1f, .44f, .92f));
+                DrawOutline(r, new Color(.82f, 1f, .76f), Mathf.Max(4, tile * .075f));
+                DrawTileGlyph(r, "♥", Color.white, .50f);
+                GUI.Label(new Rect(r.x - tile * .15f, r.yMax - tile * .30f, tile * 1.25f, tile * .34f), "HEAL +3", new GUIStyle(center){fontSize=Mathf.Max(10,Mathf.RoundToInt(tile*.18f)),fontStyle=FontStyle.Bold,normal={textColor=Color.white}});
+            }
+
+            foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.DelayedPreview).Distinct())
+            {
+                var r = TileRect(p, ox, oy, minX, maxY);
+                DrawOutline(r, new Color(.82f, .36f, 1f), Mathf.Max(2, tile * .04f));
+                DrawTileGlyph(r, game.ThreatIntentAt(p).Contains("AP") ? "AP" : game.ThreatIntentAt(p).Contains("MP") ? "MP" : "*", new Color(1f, .84f, 1f), .28f);
             }
 
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.Preview).Distinct())
@@ -247,6 +263,8 @@ namespace Lanternfall
             foreach (var e in game.Enemies.Where(e => e.Alive))
             {
                 DrawToken(e.Position, ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden);
+                var er = TileRect(e.Position, ox, oy, minX, maxY);
+                GUI.Label(new Rect(er.x - tile * .35f, er.y - tile * .22f, tile * 1.7f, tile * .22f), e.IntentLabel, new GUIStyle(center){fontSize=Mathf.Max(9,Mathf.RoundToInt(tile*.14f)),fontStyle=FontStyle.Bold,normal={textColor=new Color(1f,.88f,.62f)}});
             }
         }
 

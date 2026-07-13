@@ -40,6 +40,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5L - first external playtest feedback package and safe clarity fix pass (complete)
 - Phase 5M - first external feedback response for onboarding, rewards, AI, and tactical difficulty (complete)
 - Phase 5N - optional healing pickups, reward layout fix, and slight difficulty tightening (complete)
+- Phase 5O - tactical threat upgrade with smarter enemy intent, boss phases, blockers, and healing visibility (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -125,3 +126,5 @@ Phase 5L prepares the prototype for real external testers: shorter first-player 
 Phase 5M responds to the first real external playtest: clearer onboarding, readable reward cards, lower passive recovery, stronger room-depth scaling, smarter enemy repositioning, and a tougher existing boss. See [PLAYTEST_5M.md](PLAYTEST_5M.md).
 
 Phase 5N responds to follow-up live feedback: automatic room-clear healing is removed, optional modest board healing pickups can appear in some rooms, reward layout spacing is protected against header/card overlap, and later-room enemy pressure is nudged up slightly. See [PLAYTEST_5N.md](PLAYTEST_5N.md).
+
+Phase 5O responds to another live playtest: enemies now show immediate and delayed/AP/MP intent, the existing boss has health-based phases, later rooms gain light line-of-sight blockers, healing pickups are more visible, and WebGL repeat-load caching is enabled while preserving GitHub Pages compatibility. See [PLAYTEST_5O.md](PLAYTEST_5O.md).
