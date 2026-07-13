@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Unity Web Player | Lanternfall Tactics Prototype</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
@@ -53,12 +56,13 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/LanternfallTactics.loader.js";
+      var cacheBust = "v=5K1-36b6dde";
+      var loaderUrl = buildUrl + "/LanternfallTactics.loader.js?" + cacheBust;
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/LanternfallTactics.data",
-        frameworkUrl: buildUrl + "/LanternfallTactics.framework.js",
-        codeUrl: buildUrl + "/LanternfallTactics.wasm",
+        dataUrl: buildUrl + "/LanternfallTactics.data?" + cacheBust,
+        frameworkUrl: buildUrl + "/LanternfallTactics.framework.js?" + cacheBust,
+        codeUrl: buildUrl + "/LanternfallTactics.wasm?" + cacheBust,
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Lanternfall",
         productName: "Lanternfall Tactics Prototype",

@@ -98,6 +98,12 @@ namespace Lanternfall.EditorTools
             if(File.Exists(index))
             {
                 var html=File.ReadAllText(index);
+                if(!html.Contains("Cache-Control"))
+                    html=html.Replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">","<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\">\n    <meta http-equiv=\"Pragma\" content=\"no-cache\">\n    <meta http-equiv=\"Expires\" content=\"0\">");
+                html=html.Replace("var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js\";","var cacheBust = \"v=5K1-36b6dde\";\n      var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js?\" + cacheBust;");
+                html=html.Replace("dataUrl: buildUrl + \"/LanternfallTactics.data\",","dataUrl: buildUrl + \"/LanternfallTactics.data?\" + cacheBust,");
+                html=html.Replace("frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js\",","frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js?\" + cacheBust,");
+                html=html.Replace("codeUrl: buildUrl + \"/LanternfallTactics.wasm\",","codeUrl: buildUrl + \"/LanternfallTactics.wasm?\" + cacheBust,");
                 html=html.Replace("canvas.style.width = \"960px\";","canvas.style.width = \"100vw\";");
                 html=html.Replace("canvas.style.height = \"600px\";","canvas.style.height = \"100vh\";");
                 html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics - Prototype v0.5L. Click/tap the game once if controls do not respond. Desktop browser first; mobile browser is experimental.</div>\n        <div id=\"unity-progress-bar-empty\">");

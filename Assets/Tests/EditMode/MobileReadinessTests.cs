@@ -248,6 +248,9 @@ namespace Lanternfall.Tests
             var css=File.ReadAllText("docs/TemplateData/style.css");
             Assert.That(index,Does.Contain("canvas.style.width = \"100vw\""));
             Assert.That(index,Does.Contain("canvas.style.height = \"100vh\""));
+            Assert.That(index,Does.Contain("Cache-Control"));
+            Assert.That(index,Does.Contain("cacheBust"));
+            Assert.That(index,Does.Contain("LanternfallTactics.wasm?"));
             Assert.That(css,Does.Contain("#unity-footer { display: none; }"));
             Assert.That(css,Does.Contain("width: 100vw"));
             Assert.That(css,Does.Contain("height: 100vh"));
