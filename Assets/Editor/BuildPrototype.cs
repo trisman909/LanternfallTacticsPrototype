@@ -101,22 +101,23 @@ namespace Lanternfall.EditorTools
                 var html=File.ReadAllText(index);
                 if(!html.Contains("Cache-Control"))
                     html=html.Replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">","<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\">\n    <meta http-equiv=\"Pragma\" content=\"no-cache\">\n    <meta http-equiv=\"Expires\" content=\"0\">");
-                html=html.Replace("var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js\";","var cacheBust = \"v=5O\";\n      var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js?\" + cacheBust;");
+                html=html.Replace("var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js\";","var cacheBust = \"v=5O1\";\n      var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js?\" + cacheBust;");
                 html=html.Replace("dataUrl: buildUrl + \"/LanternfallTactics.data\",","dataUrl: buildUrl + \"/LanternfallTactics.data?\" + cacheBust,");
                 html=html.Replace("frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js\",","frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js?\" + cacheBust,");
                 html=html.Replace("codeUrl: buildUrl + \"/LanternfallTactics.wasm\",","codeUrl: buildUrl + \"/LanternfallTactics.wasm?\" + cacheBust,");
                 html=html.Replace("canvas.style.width = \"960px\";","canvas.style.width = \"100vw\";");
-                html=html.Replace("canvas.style.height = \"600px\";","canvas.style.height = \"100vh\";");
-                html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics - Prototype v0.5O. First phone load may be slow; repeat loads can use browser caching. Click/tap once if controls do not respond.</div>\n        <div id=\"unity-progress-bar-empty\">");
+                html=html.Replace("canvas.style.height = \"600px\";","canvas.style.height = \"100dvh\";");
+                html=html.Replace("height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes","height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover");
+                html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics - Prototype v0.5O.1. First phone load may be slow; repeat loads can use browser caching. Rotate or use browser fullscreen/Add to Home Screen if controls feel cramped.</div>\n        <div id=\"unity-progress-bar-empty\">");
                 File.WriteAllText(index,html);
             }
             var css=Path.Combine(path,"TemplateData","style.css");
             if(File.Exists(css))
             {
                 var text=File.ReadAllText(css);
-                text += "\nhtml, body { width: 100%; height: 100%; overflow: hidden; background: #000; }\n";
-                text += "#unity-container.unity-desktop { position: fixed; left: 0; top: 0; transform: none; width: 100vw; height: 100vh; }\n";
-                text += "#unity-canvas { width: 100vw !important; height: 100vh !important; display: block; }\n";
+                text += "\nhtml, body { width: 100%; height: 100%; min-height: 100dvh; overflow: hidden; background: #000; position: fixed; inset: 0; touch-action: manipulation; }\n";
+                text += "#unity-container.unity-desktop, #unity-container.unity-mobile { position: fixed; left: 0; top: 0; transform: none; width: 100vw; height: 100dvh; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); box-sizing: border-box; }\n";
+                text += "#unity-canvas { width: 100vw !important; height: 100dvh !important; display: block; }\n";
                 text += "#unity-footer { display: none; }\n";
                 text += "#lanternfall-loading-copy { color: #f4d27a; font: 700 16px Arial, sans-serif; text-align: center; margin: 10px auto; max-width: 520px; line-height: 1.35; }\n";
                 File.WriteAllText(css,text);

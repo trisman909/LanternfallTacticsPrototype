@@ -8,6 +8,8 @@ The WebGL preview is intended as a lightweight browser-playable build for sharin
 
 Phase 5O keeps compression disabled for simple GitHub Pages hosting, enables Unity WebGL data caching for repeat loads where supported, and documents that first mobile browser loads may remain slow because Unity WebGL downloads a sizeable `.wasm` payload.
 
+Phase 5O.1 adds dedicated phone portrait/landscape HUD sizing and uses dynamic viewport height plus safe-area CSS hints so browser address bars and home indicators are less likely to hide controls. WebGL still cannot force true fullscreen; testers can rotate the phone or use browser fullscreen/Add to Home Screen when available.
+
 ## Build output
 
 Local WebGL build output:

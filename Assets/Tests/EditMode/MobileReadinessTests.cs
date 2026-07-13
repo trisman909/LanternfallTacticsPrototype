@@ -83,6 +83,46 @@ namespace Lanternfall.Tests
             Assert.That(layout.EstimatedTileSize,Is.GreaterThanOrEqualTo(24));
         }
 
+        [Test] public void Phase5O1_PhonePortraitKeepsSkillsStatsAndEndTurnVisible()
+        {
+            var safe=MobileLayout.ToGuiSafeArea(852,new Rect(0,34,393,759));
+            var layout=MobileLayout.Compute(safe.width,safe.height);
+            var hud=CombatHudLayout.Compute(layout.Panel,layout.Portrait,layout.CompactLandscape);
+            Assert.True(layout.Portrait);
+            Assert.That(layout.Panel.height,Is.GreaterThanOrEqualTo(420f));
+            Assert.True(hud.RequiredElementsFit(layout.Panel));
+            Assert.False(hud.HasEssentialOverlap());
+            Assert.True(hud.TouchTargetsValid());
+            Assert.AreEqual(3,hud.SkillCards.Length);
+            Assert.That(hud.SkillCards.All(r=>r.height>=72f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget));
+            Assert.That(hud.StatChips.All(r=>r.height>=38f));
+            Assert.That(hud.EndTurnButton.height,Is.GreaterThanOrEqualTo(54f));
+            Assert.That(hud.EndTurnButton.yMax,Is.LessThanOrEqualTo(layout.Panel.yMax));
+            var reward=RewardPanelLayout.Compute(hud.SelectedSkill.x,hud.SelectedSkill.y,hud.SelectedSkill.width,false);
+            Assert.True(reward.Fits(layout.Panel));
+            Assert.False(reward.HasOverlap());
+        }
+
+        [Test] public void Phase5O1_PhoneLandscapeUsesWiderReadableHudWithoutClipping()
+        {
+            foreach(var size in new[]{new Vector2(800,360),new Vector2(734,372)})
+            {
+                var layout=MobileLayout.Compute(size.x,size.y);
+                var hud=CombatHudLayout.Compute(layout.Panel,layout.Portrait,layout.CompactLandscape);
+                Assert.False(layout.Portrait);
+                Assert.True(layout.PhoneLandscape);
+                Assert.That(layout.Panel.width,Is.GreaterThanOrEqualTo(330f));
+                Assert.True(hud.RequiredElementsFit(layout.Panel),size.ToString());
+                Assert.False(hud.HasEssentialOverlap(),size.ToString());
+                Assert.True(hud.TouchTargetsValid(),size.ToString());
+                Assert.AreEqual(3,hud.SkillCards.Length);
+                Assert.That(hud.SkillCards.All(r=>r.height>=58f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
+                Assert.That(hud.StatChips.All(r=>r.height>=36f),size.ToString());
+                Assert.That(hud.EndTurnButton.height,Is.GreaterThanOrEqualTo(48f),size.ToString());
+                Assert.That(hud.EndTurnButton.yMax,Is.LessThanOrEqualTo(layout.Panel.yMax),size.ToString());
+            }
+        }
+
         [Test] public void FirstTimeFlow_StartScreenAndHelpPanelAreExplicit()
         {
             var go=new GameObject("FirstTime");var game=go.AddComponent<LanternfallGame>();
@@ -288,18 +328,18 @@ namespace Lanternfall.Tests
             var index=File.ReadAllText("docs/index.html");
             var css=File.ReadAllText("docs/TemplateData/style.css");
             Assert.That(index,Does.Contain("canvas.style.width = \"100vw\""));
-            Assert.That(index,Does.Contain("canvas.style.height = \"100vh\""));
+            Assert.That(index,Does.Contain("canvas.style.height = \"100dvh\""));
             Assert.That(index,Does.Contain("Cache-Control"));
             Assert.That(index,Does.Contain("cacheBust"));
             Assert.That(index,Does.Contain("LanternfallTactics.wasm?"));
             Assert.That(css,Does.Contain("#unity-footer { display: none; }"));
             Assert.That(css,Does.Contain("width: 100vw"));
-            Assert.That(css,Does.Contain("height: 100vh"));
+            Assert.That(css,Does.Contain("height: 100dvh"));
         }
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.5O",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.5O.1",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -364,7 +404,7 @@ namespace Lanternfall.Tests
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("mobile browser")));
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
-            Assert.That(guide,Does.Contain("Prototype v0.5O"));
+            Assert.That(guide,Does.Contain("Prototype v0.5O.1"));
             Assert.That(guide,Does.Contain("what confused you"));
             Assert.That(guide,Does.Contain("What device/browser did you use?"));
             Assert.That(guide,Does.Contain("Which class felt best/worst?"));

@@ -1,6 +1,6 @@
 # Lanternfall Tactics - Playtest Feedback Log
 
-Status: first external tester feedback has been recorded and addressed through Phase 5O.
+Status: first external tester feedback has been recorded and addressed through Phase 5O.1.
 
 Live playtest link:
 
@@ -115,6 +115,32 @@ Use this log to capture real tester notes. Keep raw wording where possible. Do n
   - Medium
 - Follow-up action:
   - Fixed in commit: Phase 5O response
+
+### 2026-07-13 - Phone WebGL HUD test
+
+- Did the game load: Yes
+- Device/browser: Phone WebGL, portrait and landscape; exact browser not recorded
+- Class tried: Not recorded
+- Furthest room reached: Board appeared; gameplay blocked by HUD usability
+- Understood what to do in first minute: Not the issue in this test
+- AP and MP clarity: Too small on phone
+- Skill target clarity: Skills not comfortably accessible on phone
+- Enemy danger preview clarity: Not the issue in this test
+- Board large enough: Board appeared
+- HUD readable: No
+- Anything too small or clipped: Skills, HP/AP/MP, End Turn, and bottom/side HUD controls were too small or off-screen
+- Difficulty/pacing:
+  - Not evaluated
+- Class that felt best: Not recorded
+- Class that felt worst: Not recorded
+- Most confusing moment: Important controls were not visible/readable on phone
+- Most fun moment: Not recorded
+- Bug or broken behavior: No crash; layout/playability issue
+- Screenshot/video link: Not included in repo
+- Severity:
+  - High
+- Follow-up action:
+  - Fixed in commit: Phase 5O.1 response
 
 ## First-feedback rules
 

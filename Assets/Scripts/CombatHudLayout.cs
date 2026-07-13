@@ -60,20 +60,22 @@ namespace Lanternfall
     {
         public static CombatHudLayoutSnapshot Compute(Rect panel, bool portrait, bool compact)
         {
-            bool shortPanel = compact && panel.height < 420f;
-            float pad = shortPanel ? 8f : 12f;
-            float gap = shortPanel ? 4f : compact ? 8f : 10f;
+            bool phoneLandscape = compact && panel.height < 500f && panel.width >= 320f && panel.width > panel.height * .75f;
+            bool phonePortrait = portrait && panel.width < 520f;
+            bool shortPanel = compact && panel.height < 420f && !phoneLandscape;
+            float pad = shortPanel ? 8f : phoneLandscape || phonePortrait ? 10f : 12f;
+            float gap = shortPanel || phoneLandscape ? 3f : phonePortrait ? 6f : compact ? 8f : 10f;
             float x = panel.x + pad;
             float w = panel.width - pad * 2f;
-            float y = panel.y + (shortPanel ? 10f : compact ? 14f : 16f);
+            float y = panel.y + (phoneLandscape ? 4f : phonePortrait ? 10f : shortPanel ? 10f : compact ? 14f : 16f);
             var snap = new CombatHudLayoutSnapshot();
 
-            snap.Header = new Rect(x, y, w, shortPanel ? 36f : portrait ? 34f : compact ? 56f : 58f);
+            snap.Header = new Rect(x, y, w, shortPanel ? 36f : phonePortrait ? 38f : portrait ? 44f : phoneLandscape ? 34f : compact ? 56f : 58f);
             y += snap.Header.height + gap;
 
             float chipGap = 6f;
             float chipW = (w - chipGap * 2f) / 3f;
-            float chipH = shortPanel ? 30f : portrait ? 36f : compact ? 42f : 44f;
+            float chipH = shortPanel ? 30f : phonePortrait ? 40f : portrait ? 44f : phoneLandscape ? 36f : compact ? 42f : 44f;
             snap.StatChips = new[]
             {
                 new Rect(x, y, chipW, chipH),
@@ -82,7 +84,7 @@ namespace Lanternfall
             };
             y += chipH + gap;
 
-            snap.HazardNote = new Rect(x, y, w, shortPanel ? 24f : portrait ? 34f : compact ? 46f : 50f);
+            snap.HazardNote = new Rect(x, y, w, shortPanel ? 24f : phonePortrait ? 34f : portrait ? 44f : phoneLandscape ? 28f : compact ? 46f : 50f);
             y += snap.HazardNote.height + gap;
 
             float smallButtonH = shortPanel ? 44f : 48f;
@@ -90,14 +92,14 @@ namespace Lanternfall
             snap.InfoButton = new Rect(x + w * .52f, y, w * .48f, smallButtonH);
             y += smallButtonH + gap;
 
-            snap.SelectedSkill = new Rect(x, y, w, shortPanel ? 20f : portrait ? 28f : compact ? 28f : 32f);
+            snap.SelectedSkill = new Rect(x, y, w, shortPanel ? 20f : phonePortrait ? 22f : portrait ? 28f : phoneLandscape ? 16f : compact ? 28f : 32f);
             y += snap.SelectedSkill.height + gap;
 
             bool rowSkills = portrait || (compact && panel.height < 520f);
             if (rowSkills)
             {
                 float cardW = (w - gap * 2f) / 3f;
-                float cardH = shortPanel ? 56f : portrait ? 74f : 66f;
+                float cardH = shortPanel ? 56f : phonePortrait ? 76f : portrait ? 84f : phoneLandscape ? 60f : 66f;
                 snap.SkillCards = new[]
                 {
                     new Rect(x, y, cardW, cardH),
@@ -108,7 +110,7 @@ namespace Lanternfall
             }
             else
             {
-                float cardH = compact ? 88f : 92f;
+                float cardH = phoneLandscape ? 58f : compact ? 88f : 92f;
                 snap.SkillCards = new[]
                 {
                     new Rect(x, y, w, cardH),
@@ -118,12 +120,12 @@ namespace Lanternfall
                 y += cardH * 3f + gap * 3f;
             }
 
-            float actionH = shortPanel ? 44f : portrait ? 50f : compact ? 52f : 54f;
+            float actionH = shortPanel ? 44f : phonePortrait ? 54f : portrait ? 58f : phoneLandscape ? 48f : compact ? 52f : 54f;
             snap.CancelButton = new Rect(x, y, w * .48f, actionH);
             snap.EndTurnButton = new Rect(x + w * .52f, y, w * .48f, actionH);
             y += actionH + gap;
 
-            snap.Message = new Rect(x, y, w, Mathf.Max(shortPanel ? 42f : 56f, panel.yMax - y - pad));
+            snap.Message = new Rect(x, y, w, Mathf.Max(shortPanel || phoneLandscape ? 42f : phonePortrait ? 44f : 56f, panel.yMax - y - pad));
             return snap;
         }
     }

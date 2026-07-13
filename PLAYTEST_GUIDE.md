@@ -4,13 +4,13 @@ Playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
-Current visible build label: `Prototype v0.5O`.
+Current visible build label: `Prototype v0.5O.1`.
 
 This is a small prototype, not a finished game. Please note what confused you, what felt fun, and if anything broke.
 
 ## Quick start
 
-1. Open the link in a desktop browser first if possible. Mobile browser play is experimental.
+1. Open the link in a desktop browser first if possible. Mobile browser play is experimental but now has dedicated phone portrait/landscape HUD layouts.
 2. Wait for the Unity loading bar to finish.
 3. Press `How to Play` if this is your first run.
 4. Press `Start Run`.
@@ -29,6 +29,7 @@ This is a small prototype, not a finished game. Please note what confused you, w
 - If a tile is not highlighted, it is blocked, out of range, occupied, or invalid.
 - After clearing a room, choose one reward card.
 - If you win or lose, press `Start New Run` to restart.
+- On phone, rotate if needed. Browser fullscreen or Add to Home Screen can help if the address bar makes the game feel cramped.
 
 ## Feedback checklist
 
