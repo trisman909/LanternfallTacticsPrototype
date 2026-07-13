@@ -7,32 +7,32 @@ namespace Lanternfall
     {
         public Rect Header;
         public Rect[] StatChips;
-        public Rect Message;
+        public Rect HazardNote;
         public Rect HelpButton;
         public Rect InfoButton;
         public Rect SelectedSkill;
         public Rect[] SkillCards;
         public Rect CancelButton;
         public Rect EndTurnButton;
-        public Rect HazardLegend;
+        public Rect Message;
 
         public bool RequiredElementsFit(Rect panel)
         {
             return Contains(panel, Header)
                 && StatChips.All(r => Contains(panel, r))
-                && Contains(panel, Message)
+                && Contains(panel, HazardNote)
                 && Contains(panel, HelpButton)
                 && Contains(panel, InfoButton)
                 && Contains(panel, SelectedSkill)
                 && SkillCards.All(r => Contains(panel, r))
                 && Contains(panel, CancelButton)
                 && Contains(panel, EndTurnButton)
-                && Contains(panel, HazardLegend);
+                && Contains(panel, Message);
         }
 
         public bool HasEssentialOverlap()
         {
-            var essential = new[] { Header, Message, HelpButton, InfoButton, SelectedSkill, CancelButton, EndTurnButton, HazardLegend }
+            var essential = new[] { Header, HazardNote, HelpButton, InfoButton, SelectedSkill, CancelButton, EndTurnButton, Message }
                 .Concat(StatChips)
                 .Concat(SkillCards)
                 .ToArray();
@@ -60,20 +60,20 @@ namespace Lanternfall
     {
         public static CombatHudLayoutSnapshot Compute(Rect panel, bool portrait, bool compact)
         {
-            float pad = 10f;
-            float gap = compact ? 6f : 8f;
+            bool shortPanel = compact && panel.height < 420f;
+            float pad = shortPanel ? 8f : 12f;
+            float gap = shortPanel ? 4f : compact ? 8f : 10f;
             float x = panel.x + pad;
             float w = panel.width - pad * 2f;
-            float y = panel.y + (compact ? 6f : 10f);
-            bool shortPanel = compact && panel.height < 420f;
+            float y = panel.y + (shortPanel ? 10f : compact ? 14f : 16f);
             var snap = new CombatHudLayoutSnapshot();
 
-            snap.Header = new Rect(x, y, w, shortPanel ? 28f : portrait ? 28f : compact ? 34f : 44f);
+            snap.Header = new Rect(x, y, w, shortPanel ? 36f : portrait ? 34f : compact ? 56f : 58f);
             y += snap.Header.height + gap;
 
             float chipGap = 6f;
             float chipW = (w - chipGap * 2f) / 3f;
-            float chipH = shortPanel ? 32f : portrait ? 36f : compact ? 38f : 42f;
+            float chipH = shortPanel ? 30f : portrait ? 36f : compact ? 42f : 44f;
             snap.StatChips = new[]
             {
                 new Rect(x, y, chipW, chipH),
@@ -82,22 +82,22 @@ namespace Lanternfall
             };
             y += chipH + gap;
 
-            snap.Message = new Rect(x, y, w, shortPanel ? 36f : portrait ? 38f : compact ? 48f : 58f);
-            y += snap.Message.height + gap;
+            snap.HazardNote = new Rect(x, y, w, shortPanel ? 24f : portrait ? 34f : compact ? 46f : 50f);
+            y += snap.HazardNote.height + gap;
 
-            float smallButtonH = 48f;
+            float smallButtonH = shortPanel ? 44f : 48f;
             snap.HelpButton = new Rect(x, y, w * .48f, smallButtonH);
             snap.InfoButton = new Rect(x + w * .52f, y, w * .48f, smallButtonH);
             y += smallButtonH + gap;
 
-            snap.SelectedSkill = new Rect(x, y, w, shortPanel ? 24f : portrait ? 28f : compact ? 30f : 34f);
+            snap.SelectedSkill = new Rect(x, y, w, shortPanel ? 20f : portrait ? 28f : compact ? 28f : 32f);
             y += snap.SelectedSkill.height + gap;
 
             bool rowSkills = portrait || (compact && panel.height < 520f);
             if (rowSkills)
             {
                 float cardW = (w - gap * 2f) / 3f;
-                float cardH = shortPanel ? 58f : portrait ? 72f : 66f;
+                float cardH = shortPanel ? 56f : portrait ? 74f : 66f;
                 snap.SkillCards = new[]
                 {
                     new Rect(x, y, cardW, cardH),
@@ -108,7 +108,7 @@ namespace Lanternfall
             }
             else
             {
-                float cardH = compact ? 72f : 82f;
+                float cardH = compact ? 88f : 92f;
                 snap.SkillCards = new[]
                 {
                     new Rect(x, y, w, cardH),
@@ -118,12 +118,12 @@ namespace Lanternfall
                 y += cardH * 3f + gap * 3f;
             }
 
-            float actionH = shortPanel ? 42f : portrait ? 50f : compact ? 48f : 54f;
+            float actionH = shortPanel ? 44f : portrait ? 50f : compact ? 52f : 54f;
             snap.CancelButton = new Rect(x, y, w * .48f, actionH);
             snap.EndTurnButton = new Rect(x + w * .52f, y, w * .48f, actionH);
             y += actionH + gap;
 
-            snap.HazardLegend = new Rect(x, y, w, Mathf.Max(shortPanel ? 24f : 36f, panel.yMax - y - pad));
+            snap.Message = new Rect(x, y, w, Mathf.Max(shortPanel ? 42f : 56f, panel.yMax - y - pad));
             return snap;
         }
     }

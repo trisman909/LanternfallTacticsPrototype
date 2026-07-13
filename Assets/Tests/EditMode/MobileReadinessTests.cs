@@ -364,10 +364,16 @@ namespace Lanternfall.Tests
             Assert.True(hud.RequiredElementsFit(layout.Panel));
             Assert.False(hud.HasEssentialOverlap());
             Assert.True(hud.TouchTargetsValid());
+            Assert.That(hud.Header.yMin,Is.GreaterThanOrEqualTo(layout.Panel.yMin+12f));
+            Assert.That(hud.Header.height,Is.GreaterThanOrEqualTo(52f));
             Assert.AreEqual(3,hud.StatChips.Length);
             Assert.AreEqual(3,hud.SkillCards.Length);
+            Assert.That(hud.StatChips.All(r=>r.yMin>hud.Header.yMax),Is.True);
+            Assert.That(hud.HazardNote.yMin,Is.GreaterThan(hud.StatChips.Max(r=>r.yMax)));
+            Assert.That(hud.SkillCards.All(r=>r.yMin>hud.SelectedSkill.yMax),Is.True);
             Assert.That(hud.SkillCards.All(r=>r.width>=MobileLayoutSnapshot.MinimumTouchTarget),Is.True);
-            Assert.That(hud.SkillCards.All(r=>r.height>=MobileLayoutSnapshot.MinimumTouchTarget),Is.True);
+            Assert.That(hud.SkillCards.All(r=>r.height>=86f),Is.True);
+            Assert.That(hud.Message.yMin,Is.GreaterThan(hud.EndTurnButton.yMax));
         }
 
         [Test] public void Phase5K_ShortMobileLandscapeKeepsAllSkillsAndEndTurnAccessible()
@@ -380,7 +386,9 @@ namespace Lanternfall.Tests
             Assert.False(hud.HasEssentialOverlap());
             Assert.True(hud.TouchTargetsValid(42f));
             Assert.That(hud.SkillCards.All(r=>r.height>=56f));
-            Assert.That(hud.EndTurnButton.height,Is.GreaterThanOrEqualTo(42f));
+            Assert.That(hud.HelpButton.height,Is.GreaterThanOrEqualTo(44f));
+            Assert.That(hud.EndTurnButton.height,Is.GreaterThanOrEqualTo(44f));
+            Assert.That(hud.Message.yMin,Is.GreaterThan(hud.EndTurnButton.yMax));
         }
 
         [Test] public void Phase5K_HelpIsCollapsedDuringCombatAndCanOpenClose()

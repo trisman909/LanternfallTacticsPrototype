@@ -35,6 +35,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5I - lightweight game-feel polish (complete)
 - Phase 5J - first feedback fix pass setup (complete)
 - Phase 5K HUD clarity rework - combat HUD/skill panel fix from live WebGL playtest feedback (complete)
+- Phase 5K.1 - live browser HUD fix for cropped desktop WebGL right panel text (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -110,3 +111,5 @@ Phase 5L adds release-hardening instrumentation without analytics: `Prototype v0
 Phase 5M strengthens automated regression coverage for invalid reward choices, cooldown rejection, invalid targets, class start/action labels, enemy preview tile validity, and future-safe WebGL/mobile contracts.
 
 Phase 5K HUD clarity rework responds to live WebGL playtest feedback by replacing the cramped in-combat status block with clear HP/AP/MP chips, contained combat messages, cleaner skill cards, collapsed Help/Info access, and layout tests for desktop WebGL plus mobile landscape.
+
+Phase 5K.1 tightens the live desktop WebGL combat HUD after screenshot feedback: safer top padding, smaller right-panel fonts, clearer vertical section order, taller skill cards, compact skill summaries, and stricter layout tests to prevent cropped header/skill text.

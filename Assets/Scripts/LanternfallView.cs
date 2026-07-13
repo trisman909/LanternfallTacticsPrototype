@@ -9,6 +9,7 @@ namespace Lanternfall
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
+        GUIStyle hudHeader, hudChip, hudMessage, hudButton, hudSkill, hudSkillCompact, hudTiny;
         float tile = 1f;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -55,6 +56,13 @@ namespace Lanternfall
                 hover = {background = Tex(new Color(.23f, .2f, .32f))},
                 active = {background = Tex(new Color(.55f, .32f, .08f))}
             };
+            hudHeader = new GUIStyle(center){fontSize = Mathf.Clamp(s - 7, 15, 19), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(1f, .80f, .32f)}};
+            hudChip = new GUIStyle(center){fontSize = Mathf.Clamp(s - 6, 15, 19), fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
+            hudMessage = new GUIStyle(center){fontSize = Mathf.Clamp(s - 9, 13, 16), fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
+            hudTiny = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, 12, 15), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
+            hudButton = new GUIStyle(button){fontSize = Mathf.Clamp(s - 8, 13, 17), fontStyle = FontStyle.Bold, wordWrap = true};
+            hudSkill = new GUIStyle(button){fontSize = Mathf.Clamp(s - 9, 13, 16), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
+            hudSkillCompact = new GUIStyle(button){fontSize = Mathf.Clamp(s - 11, 12, 14), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
         }
 
         Texture2D Tex(Color c)
@@ -252,9 +260,9 @@ namespace Lanternfall
             var hud = CombatHudLayout.Compute(r, false, compact);
             DrawCombatHeader(hud.Header, compact);
             DrawStatChips(hud.StatChips);
-            DrawMessageBox(hud.Message);
-            if (GUI.Button(hud.HelpButton, HudText.HelpButton, button)) game.ShowHelp();
-            if (GUI.Button(hud.InfoButton, HudText.InfoButton, button)) game.ShowPlaytestInfo();
+            DrawHazardNote(hud.HazardNote);
+            if (GUI.Button(hud.HelpButton, HudText.HelpButton, hudButton)) game.ShowHelp();
+            if (GUI.Button(hud.InfoButton, HudText.InfoButton, hudButton)) game.ShowPlaytestInfo();
 
             float y = hud.SelectedSkill.y;
             float x = hud.SelectedSkill.x, w = hud.SelectedSkill.width;
@@ -263,11 +271,12 @@ namespace Lanternfall
             DrawSelectedSkillInfo(hud.SelectedSkill);
             DrawSkills(hud.SkillCards, compact || hud.SkillCards[0].width < 140f);
 
-            if (game.SelectedSkill.HasValue && GUI.Button(hud.CancelButton, compact ? "CANCEL" : HudText.CancelSkillButton, button)) game.CancelSkill();
+            bool hasSkill = game.SelectedSkill.HasValue;
+            if (hasSkill && GUI.Button(hud.CancelButton, compact ? "CANCEL" : HudText.CancelSkillButton, hudButton)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
-            if (GUI.Button(hud.EndTurnButton, HudText.EndTurnButton, button)) game.WaitTurn();
+            if (GUI.Button(hasSkill ? hud.EndTurnButton : new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height), HudText.EndTurnButton, hudButton)) game.WaitTurn();
             GUI.enabled = true;
-            GUI.Label(hud.HazardLegend, $"{game.Theme.HazardName}: {game.Theme.HazardRule}\nRED danger  CYAN move  GOLD skill", compact ? center : body);
+            DrawMessageBox(hud.Message);
         }
 
         void DrawPortraitPanel(Rect r)
@@ -276,20 +285,21 @@ namespace Lanternfall
             var hud = CombatHudLayout.Compute(r, true, false);
             DrawCombatHeader(hud.Header, true);
             DrawStatChips(hud.StatChips);
-            DrawMessageBox(hud.Message);
-            if (GUI.Button(hud.HelpButton, HudText.HelpButton, button)){game.ShowHelp(); return;}
-            if (GUI.Button(hud.InfoButton, HudText.InfoButton, button)){game.ShowPlaytestInfo(); return;}
+            DrawHazardNote(hud.HazardNote);
+            if (GUI.Button(hud.HelpButton, HudText.HelpButton, hudButton)){game.ShowHelp(); return;}
+            if (GUI.Button(hud.InfoButton, HudText.InfoButton, hudButton)){game.ShowPlaytestInfo(); return;}
 
             float y = hud.SelectedSkill.y;
             float x = hud.SelectedSkill.x, w = hud.SelectedSkill.width;
             if (DrawEndOrReward(x, w, ref y, false)) return;
             DrawSelectedSkillInfo(hud.SelectedSkill);
             DrawSkills(hud.SkillCards, true);
-            if (game.SelectedSkill.HasValue && GUI.Button(hud.CancelButton, HudText.CancelSkillButton, button)) game.CancelSkill();
+            bool hasSkill = game.SelectedSkill.HasValue;
+            if (hasSkill && GUI.Button(hud.CancelButton, HudText.CancelSkillButton, hudButton)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
-            if (GUI.Button(hud.EndTurnButton, HudText.EndTurnButton, button)) game.WaitTurn();
+            if (GUI.Button(hasSkill ? hud.EndTurnButton : new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height), HudText.EndTurnButton, hudButton)) game.WaitTurn();
             GUI.enabled = true;
-            GUI.Label(hud.HazardLegend, $"{game.Theme.HazardName}: {game.Theme.HazardRule}\nRED danger  CYAN move  GOLD skill", center);
+            DrawMessageBox(hud.Message);
         }
 
         bool DrawEndOrReward(float x, float w, ref float y, bool compact)
@@ -314,10 +324,8 @@ namespace Lanternfall
         void DrawCombatHeader(Rect r, bool compact)
         {
             var cls = ClassCatalog.Get(game.Player.ClassId);
-            string label = compact
-                ? $"{HudText.TurnLabel(game.Turns.Phase)}  •  ROOM {game.RoomNumber}/5\n{cls.name}  •  {game.Theme.Name}"
-                : $"{HudText.TurnLabel(game.Turns.Phase)}  •  ROOM {game.RoomNumber}/5\n{cls.name}  •  {game.Theme.Name}";
-            GUI.Label(r, label, compact ? center : title);
+            string label = $"{HudText.TurnLabel(game.Turns.Phase)} - ROOM {game.RoomNumber}/5\n{cls.name} - {game.Theme.Name}";
+            GUI.Label(r, label, hudHeader);
         }
 
         void DrawStatChips(Rect[] chips)
@@ -332,15 +340,22 @@ namespace Lanternfall
             {
                 DrawRect(chips[i], new Color(.08f, .075f, .13f));
                 DrawOutline(chips[i], i == 1 ? new Color(.92f, .68f, .22f) : i == 2 ? new Color(.35f, .88f, .95f) : new Color(.82f, .25f, .25f), 2);
-                GUI.Label(chips[i], values[i], center);
+                GUI.Label(chips[i], values[i], hudChip);
             }
+        }
+
+        void DrawHazardNote(Rect r)
+        {
+            DrawRect(r, new Color(.055f, .047f, .075f));
+            DrawOutline(r, new Color(.26f, .22f, .34f), 1);
+            GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), $"{game.Theme.HazardName}: {Shorten(game.Theme.HazardRule, 58)}", hudMessage);
         }
 
         void DrawMessageBox(Rect r)
         {
             DrawRect(r, new Color(.03f, .03f, .055f));
             DrawOutline(r, new Color(.24f, .22f, .34f), 1);
-            GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), Shorten(game.Message, 96), center);
+            GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), $"{Shorten(game.Message, 82)}\nRED danger  CYAN move  GOLD skill", hudMessage);
         }
 
         void DrawSelectedSkillInfo(Rect r)
@@ -351,7 +366,7 @@ namespace Lanternfall
                 var s = SkillBook.Get(game.SelectedSkill.Value);
                 label = $"Selected: {s.Name} - tap a GOLD target";
             }
-            GUI.Label(r, label, small);
+            GUI.Label(r, label, hudTiny);
         }
 
         void DrawSkills(Rect[] cards, bool compact)
@@ -369,7 +384,7 @@ namespace Lanternfall
                 string label = HudText.SkillCard(s, cd, game.Player.ActionPoints, game.Turns.Phase, selected, compact);
                 if (compact && cards[i].width < 145f)
                     label = $"{(selected ? "SEL - " : "")}{ShortSkill(s)}\nAP {s.ApCost} - {HudText.SkillState(s, cd, game.Player.ActionPoints, game.Turns.Phase)}\n{s.Hint}";
-                if (GUI.Button(cards[i], label, button)) game.SelectSkill(s.Id);
+                if (GUI.Button(cards[i], label, cards[i].width < 145f ? hudSkillCompact : hudSkill)) game.SelectSkill(s.Id);
                 GUI.enabled = true;
             }
         }
