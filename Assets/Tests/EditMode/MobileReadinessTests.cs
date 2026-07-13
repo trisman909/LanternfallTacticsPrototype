@@ -49,8 +49,10 @@ namespace Lanternfall.Tests
             var go=new GameObject("FirstTime");var game=go.AddComponent<LanternfallGame>();
             Assert.False(game.HasStarted);Assert.That(game.Message,Does.Contain("Start Run"));
             Assert.That(LanternfallGame.HowToPlayLines.Length,Is.GreaterThanOrEqualTo(5));
+            Assert.That(LanternfallGame.HowToPlayLines.Any(l=>l.Contains("room five")));
             Assert.That(LanternfallGame.HowToPlayLines.Any(l=>l.Contains("AP")));
             Assert.That(LanternfallGame.HowToPlayLines.Any(l=>l.Contains("Red")));
+            Assert.That(LanternfallGame.HowToPlayLines.Any(l=>l.Contains("not gold")));
             var previous=game.SelectedClass;game.CycleClass();Assert.AreNotEqual(previous,game.SelectedClass);
             game.ShowHelp();Assert.True(game.HelpVisible);
             game.HideHelp();Assert.False(game.HelpVisible);
@@ -214,6 +216,18 @@ namespace Lanternfall.Tests
             Assert.That(guide,Does.Contain("Did the game load?"));
             Assert.That(guide,Does.Contain("Were AP/MP clear?"));
             Assert.That(guide,Does.Contain("Did anything break?"));
+        }
+
+        [Test] public void Phase5H_ShareReadyGuideAndLoadingCopyArePrepared()
+        {
+            var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
+            Assert.That(guide,Does.Contain("Wait for the Unity loading bar"));
+            Assert.That(guide,Does.Contain("Was `End Turn` obvious?"));
+            Assert.That(guide,Does.Contain("Known limitations"));
+            if(File.Exists("docs/index.html"))
+                Assert.That(File.ReadAllText("docs/index.html"),Does.Contain("Loading Lanternfall Tactics"));
+            if(File.Exists("docs/TemplateData/style.css"))
+                Assert.That(File.ReadAllText("docs/TemplateData/style.css"),Does.Contain("lanternfall-loading-copy"));
         }
     }
 }

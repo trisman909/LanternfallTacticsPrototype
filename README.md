@@ -31,6 +31,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5E - browser/mobile playtest QA and usability fixes (complete)
 - Phase 5F - visual identity polish (complete)
 - Phase 5G - external playtest release prep (complete)
+- Phase 5H - share-ready playtest polish (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -88,3 +89,5 @@ Phase 5E verifies the WebGL preview in a local browser, tests phone-sized viewpo
 Phase 5F keeps the prototype code-driven and lightweight while making the board, units, effects, biome hazards, reward cards, and panels feel more intentional and readable. See [VISUAL_POLISH_5F.md](VISUAL_POLISH_5F.md).
 
 Phase 5G prepares the WebGL build for first external playtesting, adds the visible `Prototype v0.5G` label, verifies GitHub Pages-ready files, and adds a short tester guide/checklist. See [PLAYTEST_GUIDE.md](PLAYTEST_GUIDE.md).
+
+Phase 5H improves first-minute share clarity without adding content: clearer start/help instructions, a WebGL loading hint, known limitations for testers, and a feedback checklist suitable for friends trying the browser build.

@@ -39,11 +39,12 @@ namespace Lanternfall
 
         public static readonly string[] HowToPlayLines =
         {
-            "You start each turn with AP for skills and MP for movement.",
-            "Tap cyan tiles to spend MP. Tap a skill, then a gold target to spend AP.",
-            "Red tiles show where enemies will strike after you press End Turn.",
-            "Blocked line-of-sight targets are not gold. Move or choose another skill.",
-            "Clear a room, choose one blessing, and survive the Warden."
+            "Goal: clear four rooms, then defeat the Lantern Warden in room five.",
+            "Each player turn refreshes AP for skills and MP for movement.",
+            "Tap cyan tiles to move. Tap a skill, then a gold target to attack or use it.",
+            "Red tiles are enemy danger previews. Move away before pressing End Turn.",
+            "If a target is not gold, it is out of range, blocked, or not valid for that skill.",
+            "After each cleared room, pick one blessing and keep going."
         };
 
         void Awake()

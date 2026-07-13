@@ -98,8 +98,8 @@ namespace Lanternfall
             GUI.Label(new Rect(pad, y, w, compact ? 40 : 72), "LANTERNFALL TACTICS", title); y += compact ? 34 : 58;
             GUI.Label(new Rect(pad, y, w, compact ? 22 : 28), PrototypeVersion, small); y += compact ? 24 : 34;
             GUI.Label(new Rect(pad, y, w, compact ? 54 : 118),
-                compact ? "Turn tactics: spend AP/MP, read red previews, survive five rooms."
-                        : "A short turn-based roguelite prototype.\nMove on cyan tiles, read the red enemy previews, choose rewards, and survive five rooms.",
+                compact ? "Turn tactics: spend AP/MP, avoid red previews, survive five rooms."
+                        : "A short turn-based roguelite prototype.\nFirst time? Open How to Play, then move on cyan tiles, spend AP on skills, avoid red previews, and survive five rooms.",
                 center); y += compact ? 58 : 128;
             var cls = ClassCatalog.Get(game.SelectedClass);
             GUI.Label(new Rect(pad, y, w, compact ? 42 : 72), compact ? $"{cls.name} / {cls.title}" : $"{cls.name} / {cls.title}\n{cls.description}", center); y += compact ? 48 : 82;
@@ -120,7 +120,7 @@ namespace Lanternfall
                 if (GUI.Button(new Rect(pad, y, w, 66), "START RUN", button)) game.StartRun(); y += 78;
                 if (GUI.Button(new Rect(pad, y, w, 60), "HOW TO PLAY", button)) game.ShowHelp(); y += 76;
             }
-            if(!compact)GUI.Label(new Rect(pad, y, w, 80), "Built for touch first. Mouse clicks work in the editor and Windows build.", small);
+            if(!compact)GUI.Label(new Rect(pad, y, w, 80), "Built for touch first. Mouse clicks work in the editor and Windows build.\nPlaytest note: after a run, jot down what confused you most.", small);
         }
 
         void DrawHelpOverlay(Rect area)

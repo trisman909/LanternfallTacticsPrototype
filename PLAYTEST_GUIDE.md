@@ -1,28 +1,30 @@
-# Lanternfall Tactics — External Playtest Guide
+# Lanternfall Tactics - External Playtest Guide
 
 Expected playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
-If the link does not load, GitHub Pages may still need to be enabled from repository settings.
+If the page does not load, GitHub Pages may still need to be enabled or may still be deploying the latest pushed build.
 
-## How to play
+## Quick start
 
-1. Press `Start Run`.
-2. Move by tapping/clicking cyan tiles.
-3. Skills spend AP. Movement spends MP.
-4. Tap a skill, then tap a highlighted target.
-5. Red tiles show where enemies intend to attack next.
-6. Press `End Turn` when you are done spending AP/MP.
-7. After clearing a room, choose one reward.
-8. Survive five rooms and defeat the Lantern Warden.
-9. If you win or lose, press `Start New Run` to restart.
+1. Open the link in a desktop browser or phone browser.
+2. Wait for the Unity loading bar to finish.
+3. Press `How to Play` if this is your first run.
+4. Press `Start Run`.
+5. Try to clear four rooms, then defeat the Lantern Warden in room five.
 
-## What AP and MP mean
+## How turns work
 
 - AP means Action Points. Skills cost AP.
 - MP means Movement Points. Moving across tiles costs MP.
 - AP and MP refresh at the start of your turn.
+- Move by tapping/clicking cyan tiles.
+- Use a skill by tapping a skill button, then a gold target.
+- Red tiles show where enemies intend to attack after you press `End Turn`.
+- If a target is not highlighted, it is out of range, blocked, occupied, or invalid for the selected skill.
+- After clearing a room, choose one reward card and continue.
+- If you win or lose, press `Start New Run` to restart.
 
 ## Known limitations
 
@@ -31,7 +33,8 @@ If the link does not load, GitHub Pages may still need to be enabled from reposi
 - Browser performance may vary, especially on older phones.
 - iPhone Safari still needs physical-device testing.
 - There is no audio/final art pass yet.
-- No online saves, accounts, monetization, or multiplayer.
+- There are no online saves, accounts, monetization, or multiplayer.
+- The run is intentionally short: five rooms total.
 
 ## Tester checklist
 
@@ -40,6 +43,8 @@ If the link does not load, GitHub Pages may still need to be enabled from reposi
 - Were AP/MP clear?
 - Were skills clear?
 - Were enemy danger previews clear?
+- Was `End Turn` obvious?
+- Were reward choices clear?
 - Was the UI readable?
 - Was anything too small on phone?
 - Was the game too easy, too hard, or too slow?

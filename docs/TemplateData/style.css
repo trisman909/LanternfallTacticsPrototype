@@ -19,3 +19,4 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
 #unity-container.unity-desktop { position: fixed; left: 0; top: 0; transform: none; width: 100vw; height: 100vh; }
 #unity-canvas { width: 100vw !important; height: 100vh !important; display: block; }
 #unity-footer { display: none; }
+#lanternfall-loading-copy { color: #f4d27a; font: 700 16px Arial, sans-serif; text-align: center; margin: 10px auto; max-width: 520px; line-height: 1.35; }

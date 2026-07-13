@@ -100,6 +100,7 @@ namespace Lanternfall.EditorTools
                 var html=File.ReadAllText(index);
                 html=html.Replace("canvas.style.width = \"960px\";","canvas.style.width = \"100vw\";");
                 html=html.Replace("canvas.style.height = \"600px\";","canvas.style.height = \"100vh\";");
+                html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics... If this is your first run, use How to Play before moving.</div>\n        <div id=\"unity-progress-bar-empty\">");
                 File.WriteAllText(index,html);
             }
             var css=Path.Combine(path,"TemplateData","style.css");
@@ -110,6 +111,7 @@ namespace Lanternfall.EditorTools
                 text += "#unity-container.unity-desktop { position: fixed; left: 0; top: 0; transform: none; width: 100vw; height: 100vh; }\n";
                 text += "#unity-canvas { width: 100vw !important; height: 100vh !important; display: block; }\n";
                 text += "#unity-footer { display: none; }\n";
+                text += "#lanternfall-loading-copy { color: #f4d27a; font: 700 16px Arial, sans-serif; text-align: center; margin: 10px auto; max-width: 520px; line-height: 1.35; }\n";
                 File.WriteAllText(css,text);
             }
         }
