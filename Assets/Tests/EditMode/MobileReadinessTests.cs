@@ -150,6 +150,40 @@ namespace Lanternfall.Tests
             }
         }
 
+        [Test] public void Phase5M_AllClassesCanStartAndSeeLabeledActions()
+        {
+            foreach(var cls in ClassCatalog.All)
+            {
+                var go=new GameObject("ClassStart");var game=go.AddComponent<LanternfallGame>();game.SelectClass(cls.id);game.StartRun(6100+(int)cls.id);
+                Assert.AreEqual(cls.id,game.Player.ClassId);
+                Assert.That(game.ValidTargets.Count,Is.GreaterThan(0),cls.name);
+                Assert.True(SkillBook.ForClass(cls.id).All(s=>s.ApCost>0&&!string.IsNullOrWhiteSpace(s.Name)&&!string.IsNullOrWhiteSpace(s.Hint)),cls.name);
+                Object.DestroyImmediate(go);
+            }
+        }
+
+        [Test] public void Phase5M_CooldownsAndInvalidSkillTargetsRejectSafely()
+        {
+            var go=new GameObject("Cooldowns");var game=go.AddComponent<LanternfallGame>();game.SelectClass(PlayerClassId.Cantor);game.StartRun(6200);
+            var enemy=game.Enemies.First();enemy.Position=game.Grid.Neighbors(game.Player.Position).First(p=>game.Grid.IsFloor(p));
+            game.RefreshPreviews();game.SelectSkill(SkillId.EmberBolt);Assert.True(game.ValidTargets.Contains(enemy.Position));
+            game.TapTile(enemy.Position);Assert.True(game.Player.Cooldowns[SkillBook.Get(SkillId.EmberBolt).Name]>0);
+            game.SelectSkill(SkillId.EmberBolt);Assert.False(game.LastInputAccepted);Assert.That(game.Message,Does.Contain("cooling"));
+            game.SelectSkill(SkillId.CinderBloom);var invalid=game.Grid.Floors().First(p=>!game.ValidTargets.Contains(p)&&p!=game.Player.Position);
+            game.TapTile(invalid);Assert.False(game.LastInputAccepted);Assert.That(game.Message,Does.StartWith("INVALID"));
+            Object.DestroyImmediate(go);
+        }
+
+        [Test] public void Phase5M_InvalidRewardChoiceDoesNotAdvanceOrMutateStats()
+        {
+            var go=new GameObject("BadReward");var game=go.AddComponent<LanternfallGame>();game.StartRun(6300);game.Turns.ShowReward();
+            int room=game.RoomNumber,hp=game.Player.MaxHealth,power=game.Player.Power,mp=game.Player.MoveRange;
+            game.ChooseReward(99);
+            Assert.False(game.LastInputAccepted);Assert.AreEqual(room,game.RoomNumber);Assert.AreEqual(hp,game.Player.MaxHealth);Assert.AreEqual(power,game.Player.Power);Assert.AreEqual(mp,game.Player.MoveRange);
+            Assert.That(game.Message,Does.Contain("reward"));
+            Object.DestroyImmediate(go);
+        }
+
         [Test] public void Phase5D_RewardsSupportDifferentClassNeeds()
         {
             var go=new GameObject("Rewards");var game=go.AddComponent<LanternfallGame>();game.StartRun(8010);game.Turns.ShowReward();

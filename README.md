@@ -105,3 +105,5 @@ Phase 5J prepares the project to receive first external playtest feedback. No ex
 Phase 5K adds safe offline polish and automated QA hardening: clearer AP/MP wording, centralized reward labels, stronger WebGL troubleshooting notes, and additional tests for share/readability contracts.
 
 Phase 5L adds release-hardening instrumentation without analytics: `Prototype v0.5L`, a local Playtest Info panel, safer WebGL loading/recovery text, and additional generated-folder/runtime-log QA checks.
+
+Phase 5M strengthens automated regression coverage for invalid reward choices, cooldown rejection, invalid targets, class start/action labels, enemy preview tile validity, and future-safe WebGL/mobile contracts.

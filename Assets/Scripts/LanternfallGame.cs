@@ -427,6 +427,7 @@ namespace Lanternfall
         public void ChooseReward(int choice)
         {
             if (Turns.Phase != TurnPhase.Reward) return;
+            if (choice < 0 || choice >= RewardCatalog.All.Length){Reject("Choose one visible reward card."); return;}
             LastInputAccepted = true;
             RejectedTile = null;
             if (choice == 0){Player.MaxHealth += 3; Player.Health = Mathf.Min(Player.MaxHealth, Player.Health + 3); pendingRoomIntro = "Reward applied: Vital Ember (+3 max HP).";}
