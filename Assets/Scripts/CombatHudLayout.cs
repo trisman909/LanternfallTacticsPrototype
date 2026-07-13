@@ -71,22 +71,23 @@ namespace Lanternfall
         {
             bool phoneLandscape = compact && panel.height < 500f && panel.width >= 320f && panel.width > panel.height * .75f;
             bool phonePortrait = portrait && panel.width < 520f;
-            bool ultraShortPhonePortrait = phonePortrait && panel.height < 570f;
+            bool ultraShortPhonePortrait = phonePortrait && panel.height < 620f;
             bool ultraShortPhoneLandscape = phoneLandscape && panel.height < 360f;
             bool shortPanel = compact && panel.height < 420f && !phoneLandscape;
             float pad = shortPanel ? 8f : phoneLandscape || phonePortrait ? 10f : 12f;
-            float gap = ultraShortPhonePortrait ? 4f : ultraShortPhoneLandscape ? 1f : shortPanel || phoneLandscape ? 3f : phonePortrait ? 6f : compact ? 8f : 10f;
+            float gap = ultraShortPhonePortrait ? 4f : ultraShortPhoneLandscape ? 4f : shortPanel || phoneLandscape ? 4f : phonePortrait ? 6f : compact ? 8f : 10f;
             float x = panel.x + pad;
             float w = panel.width - pad * 2f;
-            float y = panel.y + (phoneLandscape ? 4f : phonePortrait ? 10f : shortPanel ? 10f : compact ? 14f : 16f);
+            float y = panel.y + (phoneLandscape ? 6f : phonePortrait ? 10f : shortPanel ? 10f : compact ? 14f : 16f);
             var snap = new CombatHudLayoutSnapshot();
 
-            snap.Header = new Rect(x, y, w, shortPanel ? 36f : ultraShortPhonePortrait ? 24f : phonePortrait ? 30f : portrait ? 44f : ultraShortPhoneLandscape ? 20f : phoneLandscape ? 24f : compact ? 56f : 58f);
-            y += snap.Header.height + gap;
+            float headerH = phonePortrait || phoneLandscape ? 0f : shortPanel ? 36f : portrait ? 44f : compact ? 56f : 58f;
+            snap.Header = new Rect(x, y, w, headerH);
+            y += snap.Header.height + (headerH > 0f ? gap : 0f);
 
             float chipGap = 6f;
             float chipW = (w - chipGap * 2f) / 3f;
-            float chipH = shortPanel ? 30f : ultraShortPhonePortrait ? 54f : phonePortrait ? 64f : portrait ? 44f : ultraShortPhoneLandscape ? 50f : phoneLandscape ? 58f : compact ? 42f : 44f;
+            float chipH = shortPanel ? 30f : ultraShortPhonePortrait ? 66f : phonePortrait ? 78f : portrait ? 44f : ultraShortPhoneLandscape ? 58f : phoneLandscape ? 66f : compact ? 42f : 44f;
             snap.StatChips = new[]
             {
                 new Rect(x, y, chipW, chipH),
@@ -95,7 +96,7 @@ namespace Lanternfall
             };
             y += chipH + gap;
 
-            snap.HazardNote = new Rect(x, y, w, shortPanel ? 24f : ultraShortPhonePortrait ? 30f : phonePortrait ? 42f : portrait ? 44f : ultraShortPhoneLandscape ? 20f : phoneLandscape ? 34f : compact ? 46f : 50f);
+            snap.HazardNote = new Rect(x, y, w, shortPanel ? 24f : ultraShortPhonePortrait ? 36f : phonePortrait ? 48f : portrait ? 44f : ultraShortPhoneLandscape ? 30f : phoneLandscape ? 36f : compact ? 46f : 50f);
             y += snap.HazardNote.height + gap;
 
             float smallButtonH = phonePortrait || phoneLandscape ? 0f : shortPanel ? 44f : 48f;
@@ -106,11 +107,11 @@ namespace Lanternfall
             snap.SelectedSkill = new Rect(x, y, w, shortPanel ? 20f : phonePortrait ? 0f : portrait ? 28f : phoneLandscape ? 0f : compact ? 28f : 32f);
             y += snap.SelectedSkill.height + (snap.SelectedSkill.height > 0 ? gap : 0);
 
-            bool rowSkills = (portrait && !phonePortrait) || (compact && panel.height < 520f);
+            bool rowSkills = (portrait && !phonePortrait) || phoneLandscape || (compact && panel.height < 520f);
             if (rowSkills)
             {
                 float cardW = (w - gap * 2f) / 3f;
-                float cardH = shortPanel ? 56f : phonePortrait ? 82f : portrait ? 84f : ultraShortPhoneLandscape ? 88f : phoneLandscape ? 96f : 66f;
+                float cardH = shortPanel ? 56f : phonePortrait ? 82f : portrait ? 84f : ultraShortPhoneLandscape ? 96f : phoneLandscape ? 112f : 66f;
                 snap.SkillCards = new[]
                 {
                     new Rect(x, y, cardW, cardH),
@@ -121,7 +122,7 @@ namespace Lanternfall
             }
             else
             {
-                float cardH = ultraShortPhonePortrait ? 70f : phonePortrait ? 86f : phoneLandscape ? 96f : compact ? 88f : 92f;
+                float cardH = ultraShortPhonePortrait ? 90f : phonePortrait ? 112f : compact ? 88f : 92f;
                 snap.SkillCards = new[]
                 {
                     new Rect(x, y, w, cardH),
@@ -131,12 +132,12 @@ namespace Lanternfall
                 y += cardH * 3f + gap * 3f;
             }
 
-            float actionH = shortPanel ? 44f : ultraShortPhonePortrait ? 72f : phonePortrait ? 84f : portrait ? 58f : ultraShortPhoneLandscape ? 64f : phoneLandscape ? 72f : compact ? 52f : 54f;
-            snap.CancelButton = phonePortrait || phoneLandscape ? new Rect(x, y, w * .32f, actionH) : new Rect(x, y, w * .48f, actionH);
-            snap.EndTurnButton = phonePortrait || phoneLandscape ? new Rect(x + w * .35f, y, w * .65f, actionH) : new Rect(x + w * .52f, y, w * .48f, actionH);
+            float actionH = shortPanel ? 44f : ultraShortPhonePortrait ? 86f : phonePortrait ? 98f : portrait ? 58f : ultraShortPhoneLandscape ? 76f : phoneLandscape ? 86f : compact ? 52f : 54f;
+            snap.CancelButton = phonePortrait || phoneLandscape ? new Rect(x, y, w * .25f, actionH) : new Rect(x, y, w * .48f, actionH);
+            snap.EndTurnButton = phonePortrait || phoneLandscape ? new Rect(x + w * .28f, y, w * .72f, actionH) : new Rect(x + w * .52f, y, w * .48f, actionH);
             y += actionH + gap;
 
-            float minMessage = ultraShortPhonePortrait ? 28f : phonePortrait ? 56f : ultraShortPhoneLandscape ? 28f : phoneLandscape ? 42f : shortPanel ? 42f : 56f;
+            float minMessage = ultraShortPhonePortrait ? 22f : phonePortrait ? 34f : ultraShortPhoneLandscape ? 18f : phoneLandscape ? 24f : shortPanel ? 42f : 56f;
             float remaining = Mathf.Max(0f, panel.yMax - y - pad);
             snap.Message = new Rect(x, y, w, Mathf.Min(Mathf.Max(minMessage, remaining), remaining));
             return snap;

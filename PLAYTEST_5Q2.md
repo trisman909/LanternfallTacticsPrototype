@@ -1,4 +1,4 @@
-# Phase 5Q.1 - True Real-Phone HUD Redesign
+# Phase 5Q.2 - True Real-Phone HUD Redesign
 
 Date: 2026-07-14
 
@@ -49,3 +49,4 @@ This pass responds to another real-phone playtest where the board was playable b
 - This is still Unity IMGUI prototype UI, not a final responsive UI framework.
 - Phone browser chrome can still vary by device and browser.
 - Real-phone screenshots remain the source of truth for further HUD tuning.
+

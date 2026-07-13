@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.5Q.1";
+        public const string PrototypeVersion = "Prototype v0.5Q.2";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -43,7 +43,7 @@ namespace Lanternfall
         void InitStyles()
         {
             bool phoneSized = Mathf.Min(Screen.width, Screen.height) < 500;
-            int s = phoneSized ? Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 10, 34, 42) : Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 28, 18, 30);
+            int s = phoneSized ? Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 8, 38, 48) : Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 28, 18, 30);
             title = new GUIStyle(GUI.skin.label){fontSize = s + 5, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, wordWrap = true, normal = {textColor = new Color(1f, .78f, .28f)}};
             body = new GUIStyle(GUI.skin.label){fontSize = s, alignment = TextAnchor.MiddleLeft, wordWrap = true, normal = {textColor = Color.white}};
             center = new GUIStyle(body){alignment = TextAnchor.MiddleCenter};
@@ -57,13 +57,13 @@ namespace Lanternfall
                 hover = {background = Tex(new Color(.23f, .2f, .32f))},
                 active = {background = Tex(new Color(.55f, .32f, .08f))}
             };
-            hudHeader = new GUIStyle(center){fontSize = Mathf.Clamp(s - 9, phoneSized ? 24 : 15, phoneSized ? 30 : 19), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(1f, .80f, .32f)}};
-            hudChip = new GUIStyle(center){fontSize = Mathf.Clamp(s - 5, phoneSized ? 30 : 15, phoneSized ? 36 : 19), fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
-            hudMessage = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, phoneSized ? 22 : 13, phoneSized ? 28 : 16), fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
-            hudTiny = new GUIStyle(center){fontSize = Mathf.Clamp(s - 9, phoneSized ? 22 : 12, phoneSized ? 28 : 15), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
-            hudButton = new GUIStyle(button){fontSize = Mathf.Clamp(s - 7, phoneSized ? 26 : 13, phoneSized ? 32 : 17), fontStyle = FontStyle.Bold, wordWrap = true};
-            hudSkill = new GUIStyle(button){fontSize = Mathf.Clamp(s - 7, phoneSized ? 26 : 13, phoneSized ? 32 : 16), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
-            hudSkillCompact = new GUIStyle(button){fontSize = Mathf.Clamp(s - 8, phoneSized ? 25 : 12, phoneSized ? 31 : 14), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
+            hudHeader = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, phoneSized ? 26 : 15, phoneSized ? 34 : 19), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(1f, .80f, .32f)}};
+            hudChip = new GUIStyle(center){fontSize = Mathf.Clamp(s - 4, phoneSized ? 34 : 15, phoneSized ? 44 : 19), fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
+            hudMessage = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, phoneSized ? 24 : 13, phoneSized ? 32 : 16), fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
+            hudTiny = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, phoneSized ? 24 : 12, phoneSized ? 32 : 15), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
+            hudButton = new GUIStyle(button){fontSize = Mathf.Clamp(s - 7, phoneSized ? 30 : 13, phoneSized ? 40 : 17), fontStyle = FontStyle.Bold, wordWrap = true};
+            hudSkill = new GUIStyle(button){fontSize = Mathf.Clamp(s - 8, phoneSized ? 30 : 13, phoneSized ? 40 : 16), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
+            hudSkillCompact = new GUIStyle(button){fontSize = Mathf.Clamp(s - 9, phoneSized ? 28 : 12, phoneSized ? 38 : 14), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
         }
 
         Texture2D Tex(Color c)
@@ -506,3 +506,4 @@ namespace Lanternfall
         }
     }
 }
+

@@ -58,7 +58,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.5Q.1: short WebGL/Windows playtest build.",
+            "Prototype v0.5Q.2: short WebGL/Windows playtest build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -570,3 +570,4 @@ namespace Lanternfall
         };
     }
 }
+
