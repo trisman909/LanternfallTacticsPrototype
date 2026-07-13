@@ -42,6 +42,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5N - optional healing pickups, reward layout fix, and slight difficulty tightening (complete)
 - Phase 5O - tactical threat upgrade with smarter enemy intent, boss phases, blockers, and healing visibility (complete)
 - Phase 5O.1 - mobile WebGL HUD playability fix for phone portrait and landscape (complete)
+- Phase 5P - threat readability and board clutter reduction (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -131,3 +132,5 @@ Phase 5N responds to follow-up live feedback: automatic room-clear healing is re
 Phase 5O responds to another live playtest: enemies now show immediate and delayed/AP/MP intent, the existing boss has health-based phases, later rooms gain light line-of-sight blockers, healing pickups are more visible, and WebGL repeat-load caching is enabled while preserving GitHub Pages compatibility. See [PLAYTEST_5O.md](PLAYTEST_5O.md).
 
 Phase 5O.1 responds to phone WebGL playtest feedback by giving portrait and phone-landscape layouts dedicated readable HUD sizing: all three skills, HP/AP/MP, and End Turn are kept visible and finger-sized, with mobile viewport CSS adjusted for browser chrome and safe areas.
+
+Phase 5P preserves the improved Phase 5O difficulty while reducing tactical visual clutter: repeated AP/MP tile text is replaced by compact markers, enemy intent labels become small badges, and detailed threat explanations move into the HUD/message panel. See [PLAYTEST_5P.md](PLAYTEST_5P.md).

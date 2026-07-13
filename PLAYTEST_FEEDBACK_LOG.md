@@ -1,6 +1,6 @@
 # Lanternfall Tactics - Playtest Feedback Log
 
-Status: first external tester feedback has been recorded and addressed through Phase 5O.1.
+Status: first external tester feedback has been recorded and addressed through Phase 5P.
 
 Live playtest link:
 
@@ -141,6 +141,32 @@ Use this log to capture real tester notes. Keep raw wording where possible. Do n
   - High
 - Follow-up action:
   - Fixed in commit: Phase 5O.1 response
+
+### 2026-07-13 - Tactical clutter follow-up
+
+- Did the game load: Yes
+- Device/browser: Live WebGL screenshot/playtest, exact browser not recorded
+- Class tried: Not recorded
+- Furthest room reached: Boss defeated player after Phase 5O
+- Understood what to do in first minute: Improved
+- AP and MP clarity: Tactical pressure working but visually noisy on board
+- Skill target clarity: Useful but competing with threat overlays
+- Enemy danger preview clarity: Useful, but too many labels/icons at once
+- Board large enough: Not the issue
+- HUD readable: HUD usable, but needed to carry more threat detail instead of board text
+- Anything too small or clipped: Not flagged
+- Difficulty/pacing:
+  - Better; preserve Phase 5O direction
+- Class that felt best: Not recorded
+- Class that felt worst: Not recorded
+- Most confusing moment: Board clutter from repeated AP/MP labels and intent markers
+- Most fun moment: Tactical difficulty and boss escalation felt better
+- Bug or broken behavior: No crash reported
+- Screenshot/video link: Not included in repo
+- Severity:
+  - Medium
+- Follow-up action:
+  - Fixed in commit: Phase 5P response
 
 ## First-feedback rules
 

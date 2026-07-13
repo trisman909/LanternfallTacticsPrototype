@@ -339,7 +339,7 @@ namespace Lanternfall.Tests
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.5O.1",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.5P",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -404,7 +404,7 @@ namespace Lanternfall.Tests
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("mobile browser")));
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
-            Assert.That(guide,Does.Contain("Prototype v0.5O.1"));
+            Assert.That(guide,Does.Contain("Prototype v0.5P"));
             Assert.That(guide,Does.Contain("what confused you"));
             Assert.That(guide,Does.Contain("What device/browser did you use?"));
             Assert.That(guide,Does.Contain("Which class felt best/worst?"));
@@ -524,6 +524,19 @@ namespace Lanternfall.Tests
             Assert.That(guide,Does.Contain("green").And.Contain("HEAL"));
             if(File.Exists("docs/index.html"))
                 Assert.That(File.ReadAllText("docs/index.html"),Does.Contain("v=5").And.Contain("Loading Lanternfall Tactics"));
+        }
+
+        [Test] public void Phase5P_ReadabilityDocsAndMobileControlsStayPrepared()
+        {
+            Assert.That(File.ReadAllText("PLAYTEST_GUIDE.md"),Does.Contain("Purple").Or.Contain("purple"));
+            var portrait=MobileLayout.Compute(393,759);
+            var portraitHud=CombatHudLayout.Compute(portrait.Panel,portrait.Portrait,portrait.CompactLandscape);
+            Assert.True(portraitHud.RequiredElementsFit(portrait.Panel));
+            Assert.True(portraitHud.TouchTargetsValid());
+            var landscape=MobileLayout.Compute(800,360);
+            var landscapeHud=CombatHudLayout.Compute(landscape.Panel,landscape.Portrait,landscape.CompactLandscape);
+            Assert.True(landscapeHud.RequiredElementsFit(landscape.Panel));
+            Assert.True(landscapeHud.TouchTargetsValid());
         }
 
         [Test] public void Phase5K_ShortMobileLandscapeKeepsAllSkillsAndEndTurnAccessible()

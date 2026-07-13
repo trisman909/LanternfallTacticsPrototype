@@ -1,0 +1,41 @@
+using UnityEngine;
+
+namespace Lanternfall
+{
+    public static class ThreatReadability
+    {
+        public static string TileMarker(ThreatKind threat) => threat switch
+        {
+            ThreatKind.AP => "◆",
+            ThreatKind.MP => "◆",
+            ThreatKind.Mixed => "✦",
+            _ => "•"
+        };
+
+        public static Color TileMarkerColor(ThreatKind threat) => threat switch
+        {
+            ThreatKind.AP => new Color(.95f, .72f, 1f),
+            ThreatKind.MP => new Color(.66f, .90f, 1f),
+            ThreatKind.Mixed => new Color(1f, .74f, .46f),
+            _ => new Color(1f, .64f, .86f)
+        };
+
+        public static string EnemyBadge(EnemyModel e) => e.Threat switch
+        {
+            ThreatKind.AP => "AP",
+            ThreatKind.MP => "MP",
+            ThreatKind.Mixed => EnemyAI.BossPhase(e) >= 3 ? "BLAST" : "MIX",
+            _ => e.Kind == EnemyKind.Ashling ? "HP" : "CAST"
+        };
+
+        public static string ThreatName(ThreatKind threat) => threat switch
+        {
+            ThreatKind.AP => "AP drain",
+            ThreatKind.MP => "MP bind",
+            ThreatKind.Mixed => "HP + AP/MP threat",
+            _ => "HP damage"
+        };
+
+        public static bool IsCompactTileMarker(string marker) => !string.IsNullOrWhiteSpace(marker) && marker.Length <= 1 && marker != "AP" && marker != "MP";
+    }
+}

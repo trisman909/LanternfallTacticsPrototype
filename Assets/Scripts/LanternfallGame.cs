@@ -58,7 +58,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.5O.1: short WebGL/Windows playtest build.",
+            "Prototype v0.5P: short WebGL/Windows playtest build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -156,9 +156,27 @@ namespace Lanternfall
             var intents = Enemies.Where(e => e.Alive && (e.Preview.Contains(p) || e.DelayedPreview.Contains(p))).Select(e => $"{e.IntentLabel} {e.Threat}").Distinct().ToArray();
             return intents.Length == 0 ? "" : string.Join(", ", intents);
         }
+        public ThreatKind ThreatKindAt(Vector2Int p)
+        {
+            var enemy = Enemies.FirstOrDefault(e => e.Alive && (e.Preview.Contains(p) || e.DelayedPreview.Contains(p)));
+            return enemy?.Threat ?? ThreatKind.HP;
+        }
+        public string ThreatDetailAt(Vector2Int p)
+        {
+            var details = Enemies.Where(e => e.Alive && (e.Preview.Contains(p) || e.DelayedPreview.Contains(p)))
+                .Select(e => $"{NameOf(e.Kind)}: {ThreatReadability.ThreatName(e.Threat)} {(e.Preview.Contains(p) ? "now" : "next turn")}")
+                .Distinct()
+                .ToArray();
+            if (details.Length > 0) return string.Join(" | ", details);
+            if (HazardTiles.Contains(p)) return $"{Theme.HazardName}: {Theme.HazardRule}";
+            if (HealingPickup.HasValue && HealingPickup.Value == p) return "Lantern bloom: step here to heal 3 HP.";
+            if (BlockerTiles.Contains(p)) return "Blocker: blocks movement and line of sight.";
+            return "";
+        }
         public string IntentSummary => ThreatDamageAt(Player.Position) > 0
             ? $"DANGER: {ThreatDamageAt(Player.Position)} incoming damage on your tile"
             : Enemies.Any(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)) ? "WARNING: enemy intent targets your AP/MP or next tile" : "Safe tile - red spaces strike after End Turn";
+        public string FocusThreatSummary => ThreatDetailAt(LastTappedTile ?? Player.Position);
 
         public void SelectSkill(SkillId id)
         {

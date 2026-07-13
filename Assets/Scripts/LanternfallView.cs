@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.5O.1";
+        public const string PrototypeVersion = "Prototype v0.5P";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -249,8 +249,9 @@ namespace Lanternfall
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.DelayedPreview).Distinct())
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
-                DrawOutline(r, new Color(.82f, .36f, 1f), Mathf.Max(2, tile * .04f));
-                DrawTileGlyph(r, game.ThreatIntentAt(p).Contains("AP") ? "AP" : game.ThreatIntentAt(p).Contains("MP") ? "MP" : "*", new Color(1f, .84f, 1f), .28f);
+                var threat = game.ThreatKindAt(p);
+                DrawOutline(r, new Color(.72f, .30f, .90f, .82f), Mathf.Max(2, tile * .035f));
+                DrawTileGlyph(r, ThreatReadability.TileMarker(threat), ThreatReadability.TileMarkerColor(threat), .22f);
             }
 
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.Preview).Distinct())
@@ -265,7 +266,10 @@ namespace Lanternfall
             {
                 DrawToken(e.Position, ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden);
                 var er = TileRect(e.Position, ox, oy, minX, maxY);
-                GUI.Label(new Rect(er.x - tile * .35f, er.y - tile * .22f, tile * 1.7f, tile * .22f), e.IntentLabel, new GUIStyle(center){fontSize=Mathf.Max(9,Mathf.RoundToInt(tile*.14f)),fontStyle=FontStyle.Bold,normal={textColor=new Color(1f,.88f,.62f)}});
+                var badge = new Rect(er.xMax - tile * .42f, er.y - tile * .05f, tile * .48f, tile * .25f);
+                DrawRect(badge, new Color(.04f, .03f, .06f, .88f));
+                DrawOutline(badge, ThreatReadability.TileMarkerColor(e.Threat), 1);
+                GUI.Label(badge, ThreatReadability.EnemyBadge(e), new GUIStyle(center){fontSize=Mathf.Max(8,Mathf.RoundToInt(tile*.12f)),fontStyle=FontStyle.Bold,normal={textColor=Color.white}});
             }
         }
 
@@ -392,7 +396,9 @@ namespace Lanternfall
         {
             DrawRect(r, new Color(.03f, .03f, .055f));
             DrawOutline(r, new Color(.24f, .22f, .34f), 1);
-            GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), $"{Shorten(game.Message, 82)}\nRED danger  CYAN move  GOLD skill", hudMessage);
+            string detail = game.FocusThreatSummary;
+            string extra = string.IsNullOrWhiteSpace(detail) ? "RED now  PURPLE next/AP/MP  GOLD skill" : Shorten(detail, 74);
+            GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), $"{Shorten(game.Message, 68)}\n{extra}", hudMessage);
         }
 
         void DrawSelectedSkillInfo(Rect r)
