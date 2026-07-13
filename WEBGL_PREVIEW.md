@@ -54,8 +54,16 @@ The build is configured for simple static hosting:
 ## Known limitations
 
 - Browser performance can vary, especially on older phones.
+- Best played first on a desktop browser. Mobile browser play is prepared for testing but still experimental.
 - iPhone Safari may behave differently from desktop browsers; physical-device testing is still needed.
 - GitHub Pages must be enabled manually from repository settings before the public URL can be claimed as live.
 - Full iPhone app testing still requires Unity iOS Build Support, a Mac, and Xcode.
 - The prototype uses placeholder IMGUI/code-driven visuals.
 - Audio and final art are not part of this preview milestone.
+
+## GitHub Pages troubleshooting
+
+- If the page shows an old version immediately after a push, wait a minute and hard refresh.
+- If the page 404s, confirm repository `Settings > Pages` uses branch `master` and folder `/docs`.
+- If loading stalls, try a desktop Chromium-based browser first, then retest on mobile.
+- If the canvas is cropped, rotate the device or reload after the browser address bar collapses.

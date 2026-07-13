@@ -41,7 +41,7 @@ namespace Lanternfall
         public static readonly string[] HowToPlayLines =
         {
             "Goal: clear four rooms, then defeat the Lantern Warden in room five.",
-            "Each player turn refreshes AP for skills and MP for movement.",
+            "Each player turn refreshes AP (skills) and MP (movement).",
             "Tap cyan tiles to move. Tap a skill, then a gold target to attack or use it.",
             "Red tiles are enemy danger previews. Move away before pressing End Turn.",
             "If a target is not gold, it is out of range, blocked, or not valid for that skill.",
@@ -418,7 +418,7 @@ namespace Lanternfall
             RejectedTile = null;
             if (choice == 0){Player.MaxHealth += 3; Player.Health = Mathf.Min(Player.MaxHealth, Player.Health + 3); pendingRoomIntro = "Reward applied: Vital Ember (+3 max HP).";}
             else if (choice == 1){Player.Power += 1; pendingRoomIntro = "Reward applied: Bright Wick (+1 skill damage).";}
-            else {Player.MoveRange += 1; Player.MovementPoints += 1; pendingRoomIntro = "Reward applied: Swift Flame (+1 MP).";}
+            else {Player.MoveRange += 1; Player.MovementPoints += 1; pendingRoomIntro = "Reward applied: Swift Flame (+1 MP movement).";}
             RoomNumber++;
             LoadRoom();
         }

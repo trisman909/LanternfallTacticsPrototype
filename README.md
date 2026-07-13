@@ -74,6 +74,8 @@ Expected GitHub Pages playtest URL after Pages is enabled:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
+Best played first on a desktop browser. Mobile browser testing is supported but still experimental.
+
 For first external testers, use [PLAYTEST_GUIDE.md](PLAYTEST_GUIDE.md).
 
 For recording first tester notes, use [PLAYTEST_FEEDBACK_LOG.md](PLAYTEST_FEEDBACK_LOG.md).
@@ -99,3 +101,5 @@ Phase 5H improves first-minute share clarity without adding content: clearer sta
 Phase 5I improves lightweight game feel through clearer transition, invalid-action, reward, skill-result, victory, and defeat feedback while keeping the prototype asset-light. See [GAME_FEEL_5I.md](GAME_FEEL_5I.md).
 
 Phase 5J prepares the project to receive first external playtest feedback. No external feedback is recorded yet, so it adds a feedback log/template and preserves scope for future triage. See [PLAYTEST_FEEDBACK_LOG.md](PLAYTEST_FEEDBACK_LOG.md).
+
+Phase 5K adds safe offline polish and automated QA hardening: clearer AP/MP wording, centralized reward labels, stronger WebGL troubleshooting notes, and additional tests for share/readability contracts.

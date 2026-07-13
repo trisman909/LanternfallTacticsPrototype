@@ -253,5 +253,28 @@ namespace Lanternfall.Tests
             Assert.That(log,Does.Contain("Fixed in commit"));
             Assert.That(File.ReadAllText("PLAYTEST_GUIDE.md"),Does.Contain("PLAYTEST_FEEDBACK_LOG.md"));
         }
+
+        [Test] public void Phase5K_WebGLShareDocsRemainDesktopFirstAndTroubleshootable()
+        {
+            var readme=File.ReadAllText("README.md");
+            var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
+            var webgl=File.ReadAllText("WEBGL_PREVIEW.md");
+            Assert.That(readme,Does.Contain("Best played first on a desktop browser"));
+            Assert.That(guide,Does.Contain("Mobile browser play is experimental"));
+            Assert.That(webgl,Does.Contain("GitHub Pages troubleshooting"));
+            Assert.That(webgl,Does.Contain("master").And.Contain("/docs"));
+            Assert.That(readme,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
+        }
+
+        [Test] public void Phase5K_SmokeLogsContainNoObviousRuntimeErrorsWhenPresent()
+        {
+            foreach(var path in Directory.GetFiles(".", "WindowsSmoke_*.log"))
+            {
+                var text=File.ReadAllText(path);
+                Assert.That(text,Does.Not.Contain("NullReferenceException"),path);
+                Assert.That(text,Does.Not.Contain("Crash"),path);
+                Assert.That(text,Does.Not.Contain("Unhandled"),path);
+            }
+        }
     }
 }

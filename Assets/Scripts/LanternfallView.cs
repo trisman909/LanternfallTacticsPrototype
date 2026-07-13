@@ -229,8 +229,8 @@ namespace Lanternfall
             GUI.Label(new Rect(x, y, w, compact ? 30 : 42), "LANTERNFALL", title); y += compact ? 30 : 48;
             if (GUI.Button(new Rect(x, y, w, compact ? 38 : 44), "HOW TO PLAY", button)) game.ShowHelp(); y += compact ? 42 : 50;
             GUI.Label(new Rect(x, y, w, compact ? 58 : 110),
-                compact ? $"R{game.RoomNumber}/5 - HP {game.Player.Health}/{game.Player.MaxHealth} - AP {game.Player.ActionPoints}/{game.Player.MaxActionPoints} - MP {game.Player.MovementPoints}/{game.Player.MoveRange}\n{game.Message}"
-                        : $"{ClassCatalog.Get(game.Player.ClassId).name} - {game.Theme.Name}\nRoom {game.RoomNumber}/5 - HP {game.Player.Health}/{game.Player.MaxHealth} - AP {game.Player.ActionPoints}/{game.Player.MaxActionPoints} - MP {game.Player.MovementPoints}/{game.Player.MoveRange}\n{game.Message}",
+                compact ? $"R{game.RoomNumber}/5 - HP {game.Player.Health}/{game.Player.MaxHealth} - AP skills {game.Player.ActionPoints}/{game.Player.MaxActionPoints} - MP move {game.Player.MovementPoints}/{game.Player.MoveRange}\n{game.Message}"
+                        : $"{ClassCatalog.Get(game.Player.ClassId).name} - {game.Theme.Name}\nRoom {game.RoomNumber}/5 - HP {game.Player.Health}/{game.Player.MaxHealth} - AP skills {game.Player.ActionPoints}/{game.Player.MaxActionPoints} - MP move {game.Player.MovementPoints}/{game.Player.MoveRange}\n{game.Message}",
                 compact ? center : body); y += compact ? 62 : 116;
 
             if (DrawEndOrReward(x, w, ref y, compact)) return;
@@ -249,7 +249,7 @@ namespace Lanternfall
         {
             DrawPanelFrame(r);
             float pad = 10, x = r.x + pad, w = r.width - pad * 2, y = r.y + 6;
-            GUI.Label(new Rect(x, y, w, 32), $"{ClassCatalog.Get(game.Player.ClassId).name.ToUpper()} - ROOM {game.RoomNumber}/5 - HP {game.Player.Health}/{game.Player.MaxHealth} - AP {game.Player.ActionPoints}/{game.Player.MaxActionPoints} - MP {game.Player.MovementPoints}/{game.Player.MoveRange}", center); y += 34;
+            GUI.Label(new Rect(x, y, w, 32), $"{ClassCatalog.Get(game.Player.ClassId).name.ToUpper()} - ROOM {game.RoomNumber}/5 - HP {game.Player.Health}/{game.Player.MaxHealth} - AP skills {game.Player.ActionPoints}/{game.Player.MaxActionPoints} - MP move {game.Player.MovementPoints}/{game.Player.MoveRange}", center); y += 34;
             GUI.Label(new Rect(x, y, w, 46), game.Message, center); y += 48;
             if (GUI.Button(new Rect(x, y, w, 46), "HOW TO PLAY", button)){game.ShowHelp(); return;} y += 52;
             if (DrawEndOrReward(x, w, ref y, false)) return;
@@ -321,24 +321,22 @@ namespace Lanternfall
         void DrawPortraitRewards(float x, float w, ref float y)
         {
             float gap = 8, bw = (w - gap * 2) / 3f;
-            string[] labels = {"VITAL EMBER\n+3 MAX HP", "BRIGHT WICK\n+1 DAMAGE", "SWIFT FLAME\n+1 MP"};
             for (int i = 0; i < 3; i++)
             {
                 var r = new Rect(x + i * (bw + gap), y, bw, 82);
                 DrawCardFrame(r, new Color(1f, .62f, .18f));
-                if (GUI.Button(r, labels[i], button)) game.ChooseReward(i);
+                if (GUI.Button(r, RewardCatalog.Get(i).FullLabel.ToUpperInvariant(), button)) game.ChooseReward(i);
             }
         }
 
         void DrawCompactRewards(float x, float w, ref float y)
         {
             float gap = 6, bw = (w - gap * 2) / 3f;
-            string[] labels = {"VITAL\n+3 HP", "WICK\n+1 DMG", "SWIFT\n+1 MP"};
             for (int i = 0; i < 3; i++)
             {
                 var r = new Rect(x + i * (bw + gap), y, bw, 76);
                 DrawCardFrame(r, new Color(1f, .62f, .18f));
-                if (GUI.Button(r, labels[i], button)) game.ChooseReward(i);
+                if (GUI.Button(r, RewardCatalog.Get(i).CompactLabel.ToUpperInvariant(), button)) game.ChooseReward(i);
             }
         }
 

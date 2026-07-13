@@ -8,7 +8,7 @@ If the page does not load, GitHub Pages may still need to be enabled or may stil
 
 ## Quick start
 
-1. Open the link in a desktop browser or phone browser.
+1. Open the link in a desktop browser first if possible. Mobile browser play is experimental.
 2. Wait for the Unity loading bar to finish.
 3. Press `How to Play` if this is your first run.
 4. Press `Start Run`.
@@ -31,6 +31,7 @@ If the page does not load, GitHub Pages may still need to be enabled or may stil
 - This is a prototype, not a finished game.
 - Art is still lightweight code-driven placeholder presentation.
 - Browser performance may vary, especially on older phones.
+- Best played first on a desktop browser; mobile browser testing is useful but still experimental.
 - iPhone Safari still needs physical-device testing.
 - There is no audio/final art pass yet.
 - There are no online saves, accounts, monetization, or multiplayer.
