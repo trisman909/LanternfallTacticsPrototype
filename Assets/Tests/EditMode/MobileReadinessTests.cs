@@ -267,10 +267,11 @@ namespace Lanternfall.Tests
 
         [Test] public void BalancePass_KeepsRunBeatableButNotFree()
         {
-            Assert.AreEqual(3,BalanceConfig.BetweenRoomRecovery);
-            Assert.AreEqual(15,BalanceConfig.EnemyStats(EnemyKind.LanternWarden).health);
+            Assert.AreEqual(2,BalanceConfig.BetweenRoomRecovery);
+            Assert.AreEqual(24,BalanceConfig.EnemyStats(EnemyKind.LanternWarden).health);
             Assert.AreEqual(1,SkillBook.Get(SkillId.EmberBolt).Cooldown);
             Assert.That(BalanceConfig.EnemyStats(EnemyKind.StoneSentinel).damage,Is.GreaterThanOrEqualTo(3));
+            Assert.AreEqual(4,BalanceConfig.EnemyCount(4));
         }
 
         [Test] public void Phase5D_WebGLAndWindowsPreviewFilesRemainPrepared()
@@ -322,7 +323,7 @@ namespace Lanternfall.Tests
         {
             Assert.True(File.Exists("PLAYTEST_FEEDBACK_LOG.md"));
             var log=File.ReadAllText("PLAYTEST_FEEDBACK_LOG.md");
-            Assert.That(log,Does.Contain("no external tester feedback"));
+            Assert.That(log,Does.Contain("first external tester feedback"));
             Assert.That(log,Does.Contain("Entry template"));
             Assert.That(log,Does.Contain("Device/browser"));
             Assert.That(log,Does.Contain("Severity"));

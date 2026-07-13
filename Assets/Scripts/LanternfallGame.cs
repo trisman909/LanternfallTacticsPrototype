@@ -121,7 +121,11 @@ namespace Lanternfall
             Enemies.Clear();
 
             for (int i = 0; i < r.EnemySpawns.Count; i++)
-                Enemies.Add(new EnemyModel(BalanceConfig.EnemyFor(RoomNumber, i), r.EnemySpawns[i]));
+            {
+                var enemy = new EnemyModel(BalanceConfig.EnemyFor(RoomNumber, i), r.EnemySpawns[i]);
+                BalanceConfig.ApplyRoomScaling(enemy, RoomNumber);
+                Enemies.Add(enemy);
+            }
 
             Turns.BeginPlayerTurn();
             SelectedSkill = null;
@@ -349,10 +353,9 @@ namespace Lanternfall
                 }
                 else if (e.RootTurns <= 0)
                 {
-                    var path = Grid.ShortestPath(e.Position, Player.Position, q => Occupied(q) || q == Player.Position);
-                    int steps = Mathf.Min(e.MoveRange, Mathf.Max(0, path.Count - 1));
-                    if (steps > 0) e.Position = path[steps - 1];
-                    Message = $"{NameOf(e.Kind)} advances.";
+                    var next = EnemyAI.ChooseReposition(e, Player.Position, Grid, q => Occupied(q) || q == Player.Position, p => HazardTiles.Contains(p));
+                    if (next != e.Position) e.Position = next;
+                    Message = next == e.Position ? $"{NameOf(e.Kind)} holds a threatening angle." : $"{NameOf(e.Kind)} repositions to pressure your next move.";
                 }
                 else Message = $"{NameOf(e.Kind)} is rooted.";
                 Changed?.Invoke();
@@ -431,8 +434,8 @@ namespace Lanternfall
             if (choice < 0 || choice >= RewardCatalog.All.Length){Reject("Choose one visible reward card."); return;}
             LastInputAccepted = true;
             RejectedTile = null;
-            if (choice == 0){Player.MaxHealth += 3; Player.Health = Mathf.Min(Player.MaxHealth, Player.Health + 3); pendingRoomIntro = "Reward applied: Vital Ember (+3 max HP).";}
-            else if (choice == 1){Player.Power += 1; pendingRoomIntro = "Reward applied: Bright Wick (+1 skill damage).";}
+            if (choice == 0){Player.MaxHealth += 3; Player.Health = Mathf.Min(Player.MaxHealth, Player.Health + 3); pendingRoomIntro = "Reward applied: Vital Ember (+3 Max HP, heal 3 now).";}
+            else if (choice == 1){Player.Power += 1; pendingRoomIntro = "Reward applied: Bright Wick (+1 all skill damage).";}
             else {Player.MoveRange += 1; Player.MovementPoints += 1; pendingRoomIntro = "Reward applied: Swift Flame (+1 MP movement).";}
             RoomNumber++;
             LoadRoom();

@@ -38,6 +38,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5K.1 - live browser HUD fix for cropped desktop WebGL right panel text (complete)
 - Phase 5K.2 - desktop WebGL board scale and HUD width tuning (complete)
 - Phase 5L - first external playtest feedback package and safe clarity fix pass (complete)
+- Phase 5M - first external feedback response for onboarding, rewards, AI, and tactical difficulty (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -119,3 +120,5 @@ Phase 5K.1 tightens the live desktop WebGL combat HUD after screenshot feedback:
 Phase 5K.2 gives the tactics board more desktop/WebGL priority without changing combat: the right HUD panel is slightly narrower, board fitting uses the actual playable floor footprint instead of the full generator rectangle, and tests preserve HUD readability while requiring stronger desktop board sizing.
 
 Phase 5L prepares the prototype for real external testers: shorter first-player instructions, an in-game playtest prompt, a focused feedback guide/checklist, and a feedback log template. No external feedback has been invented or recorded yet.
+
+Phase 5M responds to the first real external playtest: clearer onboarding, readable reward cards, lower passive recovery, stronger room-depth scaling, smarter enemy repositioning, and a tougher existing boss. See [PLAYTEST_5M.md](PLAYTEST_5M.md).

@@ -315,7 +315,7 @@ namespace Lanternfall
             if (game.Turns.Phase == TurnPhase.Reward)
             {
                 GUI.Label(new Rect(x, y, w, compact ? 32 : 42), "ROOM CLEAR - CHOOSE ONE", title); y += compact ? 34 : 48;
-                if (compact) DrawCompactRewards(x, w, ref y);
+                if (compact) DrawSideRewards(x, w, ref y);
                 else DrawPortraitRewards(x, w, ref y);
                 return true;
             }
@@ -416,18 +416,18 @@ namespace Lanternfall
             {
                 var r = new Rect(x + i * (bw + gap), y, bw, 82);
                 DrawCardFrame(r, new Color(1f, .62f, .18f));
-                if (GUI.Button(r, RewardCatalog.Get(i).FullLabel.ToUpperInvariant(), button)) game.ChooseReward(i);
+                if (GUI.Button(r, RewardCatalog.Get(i).CompactLabel, hudSkillCompact)) game.ChooseReward(i);
             }
         }
 
-        void DrawCompactRewards(float x, float w, ref float y)
+        void DrawSideRewards(float x, float w, ref float y)
         {
-            float gap = 6, bw = (w - gap * 2) / 3f;
             for (int i = 0; i < 3; i++)
             {
-                var r = new Rect(x + i * (bw + gap), y, bw, 76);
+                var r = new Rect(x, y, w, 76);
                 DrawCardFrame(r, new Color(1f, .62f, .18f));
-                if (GUI.Button(r, RewardCatalog.Get(i).CompactLabel.ToUpperInvariant(), button)) game.ChooseReward(i);
+                if (GUI.Button(r, RewardCatalog.WebGLCardLabel(i), hudSkill)) game.ChooseReward(i);
+                y += 84;
             }
         }
 
