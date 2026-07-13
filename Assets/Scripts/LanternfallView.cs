@@ -179,18 +179,26 @@ namespace Lanternfall
         {
             DrawRect(area, game.Theme.Background);
             DrawOutline(area, new Color(.12f, .10f, .18f), 3);
-            float top = compact ? 54 : 72;
-            tile = Mathf.Min((area.width - 24) / game.Grid.Width, (area.height - top - 16) / game.Grid.Height);
-            float ox = area.x + (area.width - game.Grid.Width * tile) / 2;
-            float oy = area.y + top + (area.height - top - game.Grid.Height * tile) / 2;
+            float top = compact ? 42 : 64;
+            var floors = game.Grid.Floors().ToList();
+            int minX = floors.Min(p => p.x);
+            int maxX = floors.Max(p => p.x);
+            int minY = floors.Min(p => p.y);
+            int maxY = floors.Max(p => p.y);
+            int boardCols = Mathf.Max(1, maxX - minX + 1);
+            int boardRows = Mathf.Max(1, maxY - minY + 1);
+            var fit = BoardFitLayout.Compute(area, boardCols, boardRows, compact);
+            tile = fit.TileSize;
+            float ox = fit.Bounds.x;
+            float oy = fit.Bounds.y;
 
             string turn = game.Turns.Phase == TurnPhase.Enemy ? "ENEMY TURN" : game.Turns.Phase == TurnPhase.Reward ? "ROOM CLEAR" : game.Turns.Phase.ToString().ToUpper();
-            GUI.Label(new Rect(area.x, area.y + 2, area.width, compact ? 28 : 38), turn, title);
-            GUI.Label(new Rect(area.x, area.y + (compact ? 28 : 38), area.width, compact ? 22 : 28), game.RoomNumber == 5 ? "BOSS ROOM - " + game.Theme.Name : game.Theme.Name, center);
+            GUI.Label(new Rect(area.x, area.y + 1, area.width, compact ? 24 : 34), turn, title);
+            GUI.Label(new Rect(area.x, area.y + (compact ? 24 : 34), area.width, compact ? 20 : 26), game.RoomNumber == 5 ? "BOSS ROOM - " + game.Theme.Name : game.Theme.Name, center);
 
-            foreach (var p in game.Grid.Floors())
+            foreach (var p in floors)
             {
-                var r = TileRect(p, ox, oy);
+                var r = TileRect(p, ox, oy, minX, maxY);
                 bool alternate = (p.x + p.y) % 2 == 0;
                 Color c = VisualReadability.TileColor(game.Theme, TileVisualState.Floor, alternate);
                 if (game.HazardTiles.Contains(p)) c = VisualReadability.TileColor(game.Theme, game.ArmedHazards.Contains(p) ? TileVisualState.ArmedHazard : TileVisualState.Hazard, alternate);
@@ -212,35 +220,35 @@ namespace Lanternfall
             string hazardGlyph = VisualReadability.HazardGlyph(game.Theme.Hazard);
             foreach (var p in game.HazardTiles)
             {
-                var r = TileRect(p, ox, oy);
+                var r = TileRect(p, ox, oy, minX, maxY);
                 DrawOutline(r, game.ArmedHazards.Contains(p) ? Color.white : game.Theme.Accent, Mathf.Max(2, tile * .045f));
                 DrawTileGlyph(r, hazardGlyph, Color.white, .36f);
             }
 
             foreach (var p in game.PropTiles)
-                DrawTileGlyph(TileRect(p, ox, oy), game.Theme.PropGlyph, game.Theme.Accent, .34f);
+                DrawTileGlyph(TileRect(p, ox, oy, minX, maxY), game.Theme.PropGlyph, game.Theme.Accent, .34f);
 
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.Preview).Distinct())
             {
-                var r = TileRect(p, ox, oy);
+                var r = TileRect(p, ox, oy, minX, maxY);
                 DrawOutline(r, new Color(1f, .20f, .18f), Mathf.Max(2, tile * .05f));
                 DrawTileGlyph(r, "!", Color.white, .42f);
             }
 
-            DrawToken(game.Player.Position, ox, oy, VisualReadability.ClassAccent(game.Player.ClassId), VisualReadability.ClassGlyph(game.Player.ClassId), "", game.Player, true);
+            DrawToken(game.Player.Position, ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), VisualReadability.ClassGlyph(game.Player.ClassId), "", game.Player, true);
             foreach (var e in game.Enemies.Where(e => e.Alive))
             {
-                DrawToken(e.Position, ox, oy, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden);
+                DrawToken(e.Position, ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden);
             }
         }
 
-        Rect TileRect(Vector2Int p, float ox, float oy) => new(ox + p.x * tile, oy + (game.Grid.Height - 1 - p.y) * tile, tile - 2, tile - 2);
+        Rect TileRect(Vector2Int p, float ox, float oy, int minX, int maxY) => new(ox + (p.x - minX) * tile, oy + (maxY - p.y) * tile, tile - 2, tile - 2);
 
-        void DrawToken(Vector2Int p, float ox, float oy, Color c, string glyph, string hp = "", UnitModel unit = null, bool player = false, bool boss = false)
+        void DrawToken(Vector2Int p, float ox, float oy, int minX, int maxY, Color c, string glyph, string hp = "", UnitModel unit = null, bool player = false, bool boss = false)
         {
             float inset = boss ? .04f : .12f;
             float size = boss ? .88f : .72f;
-            var r = new Rect(ox + p.x * tile + tile * inset, oy + (game.Grid.Height - 1 - p.y) * tile + tile * .08f, tile * size, tile * size);
+            var r = new Rect(ox + (p.x - minX) * tile + tile * inset, oy + (maxY - p.y) * tile + tile * .08f, tile * size, tile * size);
             DrawRect(new Rect(r.x - 3, r.y - 3, r.width + 6, r.height + 6), new Color(0f, 0f, 0f, .70f));
             DrawRect(r, c);
             DrawOutline(r, player ? Color.white : (boss ? new Color(1f, .75f, .2f) : new Color(.08f, .04f, .05f)), Mathf.Max(2, tile * .045f));

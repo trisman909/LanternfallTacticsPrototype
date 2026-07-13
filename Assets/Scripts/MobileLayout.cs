@@ -44,7 +44,8 @@ namespace Lanternfall
             }
             else
             {
-                float panelW=Mathf.Clamp(width*.36f,280f,390f);result.CompactLandscape=height<760;
+                result.CompactLandscape=height<760;
+                float panelW=result.CompactLandscape?Mathf.Clamp(width*.30f,280f,340f):Mathf.Clamp(width*.32f,300f,360f);
                 result.Board=new Rect(0,0,width-panelW,height);result.Panel=new Rect(width-panelW,0,panelW,height);
                 float pad=10,y=result.CompactLandscape?94:198,h=result.CompactLandscape?50:68;
                 result.SkillButtons=new[]{new Rect(result.Panel.x+pad,y,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+h+6,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+(h+6)*2,panelW-pad*2,h)};
@@ -53,7 +54,7 @@ namespace Lanternfall
                 result.ActionButton=new Rect(result.Panel.x+panelW*.52f,result.CompactLandscape?y+(h+6)*3:500,panelW*.48f-pad,48);
                 result.RestartButton=new Rect(result.Panel.x+pad,result.CompactLandscape?176:260,panelW-pad*2,64);
             }
-            float boardHeader=result.CompactLandscape?54:72;
+            float boardHeader=result.CompactLandscape?42:64;
             result.EstimatedTileSize=Mathf.Min((result.Board.width-24)/9f,(result.Board.height-boardHeader-16)/11f);
             return result;
         }

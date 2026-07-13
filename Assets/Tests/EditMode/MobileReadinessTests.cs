@@ -28,6 +28,45 @@ namespace Lanternfall.Tests
             Assert.False(layout.Portrait);Assert.True(layout.CompactLandscape);Assert.False(layout.HasOverlap);Assert.True(layout.TouchTargetsValid);
         }
 
+        [Test] public void Phase5K2_DesktopViewportGivesBoardMorePriorityWithoutBreakingHud()
+        {
+            var layout=MobileLayout.Compute(1280,720);
+            var hud=CombatHudLayout.Compute(layout.Panel,layout.Portrait,layout.CompactLandscape);
+            Assert.That(layout.Board.width,Is.GreaterThanOrEqualTo(940f));
+            Assert.That(layout.Panel.width,Is.LessThanOrEqualTo(340f));
+            Assert.False(layout.HasOverlap);
+            Assert.True(hud.RequiredElementsFit(layout.Panel));
+            Assert.False(hud.HasEssentialOverlap());
+            Assert.True(hud.TouchTargetsValid());
+            Assert.That(hud.SkillCards.All(r=>r.height>=86f));
+        }
+
+        [Test] public void Phase5K2_BoardFitUsesPlayableFootprintInsteadOfFullGrid()
+        {
+            var layout=MobileLayout.Compute(1280,720);
+            var fullGrid=BoardFitLayout.Compute(layout.Board,9,11,layout.CompactLandscape);
+            var playableFootprint=BoardFitLayout.Compute(layout.Board,7,10,layout.CompactLandscape);
+            Assert.True(fullGrid.Fits(layout.Board));
+            Assert.True(playableFootprint.Fits(layout.Board));
+            Assert.That(playableFootprint.TileSize,Is.GreaterThan(fullGrid.TileSize*1.08f));
+        }
+
+        [Test] public void Phase5K2_GeneratedRoomsFitBoardAreaWithoutHudOverlap()
+        {
+            var layout=MobileLayout.Compute(1280,720);
+            var gen=new RoomGenerator();
+            for(int room=1;room<=5;room++)
+            {
+                var generated=gen.Generate(9100+room,room);
+                var floors=generated.Grid.Floors().ToList();
+                int cols=floors.Max(p=>p.x)-floors.Min(p=>p.x)+1;
+                int rows=floors.Max(p=>p.y)-floors.Min(p=>p.y)+1;
+                var fit=BoardFitLayout.Compute(layout.Board,cols,rows,layout.CompactLandscape);
+                Assert.True(fit.Fits(layout.Board),$"room {room}");
+                Assert.That(fit.TileSize,Is.GreaterThanOrEqualTo(layout.EstimatedTileSize),$"room {room}");
+            }
+        }
+
         [Test] public void IPhonePortrait_DynamicIslandAndHomeIndicatorStayOutsideUI()
         {
             var safe=MobileLayout.ToGuiSafeArea(852,new Rect(0,34,393,759));

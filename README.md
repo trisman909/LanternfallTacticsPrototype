@@ -36,6 +36,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5J - first feedback fix pass setup (complete)
 - Phase 5K HUD clarity rework - combat HUD/skill panel fix from live WebGL playtest feedback (complete)
 - Phase 5K.1 - live browser HUD fix for cropped desktop WebGL right panel text (complete)
+- Phase 5K.2 - desktop WebGL board scale and HUD width tuning (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -113,3 +114,5 @@ Phase 5M strengthens automated regression coverage for invalid reward choices, c
 Phase 5K HUD clarity rework responds to live WebGL playtest feedback by replacing the cramped in-combat status block with clear HP/AP/MP chips, contained combat messages, cleaner skill cards, collapsed Help/Info access, and layout tests for desktop WebGL plus mobile landscape.
 
 Phase 5K.1 tightens the live desktop WebGL combat HUD after screenshot feedback: safer top padding, smaller right-panel fonts, clearer vertical section order, taller skill cards, compact skill summaries, and stricter layout tests to prevent cropped header/skill text.
+
+Phase 5K.2 gives the tactics board more desktop/WebGL priority without changing combat: the right HUD panel is slightly narrower, board fitting uses the actual playable floor footprint instead of the full generator rectangle, and tests preserve HUD readability while requiring stronger desktop board sizing.
