@@ -5,6 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
+        public const string PrototypeVersion = "Prototype v0.5G";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -77,6 +78,7 @@ namespace Lanternfall
                 DrawBoard(layout.Board, layout.CompactLandscape);
                 if (layout.Portrait) DrawPortraitPanel(layout.Panel);
                 else DrawPanel(layout.Panel, layout.CompactLandscape);
+                GUI.Label(new Rect(8, guiSafe.height - 24, 160, 20), PrototypeVersion, small);
             }
 
             if (game.HelpVisible) DrawHelpOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
@@ -118,6 +120,7 @@ namespace Lanternfall
                 if (GUI.Button(new Rect(pad, y, w, 60), "HOW TO PLAY", button)) game.ShowHelp(); y += 76;
             }
             if(!compact)GUI.Label(new Rect(pad, y, w, 80), "Built for touch first. Mouse clicks work in the editor and Windows build.", small);
+            GUI.Label(new Rect(pad, area.height - 28, w, 22), PrototypeVersion, small);
         }
 
         void DrawHelpOverlay(Rect area)

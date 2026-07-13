@@ -198,5 +198,16 @@ namespace Lanternfall.Tests
             Assert.That(css,Does.Contain("width: 100vw"));
             Assert.That(css,Does.Contain("height: 100vh"));
         }
+
+        [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
+        {
+            Assert.AreEqual("Prototype v0.5G",LanternfallView.PrototypeVersion);
+            Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
+            var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
+            Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
+            Assert.That(guide,Does.Contain("Did the game load?"));
+            Assert.That(guide,Does.Contain("Were AP/MP clear?"));
+            Assert.That(guide,Does.Contain("Did anything break?"));
+        }
     }
 }

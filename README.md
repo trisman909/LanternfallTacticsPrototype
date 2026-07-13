@@ -30,6 +30,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5D - playtest balance and fun pass (complete)
 - Phase 5E - browser/mobile playtest QA and usability fixes (complete)
 - Phase 5F - visual identity polish (complete)
+- Phase 5G - external playtest release prep (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -66,6 +67,12 @@ GitHub Pages-ready WebGL files are prepared under:
 
 For GitHub Pages setup and WebGL limitations, see [WEBGL_PREVIEW.md](WEBGL_PREVIEW.md).
 
+Expected GitHub Pages playtest URL after Pages is enabled:
+
+`https://trisman909.github.io/LanternfallTacticsPrototype/`
+
+For first external testers, use [PLAYTEST_GUIDE.md](PLAYTEST_GUIDE.md).
+
 ## Playable candidate notes
 
 Phase 5 adds the start screen, help panel, clearer invalid-tap feedback, stronger tile/readability highlights, reward/end-state polish, and a small balance pass while preserving the original content cap. See [PROTOTYPE_NOTES.md](PROTOTYPE_NOTES.md).
@@ -79,3 +86,5 @@ Phase 5D tunes the existing classes, skills, enemies, rewards, and hazards using
 Phase 5E verifies the WebGL preview in a local browser, tests phone-sized viewports, and fixes usability/layout issues found during QA. See [QA_5E.md](QA_5E.md).
 
 Phase 5F keeps the prototype code-driven and lightweight while making the board, units, effects, biome hazards, reward cards, and panels feel more intentional and readable. See [VISUAL_POLISH_5F.md](VISUAL_POLISH_5F.md).
+
+Phase 5G prepares the WebGL build for first external playtesting, adds the visible `Prototype v0.5G` label, verifies GitHub Pages-ready files, and adds a short tester guide/checklist. See [PLAYTEST_GUIDE.md](PLAYTEST_GUIDE.md).

@@ -34,9 +34,11 @@ After the `docs` folder is pushed to GitHub:
 6. Select folder `/docs`.
 7. Save.
 
-GitHub will publish the preview at a URL similar to:
+For this repository, GitHub Pages should publish the preview at:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
+
+Do not treat that URL as verified until it has been opened and the Unity start screen appears.
 
 ## WebGL settings
 
