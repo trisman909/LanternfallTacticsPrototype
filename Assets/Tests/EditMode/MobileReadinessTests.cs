@@ -221,7 +221,7 @@ namespace Lanternfall.Tests
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.5G",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.5L",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -275,6 +275,26 @@ namespace Lanternfall.Tests
                 Assert.That(text,Does.Not.Contain("Crash"),path);
                 Assert.That(text,Does.Not.Contain("Unhandled"),path);
             }
+        }
+
+        [Test] public void Phase5L_PlaytestInfoAndImportantLabelsExist()
+        {
+            Assert.That(LanternfallGame.PlaytestInfoLines.Length,Is.GreaterThanOrEqualTo(5));
+            Assert.True(LanternfallGame.PlaytestInfoLines.All(l=>l.Length<=100));
+            Assert.True(LanternfallGame.HowToPlayLines.All(l=>l.Length<=100));
+            Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("desktop browser")));
+            Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("mobile browser")));
+            Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
+            var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
+            Assert.That(guide,Does.Contain("Prototype v0.5L"));
+            Assert.That(guide,Does.Contain("Playtest Info"));
+        }
+
+        [Test] public void Phase5L_UnityGeneratedAndCacheFoldersStayIgnored()
+        {
+            var ignore=File.ReadAllText(".gitignore");
+            foreach(var pattern in new[]{"/Library/","/Temp/","/Obj/","/Logs/","/UserSettings/","/Builds/","/.vs/","*.dmp"})
+                Assert.That(ignore,Does.Contain(pattern),pattern);
         }
     }
 }

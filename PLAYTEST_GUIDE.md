@@ -4,6 +4,8 @@ Expected playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
+Current visible build label: `Prototype v0.5L`.
+
 If the page does not load, GitHub Pages may still need to be enabled or may still be deploying the latest pushed build.
 
 ## Quick start
@@ -11,8 +13,9 @@ If the page does not load, GitHub Pages may still need to be enabled or may stil
 1. Open the link in a desktop browser first if possible. Mobile browser play is experimental.
 2. Wait for the Unity loading bar to finish.
 3. Press `How to Play` if this is your first run.
-4. Press `Start Run`.
-5. Try to clear four rooms, then defeat the Lantern Warden in room five.
+4. Press `Playtest Info` if you want known limitations and feedback prompts.
+5. Press `Start Run`.
+6. Try to clear four rooms, then defeat the Lantern Warden in room five.
 
 ## How turns work
 

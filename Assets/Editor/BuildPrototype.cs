@@ -66,7 +66,7 @@ namespace Lanternfall.EditorTools
         {
             PlayerSettings.productName="Lanternfall Tactics Prototype";
             PlayerSettings.companyName="Lanternfall";
-            PlayerSettings.bundleVersion="0.4.5";
+            PlayerSettings.bundleVersion="0.5.12";
             PlayerSettings.colorSpace=ColorSpace.Gamma;
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait=true;
@@ -100,7 +100,7 @@ namespace Lanternfall.EditorTools
                 var html=File.ReadAllText(index);
                 html=html.Replace("canvas.style.width = \"960px\";","canvas.style.width = \"100vw\";");
                 html=html.Replace("canvas.style.height = \"600px\";","canvas.style.height = \"100vh\";");
-                html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics... If this is your first run, use How to Play before moving.</div>\n        <div id=\"unity-progress-bar-empty\">");
+                html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics - Prototype v0.5L. Click/tap the game once if controls do not respond. Desktop browser first; mobile browser is experimental.</div>\n        <div id=\"unity-progress-bar-empty\">");
                 File.WriteAllText(index,html);
             }
             var css=Path.Combine(path,"TemplateData","style.css");

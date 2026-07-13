@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.5G";
+        public const string PrototypeVersion = "Prototype v0.5L";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -82,6 +82,7 @@ namespace Lanternfall
             }
 
             if (game.HelpVisible) DrawHelpOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
+            if (game.PlaytestInfoVisible) DrawPlaytestInfoOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             GUI.EndGroup();
         }
 
@@ -109,9 +110,11 @@ namespace Lanternfall
             float bw = compact ? (w - gap * 2) / 3f : w;
             if (compact)
             {
+                bw = (w - gap * 3) / 4f;
                 if (GUI.Button(new Rect(pad, y, bw, h), "CLASS", button)) game.CycleClass();
                 if (GUI.Button(new Rect(pad + bw + gap, y, bw, h), "START", button)) game.StartRun();
                 if (GUI.Button(new Rect(pad + (bw + gap) * 2, y, bw, h), "HELP", button)) game.ShowHelp();
+                if (GUI.Button(new Rect(pad + (bw + gap) * 3, y, bw, h), "INFO", button)) game.ShowPlaytestInfo();
                 y += h + 10;
             }
             else
@@ -119,6 +122,7 @@ namespace Lanternfall
                 if (GUI.Button(new Rect(pad, y, w, 58), "CHANGE CLASS", button)) game.CycleClass(); y += 70;
                 if (GUI.Button(new Rect(pad, y, w, 66), "START RUN", button)) game.StartRun(); y += 78;
                 if (GUI.Button(new Rect(pad, y, w, 60), "HOW TO PLAY", button)) game.ShowHelp(); y += 76;
+                if (GUI.Button(new Rect(pad, y, w, 56), "PLAYTEST INFO", button)) game.ShowPlaytestInfo(); y += 66;
             }
             if(!compact)GUI.Label(new Rect(pad, y, w, 80), "Built for touch first. Mouse clicks work in the editor and Windows build.\nPlaytest note: after a run, jot down what confused you most.", small);
         }
@@ -141,6 +145,26 @@ namespace Lanternfall
             }
             if (GUI.Button(new Rect(pad, area.height - (area.height < 500f ? 58 : 84), w, area.height < 500f ? 46 : 62), game.HasStarted ? "BACK TO RUN" : "GOT IT", button))
                 game.HideHelp();
+        }
+
+        void DrawPlaytestInfoOverlay(Rect area)
+        {
+            DrawRect(area, new Color(0f, 0f, 0f, .82f));
+            float pad = Mathf.Max(18, area.width * .06f);
+            float w = area.width - pad * 2;
+            float y = Mathf.Max(20, area.height * .08f);
+            var panel = new Rect(pad * .5f, y - 12, area.width - pad, area.height - y * 2 + 24);
+            DrawRect(panel, new Color(.055f, .045f, .085f));
+            DrawOutline(panel, new Color(.55f, .38f, .12f), 2);
+            GUI.Label(new Rect(pad, y, w, 44), "PLAYTEST INFO", title); y += 54;
+            foreach (var line in LanternfallGame.PlaytestInfoLines)
+            {
+                float lineH = area.height < 500f ? 36 : 56;
+                GUI.Label(new Rect(pad, y, w, lineH), "- " + line, area.height < 500f ? small : body);
+                y += lineH + 4;
+            }
+            if (GUI.Button(new Rect(pad, area.height - (area.height < 500f ? 58 : 84), w, area.height < 500f ? 46 : 62), "BACK", button))
+                game.HidePlaytestInfo();
         }
 
         void DrawBoard(Rect area, bool compact = false)

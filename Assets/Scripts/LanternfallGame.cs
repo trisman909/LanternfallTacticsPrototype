@@ -19,6 +19,7 @@ namespace Lanternfall
         public string Message { get; private set; } = "Press Start Run to light the lantern.";
         public bool HasStarted { get; private set; }
         public bool HelpVisible { get; private set; }
+        public bool PlaytestInfoVisible { get; private set; }
         public int BestRoomReached { get; private set; }
         public int? RunSeed { get; private set; }
         public PlayerClassId SelectedClass { get; private set; } = PlayerClassId.Cantor;
@@ -46,6 +47,15 @@ namespace Lanternfall
             "Red tiles are enemy danger previews. Move away before pressing End Turn.",
             "If a target is not gold, it is out of range, blocked, or not valid for that skill.",
             "After each cleared room, pick one blessing and keep going."
+        };
+
+        public static readonly string[] PlaytestInfoLines =
+        {
+            "Prototype v0.5L: short WebGL/Windows playtest build.",
+            "Best tested on a desktop browser first; mobile browser is experimental.",
+            "Useful feedback: first confusion, tiny text, unclear AP/MP, unclear red danger, bugs.",
+            "If stuck, refresh the page or use Start New Run after win/loss.",
+            "Known limits: placeholder art, no final audio, no physical iPhone Safari pass yet."
         };
 
         void Awake()
@@ -78,6 +88,7 @@ namespace Lanternfall
             RunSeed = seed;
             HasStarted = true;
             HelpVisible = false;
+            PlaytestInfoVisible = false;
             RoomNumber = 1;
             Player = new PlayerModel(SelectedClass);
             LoadRoom();
@@ -86,6 +97,8 @@ namespace Lanternfall
         public void ShowHelp(){HelpVisible = true; Changed?.Invoke();}
         public void HideHelp(){HelpVisible = false; Changed?.Invoke();}
         public void ToggleHelp(){HelpVisible = !HelpVisible; Changed?.Invoke();}
+        public void ShowPlaytestInfo(){PlaytestInfoVisible = true; Changed?.Invoke();}
+        public void HidePlaytestInfo(){PlaytestInfoVisible = false; Changed?.Invoke();}
 
         void LoadRoom()
         {
