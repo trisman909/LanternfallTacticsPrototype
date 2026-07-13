@@ -36,29 +36,35 @@ namespace Lanternfall
             if(portrait)
             {
                 result.FontSize=Mathf.Clamp(Mathf.RoundToInt(Mathf.Min(width,height)/19f),19,28);
-                float panelH=Mathf.Min(height-300f,Mathf.Clamp(height*.57f,410f,500f));
+                float minimumBoardH=height<=740f?240f:322f;
+                float panelH=Mathf.Min(height-minimumBoardH,Mathf.Clamp(height*.62f,460f,520f));
                 result.Board=new Rect(0,0,width,height-panelH);result.Panel=new Rect(0,height-panelH,width,panelH);
-                float pad=12,gap=8,bw=(width-pad*2-gap*2)/3f,y=result.Panel.y+206;
-                result.SkillButtons=new[]{new Rect(pad,y,bw,82),new Rect(pad+bw+gap,y,bw,82),new Rect(pad+(bw+gap)*2,y,bw,82)};
-                float rewardY=result.Panel.y+70;result.RewardButtons=new[]{new Rect(pad,rewardY,bw,86),new Rect(pad+bw+gap,rewardY,bw,86),new Rect(pad+(bw+gap)*2,rewardY,bw,86)};
-                result.ActionButton=new Rect(width*.52f,result.Panel.y+296,width*.48f-pad,58);
-                result.RestartButton=new Rect(pad,result.Panel.y+296,width-pad*2,64);
+                float pad=12,gap=8,bw=(width-pad*2-gap*2)/3f,y=result.Panel.y+236;
+                result.SkillButtons=new[]{new Rect(pad,y,bw,86),new Rect(pad+bw+gap,y,bw,86),new Rect(pad+(bw+gap)*2,y,bw,86)};
+                float rewardY=result.Panel.y+78;result.RewardButtons=new[]{new Rect(pad,rewardY,bw,88),new Rect(pad+bw+gap,rewardY,bw,88),new Rect(pad+(bw+gap)*2,rewardY,bw,88)};
+                result.ActionButton=new Rect(width*.52f,result.Panel.y+330,width*.48f-pad,60);
+                result.RestartButton=new Rect(pad,result.Panel.y+330,width-pad*2,66);
             }
             else
             {
                 result.CompactLandscape=height<760;
                 result.PhoneLandscape=height<500f&&width<950f;
                 if(result.PhoneLandscape) result.FontSize=Mathf.Clamp(Mathf.RoundToInt(height/17f),20,26);
-                float panelW=result.PhoneLandscape?Mathf.Clamp(width*.46f,330f,410f):result.CompactLandscape?Mathf.Clamp(width*.30f,280f,340f):Mathf.Clamp(width*.32f,300f,360f);
+                float panelW=result.PhoneLandscape?Mathf.Clamp(width*.52f,380f,450f):result.CompactLandscape?Mathf.Clamp(width*.30f,280f,340f):Mathf.Clamp(width*.32f,300f,360f);
                 result.Board=new Rect(0,0,width-panelW,height);result.Panel=new Rect(width-panelW,0,panelW,height);
-                float pad=10,y=result.PhoneLandscape?196:result.CompactLandscape?94:198,h=result.PhoneLandscape?70:result.CompactLandscape?50:68;
-                result.SkillButtons=new[]{new Rect(result.Panel.x+pad,y,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+h+6,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+(h+6)*2,panelW-pad*2,h)};
+                float pad=10,y=result.PhoneLandscape?202:result.CompactLandscape?94:198,h=result.PhoneLandscape?74:result.CompactLandscape?50:68;
+                if(result.PhoneLandscape)
+                {
+                    float gap=6,bw=(panelW-pad*2-gap*2)/3f;
+                    result.SkillButtons=new[]{new Rect(result.Panel.x+pad,y,bw,h),new Rect(result.Panel.x+pad+bw+gap,y,bw,h),new Rect(result.Panel.x+pad+(bw+gap)*2,y,bw,h)};
+                }
+                else result.SkillButtons=new[]{new Rect(result.Panel.x+pad,y,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+h+6,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+(h+6)*2,panelW-pad*2,h)};
                 if(result.CompactLandscape){float gap=6,bw=(panelW-pad*2-gap*2)/3f,ry=128;result.RewardButtons=new[]{new Rect(result.Panel.x+pad,ry,bw,76),new Rect(result.Panel.x+pad+bw+gap,ry,bw,76),new Rect(result.Panel.x+pad+(bw+gap)*2,ry,bw,76)};}
                 else result.RewardButtons=new[]{new Rect(result.Panel.x+pad,210,panelW-pad*2,76),new Rect(result.Panel.x+pad,294,panelW-pad*2,76),new Rect(result.Panel.x+pad,378,panelW-pad*2,76)};
                 result.ActionButton=new Rect(result.Panel.x+panelW*.52f,result.CompactLandscape?y+(h+6)*3:500,panelW*.48f-pad,48);
                 result.RestartButton=new Rect(result.Panel.x+pad,result.CompactLandscape?176:260,panelW-pad*2,64);
             }
-            float boardHeader=result.CompactLandscape?42:64;
+            float boardHeader=result.Portrait||result.CompactLandscape?42:64;
             result.EstimatedTileSize=Mathf.Min((result.Board.width-24)/9f,(result.Board.height-boardHeader-16)/11f);
             return result;
         }
