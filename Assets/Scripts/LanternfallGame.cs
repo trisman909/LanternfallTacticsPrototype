@@ -34,6 +34,7 @@ namespace Lanternfall
         public HashSet<Vector2Int> HazardTiles { get; private set; } = new();
         public HashSet<Vector2Int> ArmedHazards { get; private set; } = new();
         public HashSet<Vector2Int> PropTiles { get; private set; } = new();
+        public Vector2Int? HealingPickup { get; private set; }
         public event Action Changed;
 
         readonly RoomGenerator generator = new();
@@ -51,7 +52,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.5L: short WebGL/Windows playtest build.",
+            "Prototype v0.5N: short WebGL/Windows playtest build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -117,6 +118,7 @@ namespace Lanternfall
             Theme = r.Theme;
             HazardTiles = r.HazardTiles;
             PropTiles = r.PropTiles;
+            HealingPickup = r.HealingPickup;
             ArmedHazards.Clear();
             Enemies.Clear();
 
@@ -194,7 +196,8 @@ namespace Lanternfall
             Player.Position = p;
             RefreshTargets();
             RefreshPreviews();
-            Message = Player.MovementPoints > 0 ? $"Moved {cost}. MP {Player.MovementPoints}/{Player.MoveRange}." : "No MP left. Use AP or End Turn.";
+            string pickup = TryCollectHealingPickup(p);
+            Message = !string.IsNullOrEmpty(pickup) ? pickup : Player.MovementPoints > 0 ? $"Moved {cost}. MP {Player.MovementPoints}/{Player.MoveRange}." : "No MP left. Use AP or End Turn.";
             Changed?.Invoke();
         }
 
@@ -305,9 +308,8 @@ namespace Lanternfall
             var outcome = GameRules.ResolveOutcome(Player, Enemies, RoomNumber);
             if (outcome == TurnPhase.Reward)
             {
-                int healed = Player.Recover(BalanceConfig.BetweenRoomRecovery);
                 Turns.ShowReward();
-                Message = $"Room cleared - recovered {healed} HP. Choose one blessing.";
+                Message = "Room cleared. Choose one blessing.";
             }
             else if (outcome == TurnPhase.Won)
             {
@@ -366,9 +368,8 @@ namespace Lanternfall
             var outcome = GameRules.ResolveOutcome(Player, Enemies, RoomNumber);
             if (outcome == TurnPhase.Reward)
             {
-                int healed = Player.Recover(BalanceConfig.BetweenRoomRecovery);
                 Turns.ShowReward();
-                Message = $"Room cleared - recovered {healed} HP. Choose one blessing.";
+                Message = "Room cleared. Choose one blessing.";
                 Changed?.Invoke();
                 yield break;
             }
@@ -426,6 +427,15 @@ namespace Lanternfall
                     if (damage > 0){e.Damage(damage); HitTiles.Add(e.Position);}
                 }
             }
+        }
+
+        string TryCollectHealingPickup(Vector2Int p)
+        {
+            if (!HealingPickup.HasValue || HealingPickup.Value != p) return "";
+            int healed = Player.Recover(BalanceConfig.HealingPickupAmount);
+            HealingPickup = null;
+            HitTiles.Add(p);
+            return healed > 0 ? $"Lantern bloom restored {healed} HP." : "Lantern bloom collected, but HP is already full.";
         }
 
         public void ChooseReward(int choice)

@@ -13,6 +13,7 @@ namespace Lanternfall
         public BiomeTheme Theme;
         public HashSet<Vector2Int> HazardTiles = new();
         public HashSet<Vector2Int> PropTiles = new();
+        public Vector2Int? HealingPickup;
     }
 
     public sealed class RoomGenerator
@@ -37,7 +38,20 @@ namespace Lanternfall
             int count = BalanceConfig.EnemyCount(roomNumber);
             var enemies=candidates.Take(count).ToList();
             var dressing=grid.Floors().Where(v=>v!=player&&!enemies.Contains(v)&&v.y>2).OrderBy(_=>rng.Next()).ToList();
-            return new GeneratedRoom { Grid = grid, PlayerSpawn = player, EnemySpawns = enemies, Theme=BiomeCatalog.ForRoom(roomNumber), HazardTiles=dressing.Take(5).ToHashSet(), PropTiles=dressing.Skip(5).Take(3).ToHashSet() };
+            var hazards=dressing.Take(5).ToHashSet();
+            var props=dressing.Skip(5).Take(3).ToHashSet();
+            Vector2Int? heal=null;
+            if(roomNumber>=2 && roomNumber<5 && rng.NextDouble()<.35)
+            {
+                heal=grid.Floors()
+                    .Where(v=>v!=player&&!enemies.Contains(v)&&!hazards.Contains(v)&&!props.Contains(v))
+                    .Where(v=>grid.ShortestPath(player,v,q=>false).Count>0)
+                    .OrderByDescending(v=>Mathf.Abs(v.x-4)+Mathf.Abs(v.y-5))
+                    .ThenBy(_=>rng.Next())
+                    .FirstOrDefault();
+                if(heal==Vector2Int.zero&&!grid.IsFloor(Vector2Int.zero))heal=null;
+            }
+            return new GeneratedRoom { Grid = grid, PlayerSpawn = player, EnemySpawns = enemies, Theme=BiomeCatalog.ForRoom(roomNumber), HazardTiles=hazards, PropTiles=props, HealingPickup=heal };
         }
 
         public bool IsConnected(GridModel grid)

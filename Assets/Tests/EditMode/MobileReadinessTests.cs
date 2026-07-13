@@ -267,7 +267,8 @@ namespace Lanternfall.Tests
 
         [Test] public void BalancePass_KeepsRunBeatableButNotFree()
         {
-            Assert.AreEqual(2,BalanceConfig.BetweenRoomRecovery);
+            Assert.AreEqual(0,BalanceConfig.BetweenRoomRecovery);
+            Assert.AreEqual(3,BalanceConfig.HealingPickupAmount);
             Assert.AreEqual(24,BalanceConfig.EnemyStats(EnemyKind.LanternWarden).health);
             Assert.AreEqual(1,SkillBook.Get(SkillId.EmberBolt).Cooldown);
             Assert.That(BalanceConfig.EnemyStats(EnemyKind.StoneSentinel).damage,Is.GreaterThanOrEqualTo(3));
@@ -298,7 +299,7 @@ namespace Lanternfall.Tests
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.5L",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.5N",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -363,7 +364,7 @@ namespace Lanternfall.Tests
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("mobile browser")));
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
-            Assert.That(guide,Does.Contain("Prototype v0.5L"));
+            Assert.That(guide,Does.Contain("Prototype v0.5N"));
             Assert.That(guide,Does.Contain("what confused you"));
             Assert.That(guide,Does.Contain("What device/browser did you use?"));
             Assert.That(guide,Does.Contain("Which class felt best/worst?"));
@@ -420,6 +421,47 @@ namespace Lanternfall.Tests
             Assert.That(hud.SkillCards.All(r=>r.width>=MobileLayoutSnapshot.MinimumTouchTarget),Is.True);
             Assert.That(hud.SkillCards.All(r=>r.height>=86f),Is.True);
             Assert.That(hud.Message.yMin,Is.GreaterThan(hud.EndTurnButton.yMax));
+        }
+
+        [Test] public void Phase5N_RoomClearRewardLayoutKeepsHeaderAndCardsSeparated()
+        {
+            var layout=MobileLayout.Compute(1280,720);
+            var hud=CombatHudLayout.Compute(layout.Panel,layout.Portrait,layout.CompactLandscape);
+            var reward=RewardPanelLayout.Compute(hud.SelectedSkill.x,hud.SelectedSkill.y,hud.SelectedSkill.width,true);
+            Assert.True(reward.Fits(layout.Panel));
+            Assert.False(reward.HasOverlap());
+            Assert.AreEqual(3,reward.Cards.Length);
+            Assert.That(reward.Header.height,Is.GreaterThanOrEqualTo(50f));
+            Assert.That(reward.Cards.All(r=>r.yMin>=reward.Header.yMax+RewardPanelLayout.Gap-.01f));
+            Assert.That(reward.Cards.All(r=>r.height>=76f));
+
+            var portrait=MobileLayout.Compute(393,852);
+            var portraitHud=CombatHudLayout.Compute(portrait.Panel,portrait.Portrait,portrait.CompactLandscape);
+            var portraitReward=RewardPanelLayout.Compute(portraitHud.SelectedSkill.x,portraitHud.SelectedSkill.y,portraitHud.SelectedSkill.width,false);
+            Assert.True(portraitReward.Fits(portrait.Panel));
+            Assert.False(portraitReward.HasOverlap());
+        }
+
+        [Test] public void Phase5N_HealingPickupHealsCapsAndDisappears()
+        {
+            var go=new GameObject("PickupHeal");var game=go.AddComponent<LanternfallGame>();game.StartRun(5555);
+            var target=game.ValidTargets.First(t=>game.Grid.IsFloor(t)&&t!=game.Player.Position);
+            typeof(LanternfallGame).GetProperty("HealingPickup").GetSetMethod(true).Invoke(game,new object[]{(Vector2Int?)target});
+            game.Player.Damage(5);int before=game.Player.Health;
+            game.TapTile(target);
+            Assert.AreEqual(before+BalanceConfig.HealingPickupAmount,game.Player.Health);
+            Assert.False(game.HealingPickup.HasValue);
+            Assert.That(game.Message,Does.Contain("Lantern bloom"));
+            Object.DestroyImmediate(go);
+
+            go=new GameObject("PickupCap");game=go.AddComponent<LanternfallGame>();game.StartRun(5556);
+            target=game.ValidTargets.First(t=>game.Grid.IsFloor(t)&&t!=game.Player.Position);
+            typeof(LanternfallGame).GetProperty("HealingPickup").GetSetMethod(true).Invoke(game,new object[]{(Vector2Int?)target});
+            int max=game.Player.MaxHealth;
+            game.TapTile(target);
+            Assert.AreEqual(max,game.Player.Health);
+            Assert.False(game.HealingPickup.HasValue);
+            Object.DestroyImmediate(go);
         }
 
         [Test] public void Phase5K_ShortMobileLandscapeKeepsAllSkillsAndEndTurnAccessible()

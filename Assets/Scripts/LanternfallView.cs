@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.5L";
+        public const string PrototypeVersion = "Prototype v0.5N";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -228,6 +228,14 @@ namespace Lanternfall
             foreach (var p in game.PropTiles)
                 DrawTileGlyph(TileRect(p, ox, oy, minX, maxY), game.Theme.PropGlyph, game.Theme.Accent, .34f);
 
+            if (game.HealingPickup.HasValue)
+            {
+                var r = TileRect(game.HealingPickup.Value, ox, oy, minX, maxY);
+                DrawRect(new Rect(r.x + tile * .18f, r.y + tile * .18f, tile * .60f, tile * .60f), new Color(.24f, 1f, .55f, .88f));
+                DrawOutline(r, new Color(.60f, 1f, .70f), Mathf.Max(3, tile * .055f));
+                DrawTileGlyph(r, "+", Color.white, .46f);
+            }
+
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.Preview).Distinct())
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
@@ -314,7 +322,9 @@ namespace Lanternfall
         {
             if (game.Turns.Phase == TurnPhase.Reward)
             {
-                GUI.Label(new Rect(x, y, w, compact ? 32 : 42), "ROOM CLEAR - CHOOSE ONE", title); y += compact ? 34 : 48;
+                float headerHeight = compact ? RewardPanelLayout.SideHeaderHeight : RewardPanelLayout.PortraitHeaderHeight;
+                GUI.Label(new Rect(x, y, w, headerHeight), "ROOM CLEAR\nCHOOSE ONE", hudHeader);
+                y += headerHeight + RewardPanelLayout.Gap;
                 if (compact) DrawSideRewards(x, w, ref y);
                 else DrawPortraitRewards(x, w, ref y);
                 return true;
@@ -411,10 +421,10 @@ namespace Lanternfall
 
         void DrawPortraitRewards(float x, float w, ref float y)
         {
-            float gap = 8, bw = (w - gap * 2) / 3f;
+            float gap = RewardPanelLayout.Gap, bw = (w - gap * 2) / 3f;
             for (int i = 0; i < 3; i++)
             {
-                var r = new Rect(x + i * (bw + gap), y, bw, 82);
+                var r = new Rect(x + i * (bw + gap), y, bw, RewardPanelLayout.PortraitCardHeight);
                 DrawCardFrame(r, new Color(1f, .62f, .18f));
                 if (GUI.Button(r, RewardCatalog.Get(i).CompactLabel, hudSkillCompact)) game.ChooseReward(i);
             }
@@ -424,10 +434,10 @@ namespace Lanternfall
         {
             for (int i = 0; i < 3; i++)
             {
-                var r = new Rect(x, y, w, 76);
+                var r = new Rect(x, y, w, RewardPanelLayout.SideCardHeight);
                 DrawCardFrame(r, new Color(1f, .62f, .18f));
                 if (GUI.Button(r, RewardCatalog.WebGLCardLabel(i), hudSkill)) game.ChooseReward(i);
-                y += 84;
+                y += RewardPanelLayout.SideCardHeight + RewardPanelLayout.Gap;
             }
         }
 

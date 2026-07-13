@@ -39,6 +39,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5K.2 - desktop WebGL board scale and HUD width tuning (complete)
 - Phase 5L - first external playtest feedback package and safe clarity fix pass (complete)
 - Phase 5M - first external feedback response for onboarding, rewards, AI, and tactical difficulty (complete)
+- Phase 5N - optional healing pickups, reward layout fix, and slight difficulty tightening (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -122,3 +123,5 @@ Phase 5K.2 gives the tactics board more desktop/WebGL priority without changing 
 Phase 5L prepares the prototype for real external testers: shorter first-player instructions, an in-game playtest prompt, a focused feedback guide/checklist, and a feedback log template. No external feedback has been invented or recorded yet.
 
 Phase 5M responds to the first real external playtest: clearer onboarding, readable reward cards, lower passive recovery, stronger room-depth scaling, smarter enemy repositioning, and a tougher existing boss. See [PLAYTEST_5M.md](PLAYTEST_5M.md).
+
+Phase 5N responds to follow-up live feedback: automatic room-clear healing is removed, optional modest board healing pickups can appear in some rooms, reward layout spacing is protected against header/card overlap, and later-room enemy pressure is nudged up slightly. See [PLAYTEST_5N.md](PLAYTEST_5N.md).

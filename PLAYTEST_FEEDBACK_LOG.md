@@ -1,6 +1,6 @@
 # Lanternfall Tactics - Playtest Feedback Log
 
-Status: first external tester feedback has been recorded and addressed in Phase 5M.
+Status: first external tester feedback has been recorded and addressed through Phase 5N.
 
 Live playtest link:
 
@@ -63,6 +63,32 @@ Use this log to capture real tester notes. Keep raw wording where possible. Do n
   - High
 - Follow-up action:
   - Fixed in commit: Phase 5M response
+
+### 2026-07-13 - Follow-up live browser tester
+
+- Did the game load: Yes
+- Device/browser: Live WebGL browser build, exact browser not recorded
+- Class tried: Not recorded
+- Furthest room reached: Not recorded
+- Understood what to do in first minute: Improved after Phase 5M
+- AP and MP clarity: Improved after Phase 5M
+- Skill target clarity: Not specifically flagged
+- Enemy danger preview clarity: Not specifically flagged
+- Board large enough: Not flagged after Phase 5K.2
+- HUD readable: Reward clear panel still needed spacing cleanup
+- Anything too small or clipped: `ROOM CLEAR / CHOOSE ONE` and reward cards could visually overlap/crop
+- Difficulty/pacing:
+  - Better, but can be slightly harder
+- Class that felt best: Not recorded
+- Class that felt worst: Not recorded
+- Most confusing moment: Health scarcity may make HP reward feel mandatory
+- Most fun moment: Combat direction felt good
+- Bug or broken behavior: No crash reported
+- Screenshot/video link: Not included in repo
+- Severity:
+  - Medium
+- Follow-up action:
+  - Fixed in commit: Phase 5N response
 
 ## First-feedback rules
 
