@@ -101,6 +101,7 @@ namespace Lanternfall
             var escapeTiles = grid.Floors().Where(p => Mathf.Abs(p.x - player.x) + Mathf.Abs(p.y - player.y) <= 2).ToHashSet();
             Vector2Int best = e.Position;
             int bestScore = int.MinValue;
+            int startDistance = Mathf.Abs(e.Position.x - player.x) + Mathf.Abs(e.Position.y - player.y);
             foreach (var c in candidates)
             {
                 var ghost = new EnemyModel(e.Kind, c){AttackDamage = e.AttackDamage, MoveRange = e.MoveRange, MaxHealth = e.MaxHealth, Health = e.Health};
@@ -108,21 +109,58 @@ namespace Lanternfall
                 var delayed = BuildDelayedPreview(ghost, player, grid);
                 int distance = Mathf.Abs(c.x - player.x) + Mathf.Abs(c.y - player.y);
                 int score = 0;
-                if (preview.Contains(player)) score += 100;
+                bool hasLine = c.x == player.x || c.y == player.y;
+                bool lineClear = hasLine && SkillBook.HasLineOfSight(grid, c, player);
+                if (preview.Contains(player)) score += 120;
                 score += preview.Count(escapeTiles.Contains) * 10;
                 score += delayed.Count(escapeTiles.Contains) * 5;
                 score -= distance * 3;
-                if (e.Kind == EnemyKind.GloomArcher && (c.x == player.x || c.y == player.y)) score += 24;
+                if (distance < startDistance) score += (startDistance - distance) * 8;
+                if (distance > startDistance) score -= (distance - startDistance) * 10;
+                if (e.Kind == EnemyKind.GloomArcher)
+                {
+                    if (lineClear) score += 42;
+                    else if (hasLine) score += 12;
+                    int ideal = 4;
+                    score -= Mathf.Abs(distance - ideal) * 2;
+                }
+                else if (e.Kind == EnemyKind.Ashling)
+                {
+                    if (distance <= 2) score += 24;
+                    if (distance == 1) score += 18;
+                }
+                else if (e.Kind == EnemyKind.StoneSentinel)
+                {
+                    if (distance <= 2) score += 18;
+                    if (delayed.Contains(player) || delayed.Count(escapeTiles.Contains) > 0) score += 14;
+                }
                 if (e.Kind == EnemyKind.LanternWarden && distance <= (BossPhase(e) >= 3 ? 4 : 3)) score += 22;
                 if (hazard != null && hazard(c)) score += e.Kind == EnemyKind.LanternWarden ? 8 : 3;
-                if (c == e.Position) score -= 8;
-                if (score > bestScore)
+                if (c == e.Position && !preview.Contains(player)) score -= 30;
+                if (score > bestScore || score == bestScore && BetterTieBreak(c, best, player, e.Position, grid, e))
                 {
                     bestScore = score;
                     best = c;
                 }
             }
             return best;
+        }
+
+        static bool BetterTieBreak(Vector2Int candidate, Vector2Int incumbent, Vector2Int player, Vector2Int start, GridModel grid, EnemyModel e)
+        {
+            int candidateDistance = Mathf.Abs(candidate.x - player.x) + Mathf.Abs(candidate.y - player.y);
+            int incumbentDistance = Mathf.Abs(incumbent.x - player.x) + Mathf.Abs(incumbent.y - player.y);
+            if (candidateDistance != incumbentDistance) return candidateDistance < incumbentDistance;
+            bool candidateLine = (candidate.x == player.x || candidate.y == player.y) && SkillBook.HasLineOfSight(grid, candidate, player);
+            bool incumbentLine = (incumbent.x == player.x || incumbent.y == player.y) && SkillBook.HasLineOfSight(grid, incumbent, player);
+            if (candidateLine != incumbentLine) return candidateLine;
+            if (incumbent == start && candidate != start) return true;
+            if (candidate == start && incumbent != start) return false;
+            var toward = new Vector2Int(System.Math.Sign(player.x - start.x), System.Math.Sign(player.y - start.y));
+            int candidateToward = (candidate.x - start.x) * toward.x + (candidate.y - start.y) * toward.y;
+            int incumbentToward = (incumbent.x - start.x) * toward.x + (incumbent.y - start.y) * toward.y;
+            if (candidateToward != incumbentToward) return candidateToward > incumbentToward;
+            return candidate.x != incumbent.x ? candidate.x > incumbent.x : candidate.y > incumbent.y;
         }
     }
 }

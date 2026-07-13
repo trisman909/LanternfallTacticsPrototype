@@ -4,13 +4,13 @@ Playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
-Current visible build label: `Prototype v0.5P`.
+Current visible build label: `Prototype v0.5Q`.
 
 This is a small prototype, not a finished game. Please note what confused you, what felt fun, and if anything broke.
 
 ## Quick start
 
-1. Open the link in a desktop browser first if possible. Mobile browser play is experimental but now has dedicated phone portrait/landscape HUD layouts with larger skill cards and a wider phone-landscape panel.
+1. Open the link in a desktop browser first if possible. Mobile browser play is experimental but now has a more aggressive real-phone HUD: portrait uses stacked skills, and landscape uses a much wider action panel.
 2. Wait for the Unity loading bar to finish.
 3. Press `How to Play` if this is your first run.
 4. Press `Start Run`.
@@ -30,7 +30,7 @@ This is a small prototype, not a finished game. Please note what confused you, w
 - After clearing a room, choose one reward card.
 - If you win or lose, press `Start New Run` to restart.
 - On phone, rotate if needed. Browser fullscreen or Add to Home Screen can help if the address bar makes the game feel cramped.
-- In the current mobile HUD pass, all three skills, HP/AP/MP, and End Turn should stay visible without zooming.
+- In the current mobile HUD pass, all three skills, HP/AP/MP, and End Turn should stay visible and comfortable without zooming.
 
 ## Feedback checklist
 

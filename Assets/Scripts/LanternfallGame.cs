@@ -58,7 +58,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.5P: short WebGL/Windows playtest build.",
+            "Prototype v0.5Q: short WebGL/Windows playtest build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -391,9 +391,10 @@ namespace Lanternfall
                 }
                 else if (e.RootTurns <= 0)
                 {
+                    var before = e.Position;
                     var next = EnemyAI.ChooseReposition(e, Player.Position, Grid, q => Occupied(q) || q == Player.Position, p => HazardTiles.Contains(p));
                     if (next != e.Position) e.Position = next;
-                    Message = next == e.Position ? $"{NameOf(e.Kind)} holds a threatening angle." : $"{NameOf(e.Kind)} repositions to pressure your next move.";
+                    Message = next == before ? $"{NameOf(e.Kind)} holds a threatening angle." : $"{NameOf(e.Kind)} repositions to pressure your next move.";
                 }
                 else Message = $"{NameOf(e.Kind)} is rooted.";
                 Changed?.Invoke();
