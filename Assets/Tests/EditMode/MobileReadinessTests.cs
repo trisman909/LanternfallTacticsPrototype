@@ -22,6 +22,12 @@ namespace Lanternfall.Tests
             Assert.That(layout.EstimatedTileSize,Is.GreaterThanOrEqualTo(24));Assert.That(layout.Panel.x,Is.EqualTo(layout.Board.xMax).Within(.01f));
         }
 
+        [Test] public void Phase5G_DefaultBrowserViewportUsesCompactReadableHud()
+        {
+            var layout=MobileLayout.Compute(1280,720);
+            Assert.False(layout.Portrait);Assert.True(layout.CompactLandscape);Assert.False(layout.HasOverlap);Assert.True(layout.TouchTargetsValid);
+        }
+
         [Test] public void IPhonePortrait_DynamicIslandAndHomeIndicatorStayOutsideUI()
         {
             var safe=MobileLayout.ToGuiSafeArea(852,new Rect(0,34,393,759));

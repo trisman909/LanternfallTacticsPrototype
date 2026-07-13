@@ -44,7 +44,7 @@ namespace Lanternfall
             }
             else
             {
-                float panelW=Mathf.Clamp(width*.36f,280f,390f);result.CompactLandscape=height<600;
+                float panelW=Mathf.Clamp(width*.36f,280f,390f);result.CompactLandscape=height<760;
                 result.Board=new Rect(0,0,width-panelW,height);result.Panel=new Rect(width-panelW,0,panelW,height);
                 float pad=10,y=result.CompactLandscape?94:198,h=result.CompactLandscape?50:68;
                 result.SkillButtons=new[]{new Rect(result.Panel.x+pad,y,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+h+6,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+(h+6)*2,panelW-pad*2,h)};
