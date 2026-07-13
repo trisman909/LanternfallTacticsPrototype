@@ -40,5 +40,34 @@ namespace Lanternfall
                 ? $"{prefix}{skill.Name}\nAP {skill.ApCost} - {state}\n{skill.Hint}"
                 : $"{prefix}{skill.Name}\nAP {skill.ApCost} - {state}\n{skill.Hint}";
         }
+
+        public static string MobileSkillCard(SkillDefinition skill, int cooldown, int currentAp, TurnPhase phase, bool selected)
+        {
+            string prefix = selected ? "SEL " : "";
+            return $"{prefix}{MobileSkillName(skill)}   AP {skill.ApCost}\n{SkillState(skill, cooldown, currentAp, phase)}";
+        }
+
+        public static string MobileSkillName(SkillDefinition skill)
+        {
+            return skill.Name switch
+            {
+                "Spear Thrust" => "SPEAR",
+                "Guard Stance" => "GUARD",
+                "Sun Charge" => "CHARGE",
+                "Straight Shot" => "SHOT",
+                "Marked Target" => "MARK",
+                "Piercing Prism" => "PRISM",
+                "Ember Bolt" => "BOLT",
+                "Cinder Bloom" => "BLOOM",
+                "Delayed Blast" => "BLAST",
+                "Diagonal Dash" => "DASH",
+                "Backstab" => "STAB",
+                "Shadow Swap" => "SWAP",
+                "Lens Trap" => "TRAP",
+                "Redirect Shot" => "REDIRECT",
+                "Shield Gadget" => "SHIELD",
+                _ => skill.Name.ToUpperInvariant()
+            };
+        }
     }
 }
