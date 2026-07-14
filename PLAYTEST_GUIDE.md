@@ -4,7 +4,7 @@ Playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
-Current visible build label: `Prototype v0.5Q.3`.
+Current visible build label: `Prototype v0.5Q.4`.
 
 This is a small prototype, not a finished game. Please note what confused you, what felt fun, and if anything broke.
 
@@ -30,7 +30,7 @@ This is a small prototype, not a finished game. Please note what confused you, w
 - After clearing a room, choose one reward card.
 - If you win or lose, press `Start New Run` to restart.
 - On phone, rotate to landscape to play. Add to Home Screen/fullscreen is best if available, but normal browser landscape should still be playable.
-- In the current landscape-first mobile pass, portrait should show only a rotate-device screen; landscape should keep the board, HP/AP/MP, skills, status, and End Turn readable without zooming.
+- In the current landscape-first mobile pass, phone portrait should show only a browser/Unity rotate-device screen; landscape should keep the board, HP/AP/MP, skills, status, and End Turn readable without zooming.
 
 ## Feedback checklist
 

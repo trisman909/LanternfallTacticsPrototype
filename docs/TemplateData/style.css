@@ -21,3 +21,10 @@ html, body { width: 100%; height: 100%; min-height: 100dvh; overflow: hidden; ba
 #unity-canvas { width: 100vw !important; height: 100dvh !important; display: block; }
 #unity-footer { display: none; }
 #lanternfall-loading-copy { color: #f4d27a; font: 700 16px Arial, sans-serif; text-align: center; margin: 10px auto; max-width: 520px; line-height: 1.35; }
+#lanternfall-rotate-overlay { display: none; position: fixed; inset: 0; z-index: 99999; min-height: 100dvh; padding: max(22px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left)); box-sizing: border-box; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 18%, #142237 0%, #080611 55%, #020208 100%); color: #fff2ca; text-align: center; }
+.lanternfall-rotate-card { width: min(88vw, 440px); border: 3px solid #b9832d; border-radius: 18px; background: rgba(16, 13, 30, .94); box-shadow: 0 18px 60px rgba(0,0,0,.55); padding: 28px 22px; font-family: Arial, sans-serif; }
+.lanternfall-rotate-title { font-size: clamp(32px, 9vw, 48px); line-height: 1.05; font-weight: 900; color: #ffd36f; margin-bottom: 18px; }
+.lanternfall-rotate-body { font-size: clamp(22px, 5.8vw, 30px); line-height: 1.18; font-weight: 800; margin-bottom: 16px; }
+.lanternfall-rotate-note { font-size: clamp(17px, 4.5vw, 23px); line-height: 1.25; color: #d7e5ff; }
+body.lanternfall-phone-portrait #lanternfall-rotate-overlay { display: flex; }
+body.lanternfall-phone-portrait #unity-container, body.lanternfall-phone-portrait #unity-canvas { visibility: hidden !important; pointer-events: none !important; }

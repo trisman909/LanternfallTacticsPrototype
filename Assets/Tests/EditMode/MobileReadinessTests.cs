@@ -14,7 +14,7 @@ namespace Lanternfall.Tests
             Assert.True(layout.PhoneHud);
             var viewSource=File.ReadAllText("Assets/Scripts/LanternfallView.cs");
             Assert.That(viewSource,Does.Contain("Rotate your phone to play"));
-            Assert.That(viewSource,Does.Contain("Landscape mode recommended"));
+            Assert.That(viewSource,Does.Contain("Lanternfall Tactics is best played in landscape"));
         }
 
         [Test] public void LandscapeLayout_FitsShortPhoneWithoutBoardOverlap()
@@ -334,7 +334,7 @@ namespace Lanternfall.Tests
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.5Q.3",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.5Q.4",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -399,7 +399,7 @@ namespace Lanternfall.Tests
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("mobile browser")));
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
-            Assert.That(guide,Does.Contain("Prototype v0.5Q.3"));
+            Assert.That(guide,Does.Contain("Prototype v0.5Q.4"));
             Assert.That(guide,Does.Contain("what confused you"));
             Assert.That(guide,Does.Contain("What device/browser did you use?"));
             Assert.That(guide,Does.Contain("Which class felt best/worst?"));
@@ -535,20 +535,22 @@ namespace Lanternfall.Tests
             Assert.True(landscapeHud.TouchTargetsValid());
         }
 
-        [Test] public void Phase5Q3_PhonePortraitAlwaysUsesRotateScreenContract()
+        [Test] public void Phase5Q4_PhonePortraitAlwaysUsesRotateScreenContract()
         {
-            foreach(var size in new[]{new Vector2(393,759),new Vector2(390,700),new Vector2(360,640),new Vector2(360,740)})
+            foreach(var size in new[]{new Vector2(393,759),new Vector2(390,700),new Vector2(360,640),new Vector2(360,740),new Vector2(430,932),new Vector2(500,1000)})
             {
                 var layout=MobileLayout.Compute(size.x,size.y);
                 Assert.True(layout.Portrait,size.ToString());
                 Assert.True(layout.PhoneHud,size.ToString());
-                Assert.That(File.ReadAllText("Assets/Scripts/LanternfallView.cs"),Does.Contain("DrawRotatePhoneScreen"));
+                var source=File.ReadAllText("Assets/Scripts/LanternfallView.cs");
+                Assert.That(source,Does.Contain("DrawRotatePhoneScreen"));
+                Assert.That(source,Does.Contain("Lanternfall Tactics is best played in landscape"));
             }
         }
 
-        [Test] public void Phase5P_PhoneLandscapeUsesWiderHudAndFullSizeControls()
+        [Test] public void Phase5Q4_PhoneLandscapeUsesBottomHudForRealBrowserViewports()
         {
-            foreach(var size in new[]{new Vector2(800,360),new Vector2(734,340),new Vector2(734,372),new Vector2(844,390)})
+            foreach(var size in new[]{new Vector2(800,360),new Vector2(734,340),new Vector2(734,372),new Vector2(844,390),new Vector2(852,393),new Vector2(915,412),new Vector2(932,430),new Vector2(1024,500),new Vector2(1100,560)})
             {
                 var layout=MobileLayout.Compute(size.x,size.y);
                 var hud=CombatHudLayout.Compute(layout.Panel,layout.Portrait,layout.CompactLandscape);
@@ -559,19 +561,31 @@ namespace Lanternfall.Tests
                 Assert.That(layout.Panel.width,Is.EqualTo(size.x).Within(.01f),size.ToString());
                 Assert.That(layout.Panel.y,Is.EqualTo(layout.Board.yMax).Within(.01f),size.ToString());
                 Assert.That(layout.Board.width,Is.EqualTo(size.x).Within(.01f),size.ToString());
-                Assert.That(layout.Board.height,Is.GreaterThanOrEqualTo(size.y*.50f),size.ToString());
+                Assert.That(layout.Board.height,Is.GreaterThanOrEqualTo(size.y*.45f),size.ToString());
                 Assert.True(hud.RequiredElementsFit(layout.Panel),size.ToString());
                 Assert.False(hud.HasEssentialOverlap(),size.ToString());
                 Assert.True(hud.TouchTargetsValid(),size.ToString());
-                Assert.That(hud.SkillCards.All(r=>r.height>=88f&&r.width>=140f),size.ToString());
-                Assert.That(hud.StatChips.All(r=>r.height>=48f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
-                Assert.That(hud.EndTurnButton.height,Is.GreaterThanOrEqualTo(88f),size.ToString());
+                Assert.That(hud.SkillCards.All(r=>r.height>=96f&&r.width>=146f),size.ToString());
+                Assert.That(hud.StatChips.All(r=>r.height>=52f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
+                Assert.That(hud.EndTurnButton.height,Is.GreaterThanOrEqualTo(96f),size.ToString());
                 Assert.That(hud.Header.height,Is.EqualTo(0f),size.ToString());
                 Assert.That(hud.HelpButton.height,Is.EqualTo(0f),size.ToString());
                 Assert.That(hud.InfoButton.height,Is.EqualTo(0f),size.ToString());
-                Assert.That(hud.MinimumControlHeight(),Is.GreaterThanOrEqualTo(88f),size.ToString());
+                Assert.That(hud.MinimumControlHeight(),Is.GreaterThanOrEqualTo(96f),size.ToString());
                 Assert.That(hud.Message.yMax,Is.LessThanOrEqualTo(layout.Panel.yMax+.01f),size.ToString());
             }
+        }
+
+        [Test] public void Phase5Q4_WebGLTemplateAddsBrowserLevelPortraitBlocker()
+        {
+            var builder=File.ReadAllText("Assets/Editor/BuildPrototype.cs");
+            Assert.That(builder,Does.Contain("lanternfall-rotate-overlay"));
+            Assert.That(builder,Does.Contain("window.innerWidth"));
+            Assert.That(builder,Does.Contain("window.innerHeight"));
+            Assert.That(builder,Does.Contain("orientationchange"));
+            Assert.That(builder,Does.Contain("lanternfall-phone-portrait"));
+            Assert.That(builder,Does.Contain("v=5Q4"));
+            Assert.That(builder,Does.Contain("Prototype v0.5Q.4"));
         }
 
         [Test] public void Phase5Q2_PhoneHudUsesShortSkillLabelsAndHidesSecondaryCombatInfo()

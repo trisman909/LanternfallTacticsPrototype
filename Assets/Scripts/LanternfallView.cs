@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.5Q.3";
+        public const string PrototypeVersion = "Prototype v0.5Q.4";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -111,7 +111,7 @@ namespace Lanternfall
             float y = panel.y + 22f;
             GUI.Label(new Rect(panel.x + 12f, y, panel.width - 24f, 62f), "LANTERNFALL TACTICS", title); y += 76f;
             GUI.Label(new Rect(panel.x + 12f, y, panel.width - 24f, 96f), "Rotate your phone to play", new GUIStyle(title){fontSize = Mathf.Max(title.fontSize, 36)}); y += 106f;
-            GUI.Label(new Rect(panel.x + 18f, y, panel.width - 36f, 70f), "Landscape mode recommended for the tactics board and combat HUD.", center); y += 78f;
+            GUI.Label(new Rect(panel.x + 18f, y, panel.width - 36f, 70f), "Lanternfall Tactics is best played in landscape.", center); y += 78f;
             GUI.Label(new Rect(panel.x + 18f, y, panel.width - 36f, 56f), "For best phone play, add to Home Screen or use fullscreen if available.", small);
         }
 
@@ -200,7 +200,8 @@ namespace Lanternfall
         {
             DrawRect(area, game.Theme.Background);
             DrawOutline(area, new Color(.12f, .10f, .18f), 3);
-            float top = compact ? 42 : 64;
+            bool phoneBoard = compact && area.height < 300f;
+            float top = compact ? (phoneBoard ? 28 : 42) : 64;
             var floors = game.Grid.Floors().ToList();
             int minX = floors.Min(p => p.x);
             int maxX = floors.Max(p => p.x);
@@ -214,8 +215,8 @@ namespace Lanternfall
             float oy = fit.Bounds.y;
 
             string turn = game.Turns.Phase == TurnPhase.Enemy ? "ENEMY TURN" : game.Turns.Phase == TurnPhase.Reward ? "ROOM CLEAR" : game.Turns.Phase.ToString().ToUpper();
-            GUI.Label(new Rect(area.x, area.y + 1, area.width, compact ? 24 : 34), turn, title);
-            GUI.Label(new Rect(area.x, area.y + (compact ? 24 : 34), area.width, compact ? 20 : 26), game.RoomNumber == 5 ? "BOSS ROOM - " + game.Theme.Name : game.Theme.Name, center);
+            GUI.Label(new Rect(area.x, area.y + 1, area.width, phoneBoard ? 15 : compact ? 24 : 34), turn, phoneBoard ? small : title);
+            GUI.Label(new Rect(area.x, area.y + (phoneBoard ? 15 : compact ? 24 : 34), area.width, phoneBoard ? 12 : compact ? 20 : 26), game.RoomNumber == 5 ? "BOSS ROOM - " + game.Theme.Name : game.Theme.Name, phoneBoard ? small : center);
 
             foreach (var p in floors)
             {

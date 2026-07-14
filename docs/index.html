@@ -11,11 +11,18 @@
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
+    <div id="lanternfall-rotate-overlay" aria-live="polite">
+      <div class="lanternfall-rotate-card">
+        <div class="lanternfall-rotate-title">Rotate your phone to play</div>
+        <div class="lanternfall-rotate-body">Lanternfall Tactics is best played in landscape.</div>
+        <div class="lanternfall-rotate-note">Add to Home Screen for more space.</div>
+      </div>
+    </div>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
-        <div id="lanternfall-loading-copy">Loading Lanternfall Tactics - Prototype v0.5Q.3 landscape-first mobile HUD. First phone load may be slow; repeat loads can use browser caching. Rotate your phone to landscape; Add to Home Screen/fullscreen is best if available.</div>
+        <div id="lanternfall-loading-copy">Loading Lanternfall Tactics - Prototype v0.5Q.4 landscape-first mobile HUD. First phone load may be slow; repeat loads can use browser caching. Rotate your phone to landscape; Add to Home Screen/fullscreen is best if available.</div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
@@ -56,7 +63,7 @@
       }
 
       var buildUrl = "Build";
-      var cacheBust = "v=5Q3";
+      var cacheBust = "v=5Q4";
       var loaderUrl = buildUrl + "/LanternfallTactics.loader.js?" + cacheBust;
       var config = {
         arguments: [],
@@ -66,7 +73,7 @@
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Lanternfall",
         productName: "Lanternfall Tactics Prototype",
-        productVersion: "0.5.17",
+        productVersion: "0.5.18",
         showBanner: unityShowBanner,
         // errorHandler: function(err, url, line) {
         //    alert("error " + err + " occurred at line " + line);
@@ -133,6 +140,29 @@
 
       document.body.appendChild(script);
 
+    </script>
+      <script>
+      (function () {
+        function updateLanternfallViewportMode() {
+          var w = Math.max(1, window.innerWidth || document.documentElement.clientWidth || screen.width || 1);
+          var h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || screen.height || 1);
+          var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+          var touch = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;
+          var mobileUA = /Android|iPhone|iPod|Mobile|Windows Phone/i.test(navigator.userAgent || '');
+          var likelyPhone = (coarse || touch || mobileUA) && Math.min(w, h) <= 700 && Math.max(w, h) <= 1200;
+          var portraitPhone = likelyPhone && h > w;
+          var landscapePhone = likelyPhone && w > h;
+          document.body.classList.toggle('lanternfall-phone-portrait', portraitPhone);
+          document.body.classList.toggle('lanternfall-phone-landscape', landscapePhone);
+          document.body.classList.toggle('lanternfall-desktop', !portraitPhone && !landscapePhone);
+          document.documentElement.style.setProperty('--lf-vw', w + 'px');
+          document.documentElement.style.setProperty('--lf-vh', h + 'px');
+        }
+        updateLanternfallViewportMode();
+        window.addEventListener('resize', updateLanternfallViewportMode, { passive: true });
+        window.addEventListener('orientationchange', updateLanternfallViewportMode, { passive: true });
+        document.addEventListener('visibilitychange', updateLanternfallViewportMode);
+      })();
     </script>
   </body>
 </html>

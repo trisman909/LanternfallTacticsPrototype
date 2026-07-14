@@ -47,7 +47,8 @@ namespace Lanternfall
             var r = new HashSet<Vector2Int>();
             if (e.Kind == EnemyKind.Ashling)
             {
-                foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
+                if (Mathf.Abs(e.Position.x-player.x)+Mathf.Abs(e.Position.y-player.y)<=2)
+                    foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
             }
             else if (e.Kind == EnemyKind.GloomArcher)
             {
@@ -55,7 +56,8 @@ namespace Lanternfall
             }
             else if (e.Kind == EnemyKind.StoneSentinel)
             {
-                foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
+                if (Mathf.Abs(e.Position.x-player.x)+Mathf.Abs(e.Position.y-player.y)<=2)
+                    foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
             }
             else
             {

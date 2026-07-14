@@ -69,7 +69,7 @@ namespace Lanternfall
     {
         public static CombatHudLayoutSnapshot Compute(Rect panel, bool portrait, bool compact)
         {
-            bool phoneLandscape = compact && panel.height < 500f && panel.width >= 320f && panel.width > panel.height * .75f;
+            bool phoneLandscape = compact && panel.height <= 230f && panel.width >= 320f && panel.width > panel.height * 2.4f;
             bool phonePortrait = portrait && panel.width < 520f;
             bool ultraShortPhonePortrait = phonePortrait && panel.height < 620f;
             bool ultraShortPhoneLandscape = phoneLandscape && panel.height < 360f;
@@ -125,9 +125,9 @@ namespace Lanternfall
 
             if (phoneLandscape)
             {
-                float landChipGap = 5f;
-                float landChipH = 48f;
-                float landChipW = Mathf.Clamp(w * .11f, 78f, 100f);
+                float landChipGap = 6f;
+                float landChipH = 52f;
+                float landChipW = Mathf.Clamp(w * .12f, 84f, 112f);
                 snap.Header = new Rect(x, y, w, 0f);
                 snap.StatChips = new[]
                 {
@@ -142,8 +142,8 @@ namespace Lanternfall
                 y += landChipH + gap;
 
                 snap.SelectedSkill = new Rect(x, y, w, 0f);
-                float cardH = Mathf.Max(88f, panel.yMax - y - pad);
-                float skillW = Mathf.Clamp((w - gap * 4f) * .20f, 140f, 172f);
+                float cardH = Mathf.Max(96f, panel.yMax - y - pad);
+                float skillW = Mathf.Clamp((w - gap * 4f) * .20f, 146f, 184f);
                 snap.SkillCards = new[]
                 {
                     new Rect(x, y, skillW, cardH),
@@ -152,8 +152,8 @@ namespace Lanternfall
                 };
                 float actionX = x + (skillW + gap) * 3f;
                 float actionW = w - (actionX - x);
-                snap.CancelButton = new Rect(actionX, y, Mathf.Max(58f, actionW * .28f), cardH);
-                snap.EndTurnButton = new Rect(snap.CancelButton.xMax + gap, y, Mathf.Max(96f, w - (snap.CancelButton.xMax + gap - x)), cardH);
+                snap.CancelButton = new Rect(actionX, y, Mathf.Max(64f, actionW * .26f), cardH);
+                snap.EndTurnButton = new Rect(snap.CancelButton.xMax + gap, y, Mathf.Max(108f, w - (snap.CancelButton.xMax + gap - x)), cardH);
                 snap.Message = new Rect(x, panel.yMax - 1f, w, 0f);
                 return snap;
             }
