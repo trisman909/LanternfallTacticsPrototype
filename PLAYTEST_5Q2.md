@@ -1,52 +1,46 @@
-# Phase 5Q.2 - True Real-Phone HUD Redesign
+# Phase 5Q.2 - Emergency Mobile HUD Regression Fix
 
 Date: 2026-07-14
 
-This pass responds to another real-phone playtest where the board was playable but the combat HUD was still too small for comfortable use.
+This pass treats the previous live `Prototype v0.5Q.2` phone HUD as a failed regression. Real phone screenshots showed the board was too small, the portrait layout wasted space, and phone landscape still behaved like a cramped desktop side panel.
 
 ## What changed
 
-- Phone-sized screens now use a true phone HUD mode instead of a squeezed desktop HUD.
-- Phone portrait prioritizes a large lower action panel and accepts a smaller board.
-- Phone landscape gives most of the width to the action HUD instead of a narrow desktop-style side strip.
-- Secondary combat details are no longer always visible on phone combat HUD.
-- Tiny footer/version text is hidden during phone combat.
-- Skill cards use compact mobile labels such as `BOLT`, `BLOOM`, `BLAST`, `SPEAR`, `GUARD`, and `CHARGE`.
-- Long skill descriptions remain available in the richer desktop HUD / help context, not on phone action cards.
+- Phone portrait was rebuilt around a larger top board plus compact bottom controls.
+- Phone landscape now uses a full-width bottom action bar instead of a narrow right-side panel.
+- The portrait skill layout is now 2+1: two half-width skills, then one full-width skill.
+- HP/AP/MP remain always visible in a compact row.
+- Help and Info are small but still finger-sized in portrait.
+- Landscape shows HP/AP/MP and one short status line above the action row.
+- Long biome/hazard/debug/prototype text is not always visible in the phone combat HUD.
+- The layout tests now reject the failed tiny-board strategy.
 
 ## Phone portrait expected layout
 
-- Board stays in the upper section.
-- Lower action area dominates the screen.
-- HP/AP/MP chips are large.
-- Three skills are stacked full-width.
-- End Turn is a large button.
-- One compact status/danger message is shown.
-- Help/Info/details do not consume combat action space.
+- Board uses the top ~40-45% of the usable phone viewport.
+- Bottom HUD uses the remaining space without a giant blank footer.
+- HP/AP/MP are shown at the top of the HUD.
+- One short status line is visible.
+- Skill 1 and Skill 2 sit side by side.
+- Skill 3 is full width below them.
+- End Turn is large at the bottom.
 
 ## Phone landscape expected layout
 
-- Board remains playable on the left.
-- Right action area is much wider than before.
-- Three large skill cards sit in one readable row.
-- End Turn is large.
-- HP/AP/MP are large.
-- Help/Info/details are not always visible in the action area.
+- Board uses the full width above the controls.
+- Bottom action bar contains HP/AP/MP, one short status line, three skills, Cancel when needed, and End Turn.
+- The old tiny right-side phone panel is no longer used.
 
-## Manual phone verification
+## What to check on phone next
 
-- Portrait: can both players read HP/AP/MP without zooming?
-- Portrait: are all three skills comfortable to read and tap?
-- Portrait: is End Turn obvious and comfortable?
-- Portrait: is the smaller board still playable?
-- Landscape: does the HUD finally stop feeling like a tiny right strip?
-- Landscape: are skill cards and End Turn readable at normal phone distance?
-- Browser mode: confirm it is usable even with the address bar visible.
-- Optional: compare normal browser mode against landscape/fullscreen/Add to Home Screen.
+- Portrait: is the board large enough again?
+- Portrait: is the big empty black area gone?
+- Portrait: are HP/AP/MP, skills, and End Turn comfortable without zooming?
+- Landscape: does the board feel much larger than the failed side-panel layout?
+- Landscape: are the bottom action buttons readable and tappable?
+- Confirm the visible build label/loading copy says `Prototype v0.5Q.2c`.
 
 ## Known issues
 
-- This is still Unity IMGUI prototype UI, not a final responsive UI framework.
-- Phone browser chrome can still vary by device and browser.
-- Real-phone screenshots remain the source of truth for further HUD tuning.
-
+- This is still Unity IMGUI prototype UI, not final responsive UI tech.
+- Real-phone screenshots remain the source of truth for further tuning.

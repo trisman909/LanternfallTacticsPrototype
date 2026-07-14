@@ -81,6 +81,83 @@ namespace Lanternfall
             float y = panel.y + (phoneLandscape ? 6f : phonePortrait ? 10f : shortPanel ? 10f : compact ? 14f : 16f);
             var snap = new CombatHudLayoutSnapshot();
 
+            if (phonePortrait)
+            {
+                float phoneChipGap = 6f;
+                float phoneChipH = panel.height < 405f ? 54f : 60f;
+                float phoneChipW = (w - phoneChipGap * 2f) / 3f;
+                snap.Header = new Rect(x, y, w, 0f);
+                snap.StatChips = new[]
+                {
+                    new Rect(x, y, phoneChipW, phoneChipH),
+                    new Rect(x + phoneChipW + phoneChipGap, y, phoneChipW, phoneChipH),
+                    new Rect(x + (phoneChipW + phoneChipGap) * 2f, y, phoneChipW, phoneChipH)
+                };
+                y += phoneChipH + gap;
+
+                float utilityW = 52f;
+                float utilityH = 48f;
+                snap.HazardNote = new Rect(x, y, w - utilityW * 2f - gap * 2f, utilityH);
+                snap.HelpButton = new Rect(x + w - utilityW * 2f - gap, y, utilityW, utilityH);
+                snap.InfoButton = new Rect(x + w - utilityW, y, utilityW, utilityH);
+                y += utilityH + gap;
+
+                snap.SelectedSkill = new Rect(x, y, w, 0f);
+                float cardH = panel.height < 405f ? 76f : 86f;
+                float halfW = (w - gap) / 2f;
+                snap.SkillCards = new[]
+                {
+                    new Rect(x, y, halfW, cardH),
+                    new Rect(x + halfW + gap, y, halfW, cardH),
+                    new Rect(x, y + cardH + gap, w, cardH)
+                };
+                y += cardH * 2f + gap * 2f;
+
+                float phoneActionH = panel.height < 405f ? 72f : 80f;
+                snap.CancelButton = new Rect(x, y, w * .27f, phoneActionH);
+                snap.EndTurnButton = new Rect(x + w * .30f, y, w * .70f, phoneActionH);
+                y += phoneActionH + gap;
+
+                float phoneRemaining = Mathf.Max(0f, panel.yMax - y - pad);
+                snap.Message = new Rect(x, y, w, phoneRemaining);
+                return snap;
+            }
+
+            if (phoneLandscape)
+            {
+                float landChipGap = 5f;
+                float landChipH = 44f;
+                float landChipW = Mathf.Clamp(w * .105f, 72f, 92f);
+                snap.Header = new Rect(x, y, w, 0f);
+                snap.StatChips = new[]
+                {
+                    new Rect(x, y, landChipW, landChipH),
+                    new Rect(x + landChipW + landChipGap, y, landChipW, landChipH),
+                    new Rect(x + (landChipW + landChipGap) * 2f, y, landChipW, landChipH)
+                };
+                float infoX = x + (landChipW + landChipGap) * 3f;
+                snap.HazardNote = new Rect(infoX, y, Mathf.Max(120f, w - (infoX - x)), landChipH);
+                snap.HelpButton = new Rect(x, y, 0f, 0f);
+                snap.InfoButton = new Rect(x, y, 0f, 0f);
+                y += landChipH + gap;
+
+                snap.SelectedSkill = new Rect(x, y, w, 0f);
+                float cardH = Mathf.Max(74f, panel.yMax - y - pad);
+                float skillW = Mathf.Clamp((w - gap * 4f) * .20f, 132f, 170f);
+                snap.SkillCards = new[]
+                {
+                    new Rect(x, y, skillW, cardH),
+                    new Rect(x + skillW + gap, y, skillW, cardH),
+                    new Rect(x + (skillW + gap) * 2f, y, skillW, cardH)
+                };
+                float actionX = x + (skillW + gap) * 3f;
+                float actionW = w - (actionX - x);
+                snap.CancelButton = new Rect(actionX, y, Mathf.Max(58f, actionW * .28f), cardH);
+                snap.EndTurnButton = new Rect(snap.CancelButton.xMax + gap, y, Mathf.Max(96f, w - (snap.CancelButton.xMax + gap - x)), cardH);
+                snap.Message = new Rect(x, panel.yMax - 1f, w, 0f);
+                return snap;
+            }
+
             float headerH = phonePortrait || phoneLandscape ? 0f : shortPanel ? 36f : portrait ? 44f : compact ? 56f : 58f;
             snap.Header = new Rect(x, y, w, headerH);
             y += snap.Header.height + (headerH > 0f ? gap : 0f);
