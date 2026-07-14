@@ -55,15 +55,15 @@ namespace Lanternfall
                 result.CompactLandscape=height<760;
                 result.PhoneLandscape=height<500f&&width<950f;
                 result.PhoneHud = result.PhoneLandscape;
-                if(result.PhoneLandscape) result.FontSize=Mathf.Clamp(Mathf.RoundToInt(height/10f),32,40);
+                if(result.PhoneLandscape) result.FontSize=Mathf.Clamp(Mathf.RoundToInt(height/9f),34,42);
                 float panelW=result.PhoneLandscape?width:result.CompactLandscape?Mathf.Clamp(width*.30f,280f,340f):Mathf.Clamp(width*.32f,300f,360f);
-                float panelH=result.PhoneLandscape?Mathf.Clamp(height*.40f,144f,168f):height;
+                float panelH=result.PhoneLandscape?Mathf.Clamp(height*.44f,158f,184f):height;
                 result.Board=result.PhoneLandscape?new Rect(0,0,width,height-panelH):new Rect(0,0,width-panelW,height);
                 result.Panel=result.PhoneLandscape?new Rect(0,height-panelH,width,panelH):new Rect(width-panelW,0,panelW,height);
-                float pad=10,y=result.PhoneLandscape?132:result.CompactLandscape?94:198,h=result.PhoneLandscape?104:result.CompactLandscape?50:68;
+                float pad=10,y=result.PhoneLandscape?result.Panel.y+58f:result.CompactLandscape?94:198,h=result.PhoneLandscape?Mathf.Max(88f,panelH-68f):result.CompactLandscape?50:68;
                 if(result.PhoneLandscape)
                 {
-                    float gap=6,bw=(panelW-pad*2-gap*3)*.20f,sy=result.Panel.y+58f;
+                    float gap=6,bw=Mathf.Clamp((panelW-pad*2-gap*4)*.20f,140f,172f),sy=result.Panel.y+58f;
                     result.SkillButtons=new[]{new Rect(result.Panel.x+pad,sy,bw,h),new Rect(result.Panel.x+pad+bw+gap,sy,bw,h),new Rect(result.Panel.x+pad+(bw+gap)*2,sy,bw,h)};
                 }
                 else result.SkillButtons=new[]{new Rect(result.Panel.x+pad,y,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+h+6,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+(h+6)*2,panelW-pad*2,h)};

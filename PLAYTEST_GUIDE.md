@@ -4,13 +4,13 @@ Playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
-Current visible build label: `Prototype v0.5Q.2c`.
+Current visible build label: `Prototype v0.5Q.3`.
 
 This is a small prototype, not a finished game. Please note what confused you, what felt fun, and if anything broke.
 
 ## Quick start
 
-1. Open the link in a desktop browser first if possible. Mobile browser play is experimental. The emergency phone HUD uses a larger portrait board with compact bottom controls, and phone landscape now uses a bottom action bar instead of a cramped side panel.
+1. Open the link in a desktop browser first if possible. Mobile browser play is landscape-first. If you open the game in phone portrait, rotate your phone; landscape uses the real mobile board and bottom action bar.
 2. Wait for the Unity loading bar to finish.
 3. Press `How to Play` if this is your first run.
 4. Press `Start Run`.
@@ -29,8 +29,8 @@ This is a small prototype, not a finished game. Please note what confused you, w
 - If a tile is not highlighted, it is blocked, out of range, occupied, or invalid.
 - After clearing a room, choose one reward card.
 - If you win or lose, press `Start New Run` to restart.
-- On phone, landscape or Add to Home Screen/fullscreen is best if available, but normal browser mode should still be readable.
-- In the current emergency mobile HUD pass, the portrait board should be large again, wasted black space should be gone, and all three skills, HP/AP/MP, and End Turn should be usable without zooming.
+- On phone, rotate to landscape to play. Add to Home Screen/fullscreen is best if available, but normal browser landscape should still be playable.
+- In the current landscape-first mobile pass, portrait should show only a rotate-device screen; landscape should keep the board, HP/AP/MP, skills, status, and End Turn readable without zooming.
 
 ## Feedback checklist
 
@@ -72,6 +72,8 @@ You can copy these notes into `PLAYTEST_FEEDBACK_LOG.md`.
 - Difficulty/pacing:
 - Bug or broken thing:
 - Screenshot/video, if available:
+
+
 
 
 

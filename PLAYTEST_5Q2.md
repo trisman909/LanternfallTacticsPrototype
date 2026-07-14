@@ -1,44 +1,42 @@
-# Phase 5Q.2 - Emergency Mobile HUD Regression Fix
+# Phase 5Q.3 - Mobile Landscape-First HUD Redesign
 
 Date: 2026-07-14
 
-This pass treats the previous live `Prototype v0.5Q.2` phone HUD as a failed regression. Real phone screenshots showed the board was too small, the portrait layout wasted space, and phone landscape still behaved like a cramped desktop side panel.
+This pass accepts the real-phone finding that portrait is not a good fit for Lanternfall Tactics. The game is now mobile landscape-first: phone portrait shows a clean rotate-device screen instead of attempting to show the full board and combat HUD.
 
 ## What changed
 
-- Phone portrait was rebuilt around a larger top board plus compact bottom controls.
-- Phone landscape now uses a full-width bottom action bar instead of a narrow right-side panel.
-- The portrait skill layout is now 2+1: two half-width skills, then one full-width skill.
-- HP/AP/MP remain always visible in a compact row.
-- Help and Info are small but still finger-sized in portrait.
-- Landscape shows HP/AP/MP and one short status line above the action row.
-- Long biome/hazard/debug/prototype text is not always visible in the phone combat HUD.
-- The layout tests now reject the failed tiny-board strategy.
+- Phone portrait no longer shows the playable board/HUD.
+- Phone portrait shows a centered rotate instruction: `Rotate your phone to play` and `Landscape mode recommended`.
+- Phone landscape is the real mobile layout.
+- Phone landscape uses a full-width board above a bottom command bar.
+- The bottom command bar keeps HP/AP/MP, one short status line, three skills, Cancel when relevant, and End Turn visible.
+- Long biome/hazard/debug/prototype text is hidden from the always-visible mobile combat HUD.
+- Skill cards use short mobile labels and show AP plus READY/CD/blocked state.
 
-## Phone portrait expected layout
+## Phone portrait expected behavior
 
-- Board uses the top ~40-45% of the usable phone viewport.
-- Bottom HUD uses the remaining space without a giant blank footer.
-- HP/AP/MP are shown at the top of the HUD.
-- One short status line is visible.
-- Skill 1 and Skill 2 sit side by side.
-- Skill 3 is full width below them.
-- End Turn is large at the bottom.
+- No tiny board.
+- No tiny combat HUD.
+- Clean rotate-device screen only.
+- Optional fullscreen/Add to Home Screen guidance is visible.
 
 ## Phone landscape expected layout
 
-- Board uses the full width above the controls.
-- Bottom action bar contains HP/AP/MP, one short status line, three skills, Cancel when needed, and End Turn.
-- The old tiny right-side phone panel is no longer used.
+- Board takes the full width above the controls.
+- Bottom action bar contains HP/AP/MP and a short turn/status line.
+- Three large skill cards sit in the action row.
+- End Turn is a large, readable button.
+- Help/Info/details are hidden/collapsed during combat.
 
 ## What to check on phone next
 
-- Portrait: is the board large enough again?
-- Portrait: is the big empty black area gone?
-- Portrait: are HP/AP/MP, skills, and End Turn comfortable without zooming?
-- Landscape: does the board feel much larger than the failed side-panel layout?
-- Landscape: are the bottom action buttons readable and tappable?
-- Confirm the visible build label/loading copy says `Prototype v0.5Q.2c`.
+- Portrait: does it show only the rotate-device instruction?
+- Landscape: is the board large enough to play comfortably?
+- Landscape: are HP/AP/MP readable without zooming?
+- Landscape: are all three skills readable and tappable?
+- Landscape: is End Turn readable and tappable?
+- Confirm the visible build/loading copy says `Prototype v0.5Q.3`.
 
 ## Known issues
 

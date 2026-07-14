@@ -66,7 +66,7 @@ namespace Lanternfall.EditorTools
         {
             PlayerSettings.productName="Lanternfall Tactics Prototype";
             PlayerSettings.companyName="Lanternfall";
-            PlayerSettings.bundleVersion="0.5.16";
+            PlayerSettings.bundleVersion="0.5.17";
             PlayerSettings.colorSpace=ColorSpace.Gamma;
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait=true;
@@ -101,14 +101,14 @@ namespace Lanternfall.EditorTools
                 var html=File.ReadAllText(index);
                 if(!html.Contains("Cache-Control"))
                     html=html.Replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">","<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\">\n    <meta http-equiv=\"Pragma\" content=\"no-cache\">\n    <meta http-equiv=\"Expires\" content=\"0\">");
-                html=html.Replace("var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js\";","var cacheBust = \"v=5Q2C\";\n      var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js?\" + cacheBust;");
+                html=html.Replace("var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js\";","var cacheBust = \"v=5Q3\";\n      var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js?\" + cacheBust;");
                 html=html.Replace("dataUrl: buildUrl + \"/LanternfallTactics.data\",","dataUrl: buildUrl + \"/LanternfallTactics.data?\" + cacheBust,");
                 html=html.Replace("frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js\",","frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js?\" + cacheBust,");
                 html=html.Replace("codeUrl: buildUrl + \"/LanternfallTactics.wasm\",","codeUrl: buildUrl + \"/LanternfallTactics.wasm?\" + cacheBust,");
                 html=html.Replace("canvas.style.width = \"960px\";","canvas.style.width = \"100vw\";");
                 html=html.Replace("canvas.style.height = \"600px\";","canvas.style.height = \"100dvh\";");
                 html=html.Replace("height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes","height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover");
-                html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics - Prototype v0.5Q.2c true phone HUD redesign. First phone load may be slow; repeat loads can use browser caching. Phone play is best in landscape or Add to Home Screen/fullscreen if available.</div>\n        <div id=\"unity-progress-bar-empty\">");
+                html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics - Prototype v0.5Q.3 landscape-first mobile HUD. First phone load may be slow; repeat loads can use browser caching. Rotate your phone to landscape; Add to Home Screen/fullscreen is best if available.</div>\n        <div id=\"unity-progress-bar-empty\">");
                 File.WriteAllText(index,html);
             }
             var css=Path.Combine(path,"TemplateData","style.css");
@@ -126,5 +126,7 @@ namespace Lanternfall.EditorTools
         }
     }
 }
+
+
 
 

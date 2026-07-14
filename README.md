@@ -44,7 +44,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5O.1 - mobile WebGL HUD playability fix for phone portrait and landscape (complete)
 - Phase 5P - mobile HUD playability and threat clarity cleanup (complete)
 - Phase 5Q - real phone HUD readability and normal enemy AI regression fix (complete)
-- Phase 5Q.2 - true real-phone HUD redesign (complete)
+- Phase 5Q.3 - mobile landscape-first HUD redesign (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -139,7 +139,9 @@ Phase 5P preserves the improved Phase 5O difficulty while fixing the highest-pri
 
 Phase 5Q responds to follow-up real phone screenshots by prioritizing comfort over merely fitting: portrait uses stacked full-width skill cards, larger AP/MP/HP chips, larger End Turn, and reduced board height; phone landscape uses a substantially wider action HUD. It also fixes a normal-enemy AI regression so non-boss enemies reposition toward useful pressure/line-of-sight positions instead of drifting left or idling. See [PLAYTEST_5Q.md](PLAYTEST_5Q.md).
 
-Phase 5Q.2 emergency mobile HUD fix treats the prior phone HUD as a regression: portrait restores a much larger board, removes wasted black space, uses a compact stats/status row plus a 2+1 skill layout, and phone landscape switches to a full-width bottom action bar instead of a cramped side panel. See [PLAYTEST_5Q2.md](PLAYTEST_5Q2.md).
+Phase 5Q.3 makes mobile landscape-first: phone portrait now shows a rotate-device screen instead of a tiny playable UI, while phone landscape uses a full-width board above a larger bottom command bar with HP/AP/MP, skills, status, and End Turn. See [PLAYTEST_5Q2.md](PLAYTEST_5Q2.md).
+
+
 
 
 

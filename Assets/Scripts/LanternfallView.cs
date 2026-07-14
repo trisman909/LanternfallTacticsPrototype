@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.5Q.2c";
+        public const string PrototypeVersion = "Prototype v0.5Q.3";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -43,7 +43,7 @@ namespace Lanternfall
         void InitStyles()
         {
             bool phoneSized = Mathf.Min(Screen.width, Screen.height) < 500;
-            int s = phoneSized ? Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 8, 38, 48) : Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 28, 18, 30);
+            int s = phoneSized ? Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 9, 34, 42) : Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 28, 18, 30);
             title = new GUIStyle(GUI.skin.label){fontSize = s + 5, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, wordWrap = true, normal = {textColor = new Color(1f, .78f, .28f)}};
             body = new GUIStyle(GUI.skin.label){fontSize = s, alignment = TextAnchor.MiddleLeft, wordWrap = true, normal = {textColor = Color.white}};
             center = new GUIStyle(body){alignment = TextAnchor.MiddleCenter};
@@ -58,12 +58,12 @@ namespace Lanternfall
                 active = {background = Tex(new Color(.55f, .32f, .08f))}
             };
             hudHeader = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, phoneSized ? 26 : 15, phoneSized ? 34 : 19), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(1f, .80f, .32f)}};
-            hudChip = new GUIStyle(center){fontSize = Mathf.Clamp(s - 4, phoneSized ? 34 : 15, phoneSized ? 44 : 19), fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
-            hudMessage = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, phoneSized ? 24 : 13, phoneSized ? 32 : 16), fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
-            hudTiny = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, phoneSized ? 24 : 12, phoneSized ? 32 : 15), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
-            hudButton = new GUIStyle(button){fontSize = Mathf.Clamp(s - 7, phoneSized ? 30 : 13, phoneSized ? 40 : 17), fontStyle = FontStyle.Bold, wordWrap = true};
-            hudSkill = new GUIStyle(button){fontSize = Mathf.Clamp(s - 8, phoneSized ? 30 : 13, phoneSized ? 40 : 16), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
-            hudSkillCompact = new GUIStyle(button){fontSize = Mathf.Clamp(s - 9, phoneSized ? 28 : 12, phoneSized ? 38 : 14), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
+            hudChip = new GUIStyle(center){fontSize = Mathf.Clamp(s - 2, phoneSized ? 32 : 15, phoneSized ? 40 : 19), fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
+            hudMessage = new GUIStyle(center){fontSize = Mathf.Clamp(s - 8, phoneSized ? 24 : 13, phoneSized ? 30 : 16), fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
+            hudTiny = new GUIStyle(center){fontSize = Mathf.Clamp(s - 8, phoneSized ? 24 : 12, phoneSized ? 30 : 15), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
+            hudButton = new GUIStyle(button){fontSize = Mathf.Clamp(s - 5, phoneSized ? 30 : 13, phoneSized ? 38 : 17), fontStyle = FontStyle.Bold, wordWrap = true};
+            hudSkill = new GUIStyle(button){fontSize = Mathf.Clamp(s - 6, phoneSized ? 28 : 13, phoneSized ? 36 : 16), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
+            hudSkillCompact = new GUIStyle(button){fontSize = Mathf.Clamp(s - 7, phoneSized ? 27 : 12, phoneSized ? 34 : 14), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
         }
 
         Texture2D Tex(Color c)
@@ -79,11 +79,17 @@ namespace Lanternfall
             if (title == null) InitStyles();
             var guiSafe = MobileLayout.ToGuiSafeArea(Screen.height, Screen.safeArea);
             GUI.BeginGroup(guiSafe);
+            var layout = MobileLayout.Compute(guiSafe.width, guiSafe.height);
+            if (layout.PhoneHud && layout.Portrait)
+            {
+                DrawRotatePhoneScreen(new Rect(0, 0, guiSafe.width, guiSafe.height));
+                GUI.EndGroup();
+                return;
+            }
 
             if (!game.HasStarted) DrawStartScreen(new Rect(0, 0, guiSafe.width, guiSafe.height));
             else
             {
-                var layout = MobileLayout.Compute(guiSafe.width, guiSafe.height);
                 DrawBoard(layout.Board, layout.Portrait || layout.CompactLandscape);
                 if (layout.Portrait) DrawPortraitPanel(layout.Panel);
                 else DrawPanel(layout.Panel, layout.CompactLandscape);
@@ -93,6 +99,20 @@ namespace Lanternfall
             if (game.HelpVisible) DrawHelpOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             if (game.PlaytestInfoVisible) DrawPlaytestInfoOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             GUI.EndGroup();
+        }
+
+        void DrawRotatePhoneScreen(Rect area)
+        {
+            DrawRect(area, new Color(.025f, .02f, .055f));
+            float pad = Mathf.Max(18f, area.width * .08f);
+            var panel = new Rect(pad, Mathf.Max(24f, area.height * .18f), area.width - pad * 2f, area.height * .58f);
+            DrawRect(panel, new Color(.055f, .045f, .085f));
+            DrawOutline(panel, new Color(.72f, .47f, .14f), 3);
+            float y = panel.y + 22f;
+            GUI.Label(new Rect(panel.x + 12f, y, panel.width - 24f, 62f), "LANTERNFALL TACTICS", title); y += 76f;
+            GUI.Label(new Rect(panel.x + 12f, y, panel.width - 24f, 96f), "Rotate your phone to play", new GUIStyle(title){fontSize = Mathf.Max(title.fontSize, 36)}); y += 106f;
+            GUI.Label(new Rect(panel.x + 18f, y, panel.width - 36f, 70f), "Landscape mode recommended for the tactics board and combat HUD.", center); y += 78f;
+            GUI.Label(new Rect(panel.x + 18f, y, panel.width - 36f, 56f), "For best phone play, add to Home Screen or use fullscreen if available.", small);
         }
 
         void DrawStartScreen(Rect area)

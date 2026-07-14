@@ -126,8 +126,8 @@ namespace Lanternfall
             if (phoneLandscape)
             {
                 float landChipGap = 5f;
-                float landChipH = 44f;
-                float landChipW = Mathf.Clamp(w * .105f, 72f, 92f);
+                float landChipH = 48f;
+                float landChipW = Mathf.Clamp(w * .11f, 78f, 100f);
                 snap.Header = new Rect(x, y, w, 0f);
                 snap.StatChips = new[]
                 {
@@ -142,8 +142,8 @@ namespace Lanternfall
                 y += landChipH + gap;
 
                 snap.SelectedSkill = new Rect(x, y, w, 0f);
-                float cardH = Mathf.Max(74f, panel.yMax - y - pad);
-                float skillW = Mathf.Clamp((w - gap * 4f) * .20f, 132f, 170f);
+                float cardH = Mathf.Max(88f, panel.yMax - y - pad);
+                float skillW = Mathf.Clamp((w - gap * 4f) * .20f, 140f, 172f);
                 snap.SkillCards = new[]
                 {
                     new Rect(x, y, skillW, cardH),
