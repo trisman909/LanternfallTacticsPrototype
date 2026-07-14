@@ -32,10 +32,13 @@ namespace Lanternfall
             return "READY";
         }
 
-        public static string SkillCard(SkillDefinition skill, int cooldown, int currentAp, TurnPhase phase, bool selected, bool compact)
+        public static string SkillCard(SkillDefinition skill, int cooldown, int currentAp, TurnPhase phase, bool selected, bool compact) => SkillCard(skill, cooldown, currentAp, phase, selected, compact, true);
+
+        public static string SkillCard(SkillDefinition skill, int cooldown, int currentAp, TurnPhase phase, bool selected, bool compact, bool showDescription)
         {
             string prefix = selected ? "SELECTED - " : "";
             string state = SkillState(skill, cooldown, currentAp, phase);
+            if (!showDescription) return $"{prefix}{skill.Name}\nAP {skill.ApCost} - {state}";
             return compact
                 ? $"{prefix}{skill.Name}\nAP {skill.ApCost} - {state}\n{skill.Hint}"
                 : $"{prefix}{skill.Name}\nAP {skill.ApCost} - {state}\n{skill.Hint}";

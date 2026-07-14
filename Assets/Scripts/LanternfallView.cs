@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.5Q.4";
+        public const string PrototypeVersion = "Prototype v0.6A";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -42,8 +42,8 @@ namespace Lanternfall
 
         void InitStyles()
         {
-            bool phoneSized = Mathf.Min(Screen.width, Screen.height) < 500;
-            int s = phoneSized ? Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 9, 34, 42) : Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 28, 18, 30);
+            bool phoneSized = Mathf.Min(Screen.width, Screen.height) < 620 && Mathf.Max(Screen.width, Screen.height) <= 1200;
+            int s = phoneSized ? Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 8, 38, 48) : Mathf.Clamp(Mathf.Min(Screen.width, Screen.height) / 28, 18, 30);
             title = new GUIStyle(GUI.skin.label){fontSize = s + 5, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, wordWrap = true, normal = {textColor = new Color(1f, .78f, .28f)}};
             body = new GUIStyle(GUI.skin.label){fontSize = s, alignment = TextAnchor.MiddleLeft, wordWrap = true, normal = {textColor = Color.white}};
             center = new GUIStyle(body){alignment = TextAnchor.MiddleCenter};
@@ -57,13 +57,13 @@ namespace Lanternfall
                 hover = {background = Tex(new Color(.23f, .2f, .32f))},
                 active = {background = Tex(new Color(.55f, .32f, .08f))}
             };
-            hudHeader = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, phoneSized ? 26 : 15, phoneSized ? 34 : 19), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(1f, .80f, .32f)}};
-            hudChip = new GUIStyle(center){fontSize = Mathf.Clamp(s - 2, phoneSized ? 32 : 15, phoneSized ? 40 : 19), fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
-            hudMessage = new GUIStyle(center){fontSize = Mathf.Clamp(s - 8, phoneSized ? 24 : 13, phoneSized ? 30 : 16), fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
-            hudTiny = new GUIStyle(center){fontSize = Mathf.Clamp(s - 8, phoneSized ? 24 : 12, phoneSized ? 30 : 15), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
-            hudButton = new GUIStyle(button){fontSize = Mathf.Clamp(s - 5, phoneSized ? 30 : 13, phoneSized ? 38 : 17), fontStyle = FontStyle.Bold, wordWrap = true};
-            hudSkill = new GUIStyle(button){fontSize = Mathf.Clamp(s - 6, phoneSized ? 28 : 13, phoneSized ? 36 : 16), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
-            hudSkillCompact = new GUIStyle(button){fontSize = Mathf.Clamp(s - 7, phoneSized ? 27 : 12, phoneSized ? 34 : 14), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
+            hudHeader = new GUIStyle(center){fontSize = Mathf.Clamp(s - 10, phoneSized ? 28 : 15, phoneSized ? 36 : 19), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(1f, .80f, .32f)}};
+            hudChip = new GUIStyle(center){fontSize = Mathf.Clamp(s - 1, phoneSized ? 36 : 15, phoneSized ? 46 : 19), fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
+            hudMessage = new GUIStyle(center){fontSize = Mathf.Clamp(s - 7, phoneSized ? 28 : 13, phoneSized ? 34 : 16), fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
+            hudTiny = new GUIStyle(center){fontSize = Mathf.Clamp(s - 7, phoneSized ? 28 : 12, phoneSized ? 34 : 15), fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
+            hudButton = new GUIStyle(button){fontSize = Mathf.Clamp(s - 3, phoneSized ? 34 : 13, phoneSized ? 44 : 17), fontStyle = FontStyle.Bold, wordWrap = true};
+            hudSkill = new GUIStyle(button){fontSize = Mathf.Clamp(s - 5, phoneSized ? 32 : 13, phoneSized ? 40 : 16), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
+            hudSkillCompact = new GUIStyle(button){fontSize = Mathf.Clamp(s - 6, phoneSized ? 31 : 12, phoneSized ? 38 : 14), fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
         }
 
         Texture2D Tex(Color c)
@@ -98,7 +98,19 @@ namespace Lanternfall
 
             if (game.HelpVisible) DrawHelpOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             if (game.PlaytestInfoVisible) DrawPlaytestInfoOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
+            if (game.BossPhasePresentationActive) DrawBossPhaseOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             GUI.EndGroup();
+        }
+
+        void DrawBossPhaseOverlay(Rect area)
+        {
+            DrawRect(area, new Color(0f, 0f, 0f, .48f));
+            float shake = Mathf.Sin(Time.time * 48f) * 5f;
+            var banner = new Rect(area.x + area.width * .08f + shake, area.y + area.height * .30f, area.width * .84f, Mathf.Clamp(area.height * .22f, 96f, 160f));
+            DrawRect(banner, new Color(.12f, .035f, .10f, .94f));
+            DrawOutline(banner, new Color(1f, .48f, .12f), 4);
+            GUI.Label(new Rect(banner.x + 12f, banner.y + 10f, banner.width - 24f, banner.height * .48f), game.BossPhaseBanner, new GUIStyle(title){fontSize = Mathf.Max(title.fontSize + 12, 44), normal = {textColor = new Color(1f, .54f, .16f)}});
+            GUI.Label(new Rect(banner.x + 16f, banner.y + banner.height * .54f, banner.width - 32f, banner.height * .38f), "The Lantern Warden awakens.\nOvercharged range lines flare across the arena.", center);
         }
 
         void DrawRotatePhoneScreen(Rect area)
@@ -278,8 +290,9 @@ namespace Lanternfall
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.Preview).Distinct())
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
+                bool bossAttack = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && e.Preview.Contains(p));
                 bool heavyBoss = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && EnemyAI.BossPhase(e) >= 3 && e.Preview.Contains(p));
-                DrawOutline(r, heavyBoss ? new Color(1f, .74f, .12f) : new Color(1f, .20f, .18f), Mathf.Max(2, tile * (heavyBoss ? .075f : .05f)));
+                DrawOutline(r, bossAttack ? new Color(1f, .54f, .12f) : new Color(1f, .20f, .18f), Mathf.Max(2, tile * (bossAttack ? .075f : .05f)));
                 DrawTileGlyph(r, heavyBoss ? "!!" : "!", Color.white, heavyBoss ? .34f : .42f);
             }
 
@@ -411,8 +424,9 @@ namespace Lanternfall
         {
             DrawRect(r, new Color(.055f, .047f, .075f));
             DrawOutline(r, new Color(.26f, .22f, .34f), 1);
-            bool phone = Mathf.Min(Screen.width, Screen.height) < 500;
-            string text = phone ? $"{HudText.TurnLabel(game.Turns.Phase)} - {Shorten(game.Message, 46)}" : $"{game.Theme.HazardName}: {Shorten(game.Theme.HazardRule, 58)}";
+            bool phone = IsPhoneViewport();
+            string focus = game.HasFocusTile ? game.FocusThreatSummary : "";
+            string text = phone ? $"{HudText.TurnLabel(game.Turns.Phase)} - {Shorten(string.IsNullOrWhiteSpace(focus) ? game.Message : focus, 44)}" : $"{game.Theme.HazardName}: {Shorten(game.Theme.HazardRule, 58)}";
             GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), text, hudMessage);
         }
 
@@ -421,7 +435,7 @@ namespace Lanternfall
             DrawRect(r, new Color(.03f, .03f, .055f));
             DrawOutline(r, new Color(.24f, .22f, .34f), 1);
             string detail = game.FocusThreatSummary;
-            bool phone = Mathf.Min(Screen.width, Screen.height) < 500;
+            bool phone = IsPhoneViewport();
             string extra = string.IsNullOrWhiteSpace(detail) ? "RED now  PURPLE next  GOLD skill" : Shorten(detail, phone ? 50 : 74);
             GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), phone ? extra : $"{Shorten(game.Message, 68)}\n{extra}", hudMessage);
         }
@@ -449,8 +463,9 @@ namespace Lanternfall
                 var accent = selected ? VisualReadability.ClassAccent(game.Player.ClassId) : usable ? new Color(.24f, .22f, .34f) : new Color(.12f, .11f, .16f);
                 DrawCardFrame(cards[i], accent);
                 GUI.enabled = usable;
-                bool phone = Mathf.Min(Screen.width, Screen.height) < 500;
-                string label = phone ? HudText.MobileSkillCard(s, cd, game.Player.ActionPoints, game.Turns.Phase, selected) : HudText.SkillCard(s, cd, game.Player.ActionPoints, game.Turns.Phase, selected, compact);
+                bool phone = IsPhoneViewport();
+                bool hover = !phone && cards[i].Contains(Event.current.mousePosition);
+                string label = phone ? HudText.MobileSkillCard(s, cd, game.Player.ActionPoints, game.Turns.Phase, selected) : HudText.SkillCard(s, cd, game.Player.ActionPoints, game.Turns.Phase, selected, compact && !(selected || hover), selected || hover);
                 if (!phone && compact && cards[i].width < 145f)
                     label = $"{(selected ? "SEL " : "")}{ShortSkill(s)}\nAP {s.ApCost} - {HudText.SkillState(s, cd, game.Player.ActionPoints, game.Turns.Phase)}";
                 if (GUI.Button(cards[i], label, cards[i].width < 145f ? hudSkillCompact : hudSkill)) game.SelectSkill(s.Id);
@@ -463,6 +478,8 @@ namespace Lanternfall
             var parts = s.Name.Split(' ');
             return parts.Length == 1 ? s.Name.ToUpper() : parts[0].ToUpper();
         }
+
+        bool IsPhoneViewport() => Mathf.Min(Screen.width, Screen.height) < 620 && Mathf.Max(Screen.width, Screen.height) <= 1200;
 
         string Shorten(string text, int max)
         {

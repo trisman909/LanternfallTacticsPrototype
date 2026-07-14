@@ -334,7 +334,7 @@ namespace Lanternfall.Tests
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.5Q.4",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.6A",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -399,7 +399,7 @@ namespace Lanternfall.Tests
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("mobile browser")));
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
-            Assert.That(guide,Does.Contain("Prototype v0.5Q.4"));
+            Assert.That(guide,Does.Contain("Prototype v0.6A"));
             Assert.That(guide,Does.Contain("what confused you"));
             Assert.That(guide,Does.Contain("What device/browser did you use?"));
             Assert.That(guide,Does.Contain("Which class felt best/worst?"));
@@ -561,19 +561,38 @@ namespace Lanternfall.Tests
                 Assert.That(layout.Panel.width,Is.EqualTo(size.x).Within(.01f),size.ToString());
                 Assert.That(layout.Panel.y,Is.EqualTo(layout.Board.yMax).Within(.01f),size.ToString());
                 Assert.That(layout.Board.width,Is.EqualTo(size.x).Within(.01f),size.ToString());
-                Assert.That(layout.Board.height,Is.GreaterThanOrEqualTo(size.y*.45f),size.ToString());
+                float minBoardShare = size.y <= 360 ? .55f : size.y <= 380 ? .59f : size.y <= 400 ? .61f : .63f;
+                Assert.That(layout.Board.height/size.y,Is.InRange(minBoardShare,.72f),size.ToString());
+                float maxPanelShare = size.y <= 360 ? .45f : .42f;
+                Assert.That(layout.Panel.height/size.y,Is.InRange(.28f,maxPanelShare),size.ToString());
                 Assert.True(hud.RequiredElementsFit(layout.Panel),size.ToString());
                 Assert.False(hud.HasEssentialOverlap(),size.ToString());
                 Assert.True(hud.TouchTargetsValid(),size.ToString());
-                Assert.That(hud.SkillCards.All(r=>r.height>=96f&&r.width>=146f),size.ToString());
-                Assert.That(hud.StatChips.All(r=>r.height>=52f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
-                Assert.That(hud.EndTurnButton.height,Is.GreaterThanOrEqualTo(96f),size.ToString());
+                Assert.That(hud.SkillCards.All(r=>r.height>=88f&&r.width>=150f),size.ToString());
+                Assert.That(hud.StatChips.All(r=>r.height>=46f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
+                Assert.That(hud.EndTurnButton.height,Is.GreaterThanOrEqualTo(88f),size.ToString());
                 Assert.That(hud.Header.height,Is.EqualTo(0f),size.ToString());
                 Assert.That(hud.HelpButton.height,Is.EqualTo(0f),size.ToString());
                 Assert.That(hud.InfoButton.height,Is.EqualTo(0f),size.ToString());
-                Assert.That(hud.MinimumControlHeight(),Is.GreaterThanOrEqualTo(96f),size.ToString());
+                Assert.That(hud.MinimumControlHeight(),Is.GreaterThanOrEqualTo(88f),size.ToString());
                 Assert.That(hud.Message.yMax,Is.LessThanOrEqualTo(layout.Panel.yMax+.01f),size.ToString());
             }
+        }
+
+        [Test] public void Phase6A_MobileHudUsesDedicatedBottomCommandBarAndHidesSecondaryInfo()
+        {
+            var layout=MobileLayout.Compute(932,430);
+            var hud=CombatHudLayout.Compute(layout.Panel,layout.Portrait,layout.CompactLandscape);
+            Assert.True(layout.PhoneLandscape);
+            Assert.That(layout.Panel.width,Is.EqualTo(932).Within(.01f));
+            Assert.That(layout.Panel.y,Is.EqualTo(layout.Board.yMax).Within(.01f));
+            Assert.That(layout.Board.height/layout.Panel.height,Is.GreaterThan(1.7f));
+            Assert.That(hud.Header.height,Is.EqualTo(0f));
+            Assert.That(hud.HelpButton.height,Is.EqualTo(0f));
+            Assert.That(hud.InfoButton.height,Is.EqualTo(0f));
+            Assert.That(hud.Message.height,Is.EqualTo(0f).Within(1.1f));
+            Assert.That(hud.EndTurnButton.width,Is.GreaterThanOrEqualTo(118f));
+            Assert.That(hud.SkillCards.All(r=>r.height>=88f&&r.width>=150f));
         }
 
         [Test] public void Phase5Q4_WebGLTemplateAddsBrowserLevelPortraitBlocker()
@@ -584,8 +603,8 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("window.innerHeight"));
             Assert.That(builder,Does.Contain("orientationchange"));
             Assert.That(builder,Does.Contain("lanternfall-phone-portrait"));
-            Assert.That(builder,Does.Contain("v=5Q4"));
-            Assert.That(builder,Does.Contain("Prototype v0.5Q.4"));
+            Assert.That(builder,Does.Contain("v=6A"));
+            Assert.That(builder,Does.Contain("Prototype v0.6A"));
         }
 
         [Test] public void Phase5Q2_PhoneHudUsesShortSkillLabelsAndHidesSecondaryCombatInfo()
@@ -606,7 +625,7 @@ namespace Lanternfall.Tests
             Assert.That(landscapeHud.HelpButton.height,Is.EqualTo(0f));
             Assert.That(landscapeHud.InfoButton.height,Is.EqualTo(0f));
             Assert.That(landscapeHud.Header.height,Is.EqualTo(0f));
-            Assert.That(landscapeHud.StatChips.All(r=>r.height>=48f));
+            Assert.That(landscapeHud.StatChips.All(r=>r.height>=46f));
             Assert.That(landscapeHud.SkillCards.All(r=>r.height>=88f));
             Assert.That(landscapeHud.SkillCards.All(r=>r.width>=140f));
             Assert.That(landscapeHud.EndTurnButton.height,Is.GreaterThanOrEqualTo(88f));

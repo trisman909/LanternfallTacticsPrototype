@@ -88,7 +88,7 @@ namespace Lanternfall
 
         public static string BossPhaseSummary(EnemyModel e) => BossPhase(e) switch
         {
-            2 => "Phase 2: Overcharge Shield +4, range increased, AP/MP pressure.",
+            2 => "Phase 2: overcharged range lines. Avoid orange boss lanes.",
             3 => "Phase 3: Heavy blast pattern. Avoid red/purple telegraphs.",
             _ => "Phase 1: ward strike."
         };
@@ -103,10 +103,13 @@ namespace Lanternfall
             }
         }
 
-        public static Vector2Int ChooseReposition(EnemyModel e, Vector2Int player, GridModel grid, System.Func<Vector2Int, bool> blocked, System.Func<Vector2Int, bool> hazard = null)
+        public static Vector2Int ChooseReposition(EnemyModel e, Vector2Int player, GridModel grid, System.Func<Vector2Int, bool> blocked, System.Func<Vector2Int, bool> hazard = null, IEnumerable<EnemyModel> allies = null)
         {
             var candidates = grid.Reachable(e.Position, e.MoveRange, p => blocked(p) && p != e.Position).ToList();
             if (!candidates.Contains(e.Position)) candidates.Add(e.Position);
+            candidates.Remove(player);
+            var livingAllies = (allies ?? Enumerable.Empty<EnemyModel>()).Where(a => a != e && a.Alive).ToList();
+            var rangedAllies = livingAllies.Where(a => a.Kind == EnemyKind.GloomArcher).ToList();
             var escapeTiles = grid.Floors().Where(p => Mathf.Abs(p.x - player.x) + Mathf.Abs(p.y - player.y) <= 2).ToHashSet();
             Vector2Int best = e.Position;
             int bestScore = int.MinValue;
@@ -128,20 +131,26 @@ namespace Lanternfall
                 if (distance > startDistance) score -= (distance - startDistance) * 10;
                 if (e.Kind == EnemyKind.GloomArcher)
                 {
-                    if (lineClear) score += 42;
+                    if (distance <= 2) score -= (3 - distance) * 32;
+                    if (lineClear) score += 58;
                     else if (hasLine) score += 12;
-                    int ideal = 4;
-                    score -= Mathf.Abs(distance - ideal) * 2;
+                    int ideal = 5;
+                    score -= Mathf.Abs(distance - ideal) * 5;
                 }
                 else if (e.Kind == EnemyKind.Ashling)
                 {
-                    if (distance <= 2) score += 24;
-                    if (distance == 1) score += 18;
+                    if (distance >= 2 && distance <= 3) score += 32;
+                    if (distance == 1) score -= 150;
+                    if (hazard != null && grid.Neighbors(c).Any(hazard)) score += 18;
+                    score += grid.Neighbors(player).Count(n => preview.Contains(n) || delayed.Contains(n)) * 6;
                 }
                 else if (e.Kind == EnemyKind.StoneSentinel)
                 {
-                    if (distance <= 2) score += 18;
+                    if (distance <= 2) score += 16;
                     if (delayed.Contains(player) || delayed.Count(escapeTiles.Contains) > 0) score += 14;
+                    if (IsChokepoint(c, grid)) score += 28;
+                    if (rangedAllies.Any(a => Mathf.Abs(c.x-a.Position.x)+Mathf.Abs(c.y-a.Position.y)<=2)) score += 18;
+                    if (BlocksLineToRangedAlly(c, player, rangedAllies)) score += 24;
                 }
                 if (e.Kind == EnemyKind.LanternWarden && distance <= (BossPhase(e) >= 3 ? 4 : 3)) score += 22;
                 if (hazard != null && hazard(c)) score += e.Kind == EnemyKind.LanternWarden ? 8 : 3;
@@ -154,6 +163,24 @@ namespace Lanternfall
             }
             return best;
         }
+
+        static bool IsChokepoint(Vector2Int p, GridModel grid)
+        {
+            int open = grid.Neighbors(p).Count();
+            return open <= 2;
+        }
+
+        static bool BlocksLineToRangedAlly(Vector2Int candidate, Vector2Int player, IEnumerable<EnemyModel> rangedAllies)
+        {
+            foreach (var ally in rangedAllies)
+            {
+                if (ally.Position.x == player.x && candidate.x == player.x && Between(candidate.y, ally.Position.y, player.y)) return true;
+                if (ally.Position.y == player.y && candidate.y == player.y && Between(candidate.x, ally.Position.x, player.x)) return true;
+            }
+            return false;
+        }
+
+        static bool Between(int value, int a, int b) => value > Mathf.Min(a, b) && value < Mathf.Max(a, b);
 
         static bool BetterTieBreak(Vector2Int candidate, Vector2Int incumbent, Vector2Int player, Vector2Int start, GridModel grid, EnemyModel e)
         {

@@ -44,6 +44,9 @@ namespace Lanternfall
         int pendingMpDrain;
         public int PendingApDrain => pendingApDrain;
         public int PendingMpDrain => pendingMpDrain;
+        public string BossPhaseBanner { get; private set; } = "";
+        float bossPhaseBannerUntil;
+        public bool BossPhasePresentationActive => !string.IsNullOrEmpty(BossPhaseBanner) && Time.time < bossPhaseBannerUntil;
 
         public static readonly string[] HowToPlayLines =
         {
@@ -58,7 +61,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.5Q.4: short WebGL/Windows playtest build.",
+            "Prototype v0.6A: short WebGL/Windows playtest build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -178,6 +181,7 @@ namespace Lanternfall
         public string IntentSummary => ThreatDamageAt(Player.Position) > 0
             ? $"DANGER: {ThreatDamageAt(Player.Position)} incoming damage on your tile"
             : Enemies.Any(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)) ? "WARNING: enemy intent targets your AP/MP or next tile" : "Safe tile - red spaces strike after End Turn";
+        public bool HasFocusTile => LastTappedTile.HasValue;
         public string FocusThreatSummary => ThreatDetailAt(LastTappedTile ?? Player.Position);
 
         public void SelectSkill(SkillId id)
@@ -383,7 +387,7 @@ namespace Lanternfall
                 {
                     RefreshPreviews();
                     Changed?.Invoke();
-                    yield return new WaitForSeconds(.45f);
+                    yield return new WaitForSeconds(.85f);
                     continue;
                 }
                 if (e.Preview.Contains(Player.Position))
@@ -401,7 +405,7 @@ namespace Lanternfall
                 else if (e.RootTurns <= 0)
                 {
                     var before = e.Position;
-                    var next = EnemyAI.ChooseReposition(e, Player.Position, Grid, q => Occupied(q) || q == Player.Position, p => HazardTiles.Contains(p));
+                    var next = EnemyAI.ChooseReposition(e, Player.Position, Grid, q => Occupied(q) || q == Player.Position, p => HazardTiles.Contains(p), Enemies);
                     if (next != e.Position) e.Position = next;
                     Message = next == before ? $"{NameOf(e.Kind)} holds a threatening angle." : $"{NameOf(e.Kind)} repositions to pressure your next move.";
                 }
@@ -469,10 +473,14 @@ namespace Lanternfall
             if (phase == 2)
             {
                 e.Shield += 4;
-                Message = "Lantern Warden enters Phase 2 - Stormvault Core Reignites. Overcharge Shield +4, range increased, AP/MP pressure.";
+                BossPhaseBanner = "PHASE TWO";
+                bossPhaseBannerUntil = Time.time + 2.2f;
+                Message = "PHASE TWO - The Lantern Warden awakens. New attack pattern: overcharged range lines.";
             }
             else
             {
+                BossPhaseBanner = "FINAL SURGE";
+                bossPhaseBannerUntil = Time.time + 1.8f;
                 Message = "Lantern Warden enters Phase 3 - HEAVY BLAST telegraphs. Avoid red and purple danger tiles.";
             }
             HitTiles.Add(e.Position);

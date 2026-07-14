@@ -141,6 +141,8 @@ Phase 5Q responds to follow-up real phone screenshots by prioritizing comfort ov
 
 Phase 5Q.4 is an emergency mobile layout hard fix from real phone screenshots: phone portrait is blocked in both Unity and the WebGL page itself, and phone landscape uses more robust viewport detection so it gets the real bottom command HUD instead of a tiny desktop side panel. See [PLAYTEST_5Q4.md](PLAYTEST_5Q4.md).
 
+Phase 6A focuses on mobile UX, tactical AI, and first-time polish without adding content: phone landscape uses a dedicated bottom command bar, default combat HUD information is reduced, enemies score repositioning by role/cooperation, and the Lantern Warden Phase 2 transition gets a readable banner/presentation beat.
+
 
 
 

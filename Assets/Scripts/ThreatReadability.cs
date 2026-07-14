@@ -14,9 +14,9 @@ namespace Lanternfall
 
         public static Color TileMarkerColor(ThreatKind threat) => threat switch
         {
-            ThreatKind.AP => new Color(.95f, .72f, 1f),
-            ThreatKind.MP => new Color(.66f, .90f, 1f),
-            ThreatKind.Mixed => new Color(1f, .74f, .46f),
+            ThreatKind.AP => new Color(.86f, .50f, 1f),
+            ThreatKind.MP => new Color(.72f, .42f, 1f),
+            ThreatKind.Mixed => new Color(1f, .54f, .18f),
             _ => new Color(1f, .64f, .86f)
         };
 
