@@ -143,6 +143,8 @@ Phase 5Q.4 is an emergency mobile layout hard fix from real phone screenshots: p
 
 Phase 6A focuses on mobile UX, tactical AI, and first-time polish without adding content: phone landscape uses a dedicated bottom command bar, default combat HUD information is reduced, enemies score repositioning by role/cooperation, and the Lantern Warden Phase 2 transition gets a readable banner/presentation beat.
 
+Phase 6B is a real iPhone landscape layout fix: phone landscape now uses explicit responsive modes and a stacked bottom command HUD, while the WebGL shell avoids `100vw` plus safe-area overflow so the board and HUD stay inside the visible iPhone browser viewport.
+
 
 
 

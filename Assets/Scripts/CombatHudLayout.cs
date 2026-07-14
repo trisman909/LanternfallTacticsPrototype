@@ -126,8 +126,8 @@ namespace Lanternfall
             if (phoneLandscape)
             {
                 float landChipGap = 6f;
-                float landChipH = 46f;
-                float landChipW = Mathf.Clamp(w * .12f, 84f, 112f);
+                float landChipH = Mathf.Clamp(panel.height * .24f, 40f, 48f);
+                float landChipW = (w - landChipGap * 2f) / 3f;
                 snap.Header = new Rect(x, y, w, 0f);
                 snap.StatChips = new[]
                 {
@@ -135,25 +135,24 @@ namespace Lanternfall
                     new Rect(x + landChipW + landChipGap, y, landChipW, landChipH),
                     new Rect(x + (landChipW + landChipGap) * 2f, y, landChipW, landChipH)
                 };
-                float infoX = x + (landChipW + landChipGap) * 3f;
-                snap.HazardNote = new Rect(infoX, y, Mathf.Max(120f, w - (infoX - x)), landChipH);
+                snap.HazardNote = new Rect(x, y, 0f, 0f);
                 snap.HelpButton = new Rect(x, y, 0f, 0f);
                 snap.InfoButton = new Rect(x, y, 0f, 0f);
                 y += landChipH + gap;
 
                 snap.SelectedSkill = new Rect(x, y, w, 0f);
-                float cardH = Mathf.Max(90f, panel.yMax - y - pad);
-                float skillW = Mathf.Clamp((w - gap * 4f) * .20f, 150f, 190f);
+                float phoneActionH = Mathf.Clamp(panel.height * .28f, 50f, 62f);
+                float cardH = Mathf.Max(56f, panel.yMax - y - pad - phoneActionH - gap);
+                float skillW = (w - gap * 2f) / 3f;
                 snap.SkillCards = new[]
                 {
                     new Rect(x, y, skillW, cardH),
                     new Rect(x + skillW + gap, y, skillW, cardH),
                     new Rect(x + (skillW + gap) * 2f, y, skillW, cardH)
                 };
-                float actionX = x + (skillW + gap) * 3f;
-                float actionW = w - (actionX - x);
-                snap.CancelButton = new Rect(actionX, y, Mathf.Max(64f, actionW * .24f), cardH);
-                snap.EndTurnButton = new Rect(snap.CancelButton.xMax + gap, y, Mathf.Max(118f, w - (snap.CancelButton.xMax + gap - x)), cardH);
+                y += cardH + gap;
+                snap.CancelButton = new Rect(x, y, Mathf.Max(68f, w * .24f), phoneActionH);
+                snap.EndTurnButton = new Rect(snap.CancelButton.xMax + gap, y, Mathf.Max(118f, w - snap.CancelButton.width - gap), phoneActionH);
                 snap.Message = new Rect(x, panel.yMax - 1f, w, 0f);
                 return snap;
             }

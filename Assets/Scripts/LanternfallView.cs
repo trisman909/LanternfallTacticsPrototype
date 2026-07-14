@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6A";
+        public const string PrototypeVersion = "Prototype v0.6B";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;

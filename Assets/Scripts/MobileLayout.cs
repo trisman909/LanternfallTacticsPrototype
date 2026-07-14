@@ -2,6 +2,8 @@ using UnityEngine;
 
 namespace Lanternfall
 {
+    public enum MobileLayoutMode { Desktop, TabletLandscape, PhoneLandscape, PhonePortrait }
+
     public sealed class MobileLayoutSnapshot
     {
         public const float MinimumTouchTarget = 48f;
@@ -10,6 +12,7 @@ namespace Lanternfall
         public bool CompactLandscape;
         public bool PhoneLandscape;
         public bool PhoneHud;
+        public MobileLayoutMode Mode;
         public Rect Board;
         public Rect Panel;
         public Rect[] SkillButtons;
@@ -38,6 +41,7 @@ namespace Lanternfall
             if(portrait)
             {
                 result.PhoneHud = width <= 700f;
+                result.Mode = result.PhoneHud ? MobileLayoutMode.PhonePortrait : MobileLayoutMode.Desktop;
                 result.FontSize=Mathf.Clamp(Mathf.RoundToInt(Mathf.Min(width,height)/10f),32,40);
                 float boardH = result.PhoneHud ? Mathf.Clamp(height*.44f,250f,370f) : Mathf.Clamp(height*.38f,260f,360f);
                 float panelH=height-boardH;
@@ -55,21 +59,22 @@ namespace Lanternfall
                 result.CompactLandscape=height<760;
                 result.PhoneLandscape=height<=620f&&width<=1200f&&width>height*1.15f;
                 result.PhoneHud = result.PhoneLandscape;
+                result.Mode = result.PhoneLandscape ? MobileLayoutMode.PhoneLandscape : result.CompactLandscape ? MobileLayoutMode.TabletLandscape : MobileLayoutMode.Desktop;
                 if(result.PhoneLandscape) result.FontSize=Mathf.Clamp(Mathf.RoundToInt(height/9f),34,42);
                 float panelW=result.PhoneLandscape?width:result.CompactLandscape?Mathf.Clamp(width*.30f,280f,340f):Mathf.Clamp(width*.32f,300f,360f);
-                float panelH=result.PhoneLandscape?Mathf.Clamp(height*.32f,150f,190f):height;
+                float panelH=result.PhoneLandscape?Mathf.Clamp(height*.38f,168f,220f):height;
                 result.Board=result.PhoneLandscape?new Rect(0,0,width,height-panelH):new Rect(0,0,width-panelW,height);
                 result.Panel=result.PhoneLandscape?new Rect(0,height-panelH,width,panelH):new Rect(width-panelW,0,panelW,height);
-                float pad=10,y=result.PhoneLandscape?result.Panel.y+54f:result.CompactLandscape?94:198,h=result.PhoneLandscape?Mathf.Max(90f,panelH-60f):result.CompactLandscape?50:68;
+                float pad=10,y=result.PhoneLandscape?result.Panel.y+54f:result.CompactLandscape?94:198,h=result.PhoneLandscape?Mathf.Max(56f,(panelH-72f)*.45f):result.CompactLandscape?50:68;
                 if(result.PhoneLandscape)
                 {
-                    float gap=6,bw=Mathf.Clamp((panelW-pad*2-gap*4)*.20f,150f,190f),sy=result.Panel.y+54f;
+                    float gap=6,bw=(panelW-pad*2-gap*2)/3f,sy=result.Panel.y+50f;
                     result.SkillButtons=new[]{new Rect(result.Panel.x+pad,sy,bw,h),new Rect(result.Panel.x+pad+bw+gap,sy,bw,h),new Rect(result.Panel.x+pad+(bw+gap)*2,sy,bw,h)};
                 }
                 else result.SkillButtons=new[]{new Rect(result.Panel.x+pad,y,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+h+6,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+(h+6)*2,panelW-pad*2,h)};
                 if(result.CompactLandscape){float gap=6,bw=(panelW-pad*2-gap*2)/3f,ry=128;result.RewardButtons=new[]{new Rect(result.Panel.x+pad,ry,bw,76),new Rect(result.Panel.x+pad+bw+gap,ry,bw,76),new Rect(result.Panel.x+pad+(bw+gap)*2,ry,bw,76)};}
                 else result.RewardButtons=new[]{new Rect(result.Panel.x+pad,210,panelW-pad*2,76),new Rect(result.Panel.x+pad,294,panelW-pad*2,76),new Rect(result.Panel.x+pad,378,panelW-pad*2,76)};
-                result.ActionButton=new Rect(result.Panel.x+pad,result.PhoneLandscape?result.Panel.y+54f:result.CompactLandscape?y+(h+6)*3:500,panelW-pad*2,result.PhoneLandscape?h:48f);
+                result.ActionButton=new Rect(result.Panel.x+pad,result.PhoneLandscape?result.Panel.y+panelH-62f:result.CompactLandscape?y+(h+6)*3:500,panelW-pad*2,result.PhoneLandscape?54f:48f);
                 result.RestartButton=new Rect(result.Panel.x+pad,result.CompactLandscape?176:260,panelW-pad*2,64);
             }
             float boardHeader=result.PhoneLandscape?28:result.Portrait||result.CompactLandscape?42:64;
