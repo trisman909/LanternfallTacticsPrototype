@@ -64,7 +64,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6I.2: gameplay polish, predictable AI, and range readability.",
+            "Prototype v0.6J: coordinated squad AI and contained hazard pieces.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -382,6 +382,8 @@ namespace Lanternfall
             ResolveArmedHazards();
             if (!Player.Alive){Turns.Lose(); RecordProgress(); Message = "DEFEAT - your lantern is extinguished. Start New Run to retry."; Changed?.Invoke(); yield break;}
 
+            var squadPlan=EnemyAI.BuildSquadPlan(Enemies,Player.Position,Grid,q=>Occupied(q)||q==Player.Position,p=>HazardTiles.Contains(p),p=>BiomeRules.EnemyTraversalCost(Theme,p,HazardTiles));
+
             foreach (var e in Enemies.Where(x => x.Alive).ToList())
             {
                 e.TickStatuses();
@@ -409,7 +411,7 @@ namespace Lanternfall
                 else if (e.RootTurns <= 0)
                 {
                     var before = e.Position;
-                    var next = EnemyAI.ChooseReposition(e, Player.Position, Grid, q => Occupied(q) || q == Player.Position, p => HazardTiles.Contains(p), Enemies, p=>BiomeRules.EnemyTraversalCost(Theme,p,HazardTiles));
+                    var next = squadPlan.DestinationFor(e);
                     if (next != e.Position)
                     {
                         e.PreviousPosition=before;

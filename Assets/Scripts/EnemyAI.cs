@@ -4,6 +4,15 @@ using UnityEngine;
 
 namespace Lanternfall
 {
+    public sealed class SquadPlan
+    {
+        public readonly Dictionary<EnemyModel,Vector2Int> Destinations=new();
+        public readonly Dictionary<EnemyModel,HashSet<Vector2Int>> AttackTiles=new();
+        public readonly HashSet<Vector2Int> ReservedDestinations=new();
+        public readonly HashSet<Vector2Int> ReservedAttackTiles=new();
+        public Vector2Int DestinationFor(EnemyModel enemy)=>Destinations.TryGetValue(enemy,out var p)?p:enemy.Position;
+    }
+
     public static class EnemyAI
     {
         public static int BossPhase(EnemyModel e)
@@ -103,11 +112,38 @@ namespace Lanternfall
             }
         }
 
-        public static Vector2Int ChooseReposition(EnemyModel e, Vector2Int player, GridModel grid, System.Func<Vector2Int, bool> blocked, System.Func<Vector2Int, bool> hazard = null, IEnumerable<EnemyModel> allies = null, System.Func<Vector2Int,int> traversalCost = null)
+        public static SquadPlan BuildSquadPlan(IEnumerable<EnemyModel> enemies,Vector2Int player,GridModel grid,System.Func<Vector2Int,bool> blocked,System.Func<Vector2Int,bool> hazard=null,System.Func<Vector2Int,int> traversalCost=null)
+        {
+            var living=enemies.Where(e=>e.Alive).OrderBy(RoleOrder).ThenBy(e=>e.Position.y).ThenBy(e=>e.Position.x).ToList();
+            var plan=new SquadPlan(); var sectors=new HashSet<int>();
+            int escapeLimit=Mathf.Min(3,Mathf.Max(1,living.Count-1));
+            foreach(var enemy in living)
+            {
+                Vector2Int destination=enemy.Preview.Contains(player)||enemy.DelayedPreview.Contains(player)||enemy.RootTurns>0
+                    ? enemy.Position
+                    : ChooseReposition(enemy,player,grid,blocked,hazard,living,traversalCost,plan.ReservedDestinations,plan.ReservedAttackTiles,sectors,escapeLimit);
+                plan.Destinations[enemy]=destination;
+                plan.ReservedDestinations.Add(destination);
+                var ghost=new EnemyModel(enemy.Kind,destination){AttackDamage=enemy.AttackDamage,MoveRange=enemy.MoveRange,MaxHealth=enemy.MaxHealth,Health=enemy.Health};
+                var attack=BuildPreview(ghost,player,grid); attack.UnionWith(BuildDelayedPreview(ghost,player,grid));
+                plan.AttackTiles[enemy]=attack;
+                plan.ReservedAttackTiles.UnionWith(attack);
+                if(Manhattan(destination,player)<=3)sectors.Add(FlankSector(destination,player));
+            }
+            return plan;
+        }
+
+        public static Vector2Int ChooseReposition(EnemyModel e, Vector2Int player, GridModel grid, System.Func<Vector2Int, bool> blocked, System.Func<Vector2Int, bool> hazard = null, IEnumerable<EnemyModel> allies = null, System.Func<Vector2Int,int> traversalCost = null, ISet<Vector2Int> reservedDestinations=null, ISet<Vector2Int> reservedAttackTiles=null, ISet<int> reservedFlankSectors=null, int escapeReservationLimit=3)
         {
             var candidates = grid.Reachable(e.Position, e.MoveRange, p => blocked(p) && p != e.Position).ToList();
             if (!candidates.Contains(e.Position)) candidates.Add(e.Position);
             candidates.Remove(player);
+            if(reservedDestinations!=null)candidates.RemoveAll(c=>reservedDestinations.Contains(c)&&c!=e.Position);
+            if(e.Kind==EnemyKind.GloomArcher&&reservedDestinations!=null)
+            {
+                var separated=candidates.Where(c=>reservedDestinations.All(p=>Manhattan(p,c)>1)).ToList();
+                if(separated.Count>0)candidates=separated;
+            }
             var livingAllies = (allies ?? Enumerable.Empty<EnemyModel>()).Where(a => a != e && a.Alive).ToList();
             var rangedAllies = livingAllies.Where(a => a.Kind == EnemyKind.GloomArcher).ToList();
             var escapeTiles = grid.Floors().Where(p => Mathf.Abs(p.x - player.x) + Mathf.Abs(p.y - player.y) <= 2).ToHashSet();
@@ -129,6 +165,12 @@ namespace Lanternfall
                 if (preview.Contains(player)) score += 120;
                 score += preview.Count(escapeTiles.Contains) * 10;
                 score += delayed.Count(escapeTiles.Contains) * 5;
+                if(reservedAttackTiles!=null)
+                {
+                    int unique=preview.Concat(delayed).Distinct().Count(p=>escapeTiles.Contains(p)&&!reservedAttackTiles.Contains(p));
+                    int duplicate=preview.Concat(delayed).Distinct().Count(reservedAttackTiles.Contains);
+                    score+=unique*16-duplicate*3;
+                }
                 score -= distance * 3;
                 if (distance < startDistance) score += (startDistance - distance) * 8;
                 if (distance > startDistance) score -= (distance - startDistance) * 10;
@@ -154,7 +196,21 @@ namespace Lanternfall
                     if (IsChokepoint(c, grid)) score += 28;
                     if (rangedAllies.Any(a => Mathf.Abs(c.x-a.Position.x)+Mathf.Abs(c.y-a.Position.y)<=2)) score += 18;
                     if (BlocksLineToRangedAlly(c, player, rangedAllies)) score += 24;
+                    if(grid.Neighbors(player).Contains(c))score+=24;
                 }
+                if(distance<=3&&reservedFlankSectors!=null)
+                {
+                    int sector=FlankSector(c,player);
+                    score+=reservedFlankSectors.Contains(sector)?-34:24;
+                }
+                if(grid.Neighbors(player).Contains(c)&&reservedDestinations!=null)
+                {
+                    int reservedEscape=grid.Neighbors(player).Count(reservedDestinations.Contains);
+                    if(reservedEscape>=escapeReservationLimit)score-=120;
+                    else if(!preview.Contains(player))score+=26;
+                }
+                if(e.Kind==EnemyKind.GloomArcher&&livingAllies.Any(a=>a.Kind==EnemyKind.StoneSentinel&&Manhattan(a.Position,c)<=1))score-=28;
+                if(e.Kind==EnemyKind.GloomArcher&&reservedDestinations!=null&&reservedDestinations.Any(p=>Manhattan(p,c)<=1))score-=24;
                 if (e.Kind == EnemyKind.LanternWarden && distance <= (BossPhase(e) >= 3 ? 4 : 3)) score += 22;
                 if (hazard != null && hazard(c)) score -= Mathf.Max(1,(traversalCost?.Invoke(c)??2)-1)*12;
                 if(e.PreviousPosition.HasValue&&c==e.PreviousPosition.Value&&!preview.Contains(player))score-=90;
@@ -168,6 +224,16 @@ namespace Lanternfall
             }
             return best;
         }
+
+        static int RoleOrder(EnemyModel e)=>e.Kind switch {EnemyKind.StoneSentinel=>0,EnemyKind.Ashling=>1,EnemyKind.GloomArcher=>2,EnemyKind.LanternWarden=>3,_=>4};
+        static int FlankSector(Vector2Int position,Vector2Int player)
+        {
+            var d=position-player;
+            if(Mathf.Abs(d.x)>=Mathf.Abs(d.y))return d.x>=0?0:2;
+            return d.y>=0?1:3;
+        }
+
+        static int Manhattan(Vector2Int a,Vector2Int b)=>Mathf.Abs(a.x-b.x)+Mathf.Abs(a.y-b.y);
 
         static bool IsChokepoint(Vector2Int p, GridModel grid)
         {

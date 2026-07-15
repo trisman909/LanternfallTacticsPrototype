@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6I.2";
+        public const string PrototypeVersion = "Prototype v0.6J";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -372,8 +372,11 @@ namespace Lanternfall
             foreach (var p in game.HazardTiles)
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
+                var iconRect=VisualReadability.HazardIconRect(r);
+                GUI.BeginClip(r);
+                DrawIcon(new Rect(iconRect.x-r.x,iconRect.y-r.y,iconRect.width,iconRect.height),IconLanguage.ForHazard(game.Theme.Hazard));
+                GUI.EndClip();
                 DrawOutline(r, game.ArmedHazards.Contains(p) ? Color.white : game.Theme.Accent, Mathf.Max(2, tile * .045f));
-                DrawIcon(new Rect(r.x + tile * .10f, r.y + tile * .10f, tile * .80f, tile * .80f), IconLanguage.ForHazard(game.Theme.Hazard));
             }
 
             foreach (var p in game.PropTiles)

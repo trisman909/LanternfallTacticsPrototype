@@ -89,6 +89,12 @@ namespace Lanternfall
 
         public static float UnitTokenScale(bool player,bool boss)=>boss ? .99f : player ? .98f : .96f;
 
+        public static Rect HazardIconRect(Rect tileRect)
+        {
+            float inset=Mathf.Min(tileRect.width,tileRect.height)*.09f;
+            return new Rect(tileRect.x+inset,tileRect.y+inset,tileRect.width-inset*2f,tileRect.height-inset*2f);
+        }
+
         static Color Boost(Color c, float amount) => new(Mathf.Clamp01(c.r + amount), Mathf.Clamp01(c.g + amount), Mathf.Clamp01(c.b + amount), c.a);
         static float Luminance(Color c) => c.r * .299f + c.g * .587f + c.b * .114f;
     }
