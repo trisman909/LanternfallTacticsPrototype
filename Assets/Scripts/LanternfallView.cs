@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -5,12 +6,25 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6F";
+        public const string PrototypeVersion = "Prototype v0.6G";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
         GUIStyle hudHeader, hudChip, hudMessage, hudButton, hudSkill, hudSkillCompact, hudTiny;
         float tile = 1f;
+        sealed class TokenMotion { public Vector2 From, To; public float Started; }
+        sealed class BoardEffect { public Vector2 From, To; public Color Color; public CombatEffectCue Cue; public float Started, Duration; public bool Death; public EnemyKind Enemy; }
+        readonly Dictionary<object, TokenMotion> tokenMotions = new();
+        readonly Dictionary<EnemyModel, Vector2Int> observedEnemyPositions = new();
+        readonly Dictionary<EnemyModel, bool> observedEnemyAlive = new();
+        readonly List<BoardEffect> boardEffects = new();
+        Vector2Int observedPlayerPosition;
+        bool presentationSnapshotReady;
+        int observedRoom;
+        TurnPhase observedPhase;
+        string observedEffectSignature = "";
+        string flowBanner = "";
+        float flowBannerUntil;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
@@ -37,7 +51,64 @@ namespace Lanternfall
             cam.transform.position = new Vector3(4, 5, -10);
             cam.backgroundColor = new Color(.025f, .02f, .06f);
             cam.orthographicSize = 6.7f;
-            game.Changed += () => {};
+            game.Changed += OnGameChanged;
+        }
+
+        void OnGameChanged()
+        {
+            if (!game.HasStarted || game.Player == null) return;
+            float now = Time.unscaledTime;
+            if (!presentationSnapshotReady || observedRoom != game.RoomNumber)
+            {
+                tokenMotions.Clear(); boardEffects.Clear(); observedEnemyPositions.Clear(); observedEnemyAlive.Clear();
+                observedPlayerPosition = game.Player.Position; observedRoom = game.RoomNumber; observedPhase = game.Turns.Phase;
+                flowBanner = game.RoomNumber == 5 ? "THE LANTERN WARDEN" : $"ROOM {game.RoomNumber}";
+                flowBannerUntil = now + PresentationMotion.Duration(1.15f, .45f);
+                presentationSnapshotReady = true;
+            }
+            else
+            {
+                if (observedPlayerPosition != game.Player.Position)
+                {
+                    tokenMotions[game.Player] = new TokenMotion{From=observedPlayerPosition,To=game.Player.Position,Started=now};
+                    boardEffects.Add(new BoardEffect{From=observedPlayerPosition,To=game.Player.Position,Color=new Color(.34f,1f,.92f),Cue=CombatEffectCue.Move,Started=now,Duration=PresentationMotion.Duration(.32f,.08f)});
+                }
+                foreach (var enemy in game.Enemies)
+                {
+                    if (observedEnemyPositions.TryGetValue(enemy, out var old) && old != enemy.Position)
+                    {
+                        tokenMotions[enemy] = new TokenMotion{From=old,To=enemy.Position,Started=now};
+                        boardEffects.Add(new BoardEffect{From=old,To=enemy.Position,Color=new Color(.72f,.32f,.26f),Cue=CombatEffectCue.Move,Started=now,Duration=PresentationMotion.Duration(.28f,.08f)});
+                    }
+                    if (observedEnemyAlive.TryGetValue(enemy, out var alive) && alive && !enemy.Alive)
+                        boardEffects.Add(new BoardEffect{From=enemy.Position,To=enemy.Position,Color=VisualReadability.EnemyColor(enemy.Kind),Started=now,Duration=PresentationMotion.Duration(.48f,.12f),Death=true,Enemy=enemy.Kind});
+                }
+                if (observedPhase != game.Turns.Phase)
+                {
+                    flowBanner = game.Turns.Phase switch { TurnPhase.Reward => "ROOM CLEAR", TurnPhase.Won => "VICTORY", TurnPhase.Lost => "DEFEAT", _ => "" };
+                    if (flowBanner != "") flowBannerUntil = now + PresentationMotion.Duration(1.0f,.4f);
+                }
+            }
+            string signature = game.Message + ":" + string.Join(";", game.HitTiles.OrderBy(p=>p.x).ThenBy(p=>p.y));
+            if (signature != observedEffectSignature && game.HitTiles.Count > 0)
+            {
+                CombatEffectCue cue=CombatEffectLanguage.ForMessage(game.Message); Color color=CombatEffectLanguage.Color(cue);
+                foreach (var hit in game.HitTiles)
+                {
+                    Vector2 source=game.Player.Position;
+                    if(game.Message.Contains("strikes")||game.Message.Contains("triggers")||game.Message.Contains("drain"))
+                    {
+                        var attacker=game.Enemies.Where(e=>e.Alive).OrderBy(e=>Mathf.Abs(e.Position.x-hit.x)+Mathf.Abs(e.Position.y-hit.y)).FirstOrDefault();
+                        if(attacker!=null)source=attacker.Position;
+                    }
+                    boardEffects.Add(new BoardEffect{From=source,To=hit,Color=color,Cue=cue,Started=now,Duration=PresentationMotion.Duration(.38f,.10f)});
+                }
+                observedEffectSignature = signature;
+            }
+            observedPlayerPosition = game.Player.Position;
+            observedEnemyPositions.Clear(); observedEnemyAlive.Clear();
+            foreach (var enemy in game.Enemies){observedEnemyPositions[enemy]=enemy.Position; observedEnemyAlive[enemy]=enemy.Alive;}
+            observedRoom = game.RoomNumber; observedPhase = game.Turns.Phase;
         }
 
         void InitStyles()
@@ -101,13 +172,23 @@ namespace Lanternfall
             if (game.HelpVisible) DrawHelpOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             if (game.PlaytestInfoVisible) DrawPlaytestInfoOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             if (game.BossPhasePresentationActive) DrawBossPhaseOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
+            if (flowBannerUntil > Time.unscaledTime && !game.HelpVisible && !game.PlaytestInfoVisible) DrawFlowBanner(new Rect(0,0,guiSafe.width,guiSafe.height));
             GUI.EndGroup();
+        }
+
+        void DrawFlowBanner(Rect area)
+        {
+            float remaining=Mathf.Clamp01((flowBannerUntil-Time.unscaledTime)/PresentationMotion.Duration(1f,.4f));
+            float width=Mathf.Min(area.width*.58f,620f), height=Mathf.Clamp(area.height*.13f,52f,96f);
+            var r=new Rect(area.center.x-width*.5f,area.height*.17f,width,height);
+            DrawRect(r,new Color(.035f,.025f,.055f,.72f*remaining)); DrawOutline(r,new Color(1f,.62f,.16f,.9f*remaining),3);
+            var old=GUI.color; GUI.color=new Color(1f,1f,1f,remaining); GUI.Label(r,flowBanner,title); GUI.color=old;
         }
 
         void DrawBossPhaseOverlay(Rect area)
         {
             DrawRect(area, new Color(0f, 0f, 0f, .48f));
-            float shake = Mathf.Sin(Time.time * 48f) * 5f;
+            float shake = PresentationMotion.Reduced ? 0f : Mathf.Sin(Time.time * 48f) * 5f;
             var banner = new Rect(area.x + area.width * .08f + shake, area.y + area.height * .30f, area.width * .84f, Mathf.Clamp(area.height * .22f, 96f, 160f));
             DrawRect(banner, new Color(.12f, .035f, .10f, .94f));
             DrawOutline(banner, new Color(1f, .48f, .12f), 4);
@@ -190,7 +271,9 @@ namespace Lanternfall
                 GUI.Label(new Rect(pad, y, w, lineH), "- " + line, area.height < 500f ? small : body);
                 y += lineH + 4;
             }
-            if (GUI.Button(new Rect(pad, area.height - (area.height < 500f ? 58 : 84), w, area.height < 500f ? 46 : 62), game.HasStarted ? "BACK TO RUN" : "GOT IT", button))
+            float actionY=area.height-(area.height<500f?58:84), actionH=area.height<500f?46:62, gap=10f, motionW=w*.34f;
+            if(GUI.Button(new Rect(pad,actionY,motionW,actionH),PresentationMotion.Reduced?"MOTION: REDUCED":"MOTION: FULL",button))PresentationMotion.Reduced=!PresentationMotion.Reduced;
+            if (GUI.Button(new Rect(pad+motionW+gap,actionY,w-motionW-gap,actionH), game.HasStarted ? "BACK TO RUN" : "GOT IT", button))
                 game.HideHelp();
         }
 
@@ -307,25 +390,70 @@ namespace Lanternfall
                 var r = TileRect(p, ox, oy, minX, maxY);
                 bool bossAttack = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && e.Preview.Contains(p));
                 bool heavyBoss = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && EnemyAI.BossPhase(e) >= 3 && e.Preview.Contains(p));
-                DrawOutline(r, bossAttack ? new Color(1f, .54f, .12f) : new Color(1f, .20f, .18f), Mathf.Max(2, tile * (bossAttack ? .075f : .05f)));
+                float cue = PresentationMotion.Reduced ? .82f : .68f + Mathf.Sin(Time.unscaledTime * 7f) * .18f;
+                Color cueColor = bossAttack ? new Color(1f, .54f, .12f, cue) : new Color(1f, .20f, .18f, cue);
+                DrawOutline(r, cueColor, Mathf.Max(2, tile * (bossAttack ? .075f : .05f)));
                 DrawIcon(new Rect(r.x + tile * .30f, r.y + tile * .26f, tile * .40f, tile * .48f), bossAttack ? VisualIcon.BossDanger : VisualIcon.ImmediateDanger);
             }
 
-            DrawToken(game.Player.Position, ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), VisualReadability.ClassGlyph(game.Player.ClassId), "", game.Player, true, false, game.Player.ClassId, null, game.HitTiles.Contains(game.Player.Position));
+            DrawToken(AnimatedPosition(game.Player, game.Player.Position), ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), VisualReadability.ClassGlyph(game.Player.ClassId), "", game.Player, true, false, game.Player.ClassId, null, game.HitTiles.Contains(game.Player.Position));
             foreach (var e in game.Enemies.Where(e => e.Alive))
             {
-                DrawToken(e.Position, ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), e.Shield > 0 ? $"{e.Health}+{e.Shield}" : $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden, null, e.Kind, game.HitTiles.Contains(e.Position));
+                DrawToken(AnimatedPosition(e, e.Position), ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), e.Shield > 0 ? $"{e.Health}+{e.Shield}" : $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden, null, e.Kind, game.HitTiles.Contains(e.Position));
                 var er = TileRect(e.Position, ox, oy, minX, maxY);
                 var badge = new Rect(er.xMax - tile * .32f, er.y + tile * .02f, tile * .28f, tile * .28f);
                 DrawRect(badge, new Color(.04f, .03f, .06f, .88f));
                 DrawOutline(badge, ThreatReadability.TileMarkerColor(e.Threat), 1);
                 DrawIcon(new Rect(badge.x + 2, badge.y + 2, badge.width - 4, badge.height - 4), IconLanguage.ForThreat(e.Threat));
             }
+            DrawBoardEffects(ox,oy,minX,maxY);
+        }
+
+        Vector2 AnimatedPosition(object unit, Vector2Int destination)
+        {
+            if(!tokenMotions.TryGetValue(unit,out var motion))return destination;
+            float t=(Time.unscaledTime-motion.Started)/PresentationMotion.Duration(.24f,.06f);
+            if(t>=1f){tokenMotions.Remove(unit);return destination;}
+            return Vector2.Lerp(motion.From,motion.To,PresentationMotion.Ease(t));
+        }
+
+        void DrawBoardEffects(float ox,float oy,int minX,int maxY)
+        {
+            float now=Time.unscaledTime;
+            for(int i=boardEffects.Count-1;i>=0;i--)
+            {
+                var fx=boardEffects[i]; float t=(now-fx.Started)/fx.Duration;
+                if(t>=1f){boardEffects.RemoveAt(i);continue;}
+                float fade=1f-t;
+                Vector2 Center(Vector2 p)=>new(ox+(p.x-minX+.5f)*tile,oy+(maxY-p.y+.5f)*tile);
+                var a=Center(fx.From); var b=Center(fx.To);
+                if(!fx.Death)
+                {
+                    int segments=fx.Cue==CombatEffectCue.Spear||fx.Cue==CombatEffectCue.Heavy?8:fx.Cue==CombatEffectCue.Slash?3:5;
+                    for(int j=1;j<=segments;j++)
+                    {
+                        Vector2 p=Vector2.Lerp(a,b,j/(segments+1f)); float s=Mathf.Max(2f,tile*(.045f+.025f*fade));
+                        DrawRect(new Rect(p.x-s*.5f,p.y-s*.5f,s,s),new Color(fx.Color.r,fx.Color.g,fx.Color.b,fade*.75f));
+                    }
+                    float pulse=tile*((fx.Cue==CombatEffectCue.Heavy?.46f:.32f)+t*(fx.Cue==CombatEffectCue.Fire||fx.Cue==CombatEffectCue.Prism?.55f:.42f)); var ring=new Rect(b.x-pulse*.5f,b.y-pulse*.5f,pulse,pulse);
+                    DrawOutline(ring,new Color(fx.Color.r,fx.Color.g,fx.Color.b,fade),Mathf.Max(2f,tile*.035f));
+                    if(fx.Cue==CombatEffectCue.Fire||fx.Cue==CombatEffectCue.Prism||fx.Cue==CombatEffectCue.Heavy)
+                    {float inner=pulse*.62f;DrawOutline(new Rect(b.x-inner*.5f,b.y-inner*.5f,inner,inner),new Color(1f,1f,1f,fade*.7f),Mathf.Max(1f,tile*.018f));}
+                    if(!PresentationMotion.Reduced)
+                        for(int d=0;d<4;d++){float ang=d*Mathf.PI*.5f+t*2f;Vector2 p=b+new Vector2(Mathf.Cos(ang),Mathf.Sin(ang))*tile*(.12f+t*.28f);DrawRect(new Rect(p.x-2,p.y-2,4,4),new Color(fx.Color.r,fx.Color.g,fx.Color.b,fade));}
+                }
+                else
+                {
+                    float size=tile*(.86f+.28f*t); var r=new Rect(b.x-size*.5f,b.y-size*.5f,size,size); var old=GUI.color;
+                    GUI.color=new Color(1f,1f,1f,fade); AuthoredUnits.Draw(r,null,fx.Enemy,new Color(fx.Color.r,fx.Color.g,fx.Color.b,fade)); GUI.color=old;
+                    DrawOutline(r,new Color(fx.Color.r,fx.Color.g,fx.Color.b,fade),Mathf.Max(2f,tile*.04f));
+                }
+            }
         }
 
         Rect TileRect(Vector2Int p, float ox, float oy, int minX, int maxY) => new(ox + (p.x - minX) * tile, oy + (maxY - p.y) * tile, tile - 2, tile - 2);
 
-        void DrawToken(Vector2Int p, float ox, float oy, int minX, int maxY, Color c, string glyph, string hp = "", UnitModel unit = null, bool player = false, bool boss = false, PlayerClassId? playerClass = null, EnemyKind? enemyKind = null, bool hit = false)
+        void DrawToken(Vector2 p, float ox, float oy, int minX, int maxY, Color c, string glyph, string hp = "", UnitModel unit = null, bool player = false, bool boss = false, PlayerClassId? playerClass = null, EnemyKind? enemyKind = null, bool hit = false)
         {
             float inset = boss ? .00f : .05f;
             float size = boss ? .96f : .86f;
@@ -351,6 +479,12 @@ namespace Lanternfall
                 if (unit.BurnTurns > 0) { DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Burn); x += iconSize; }
                 if (unit.RootTurns > 0) { DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Root); x += iconSize; }
                 if (unit.MarkedTurns > 0) DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Mark);
+                if (!PresentationMotion.Reduced && count > 0)
+                {
+                    Color aura=unit.BurnTurns>0?new Color(1f,.30f,.05f):unit.RootTurns>0?new Color(.35f,1f,.38f):unit.MarkedTurns>0?new Color(.76f,.26f,1f):new Color(.32f,.78f,1f);
+                    float pulse=3f+Mathf.Sin(Time.unscaledTime*6f)*2f;
+                    DrawOutline(new Rect(r.x-pulse,r.y-pulse,r.width+pulse*2,r.height+pulse*2),new Color(aura.r,aura.g,aura.b,.58f),2);
+                }
             }
         }
 
