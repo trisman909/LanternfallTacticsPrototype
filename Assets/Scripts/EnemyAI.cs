@@ -36,7 +36,7 @@ namespace Lanternfall
             }
             else
             {
-                int radius = e.Kind == EnemyKind.LanternWarden ? (BossPhase(e) >= 2 ? 3 : 2) : 1;
+                int radius = e.Kind == EnemyKind.LanternWarden ? (BossPhase(e) >= 2 ? 4 : 2) : 1;
                 foreach(var p in grid.Floors()) if(Mathf.Abs(p.x-e.Position.x)+Mathf.Abs(p.y-e.Position.y)<=radius && p!=e.Position) r.Add(p);
             }
             return r;
@@ -63,7 +63,7 @@ namespace Lanternfall
             {
                 int phase = BossPhase(e);
                 if (phase == 1) foreach (var p in CrossLine(e.Position, grid, 3)) r.Add(p);
-                if (phase >= 2) foreach (var p in CrossLine(e.Position, grid, phase == 2 ? 5 : 7)) r.Add(p);
+                if (phase >= 2) foreach (var p in CrossLine(e.Position, grid, phase == 2 ? 6 : 8)) r.Add(p);
                 if (phase >= 3) foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
             }
             r.Remove(e.Position);
@@ -103,7 +103,7 @@ namespace Lanternfall
             }
         }
 
-        public static Vector2Int ChooseReposition(EnemyModel e, Vector2Int player, GridModel grid, System.Func<Vector2Int, bool> blocked, System.Func<Vector2Int, bool> hazard = null, IEnumerable<EnemyModel> allies = null)
+        public static Vector2Int ChooseReposition(EnemyModel e, Vector2Int player, GridModel grid, System.Func<Vector2Int, bool> blocked, System.Func<Vector2Int, bool> hazard = null, IEnumerable<EnemyModel> allies = null, System.Func<Vector2Int,int> traversalCost = null)
         {
             var candidates = grid.Reachable(e.Position, e.MoveRange, p => blocked(p) && p != e.Position).ToList();
             if (!candidates.Contains(e.Position)) candidates.Add(e.Position);
@@ -121,6 +121,9 @@ namespace Lanternfall
                 var delayed = BuildDelayedPreview(ghost, player, grid);
                 int distance = Mathf.Abs(c.x - player.x) + Mathf.Abs(c.y - player.y);
                 int score = 0;
+                int routeCost=traversalCost==null ? distance : grid.WeightedDistance(c,player,p=>blocked(p)&&p!=e.Position,traversalCost);
+                if(routeCost==int.MaxValue)score-=500;
+                else score-=routeCost*2;
                 bool hasLine = c.x == player.x || c.y == player.y;
                 bool lineClear = hasLine && SkillBook.HasLineOfSight(grid, c, player);
                 if (preview.Contains(player)) score += 120;
@@ -153,7 +156,9 @@ namespace Lanternfall
                     if (BlocksLineToRangedAlly(c, player, rangedAllies)) score += 24;
                 }
                 if (e.Kind == EnemyKind.LanternWarden && distance <= (BossPhase(e) >= 3 ? 4 : 3)) score += 22;
-                if (hazard != null && hazard(c)) score += e.Kind == EnemyKind.LanternWarden ? 8 : 3;
+                if (hazard != null && hazard(c)) score -= Mathf.Max(1,(traversalCost?.Invoke(c)??2)-1)*12;
+                if(e.PreviousPosition.HasValue&&c==e.PreviousPosition.Value&&!preview.Contains(player))score-=90;
+                if(e.CommittedDestination.HasValue&&c==e.CommittedDestination.Value)score+=12;
                 if (c == e.Position && !preview.Contains(player)) score -= 30;
                 if (score > bestScore || score == bestScore && BetterTieBreak(c, best, player, e.Position, grid, e))
                 {

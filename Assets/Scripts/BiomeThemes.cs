@@ -31,6 +31,19 @@ namespace Lanternfall
 
     public static class BiomeRules
     {
+        public static int EnemyTraversalCost(BiomeTheme theme, Vector2Int position, ISet<Vector2Int> hazards)
+        {
+            if(!hazards.Contains(position)) return 1;
+            return theme.Hazard switch
+            {
+                HazardKind.EmberVent => 4,
+                HazardKind.ChargedFloor => 3,
+                HazardKind.ShallowWater or HazardKind.GraspingRoots => 2,
+                HazardKind.Prism => 1,
+                _ => 1
+            };
+        }
+
         public static int MoveRange(PlayerModel player, BiomeTheme theme, ISet<Vector2Int> hazards)
         {
             if(!hazards.Contains(player.Position)) return player.MoveRange;

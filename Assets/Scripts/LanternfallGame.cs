@@ -30,6 +30,9 @@ namespace Lanternfall
         public HashSet<Vector2Int> HitTiles { get; private set; } = new();
         public HashSet<Vector2Int> PreviewArea { get; private set; } = new();
         public HashSet<Vector2Int> ValidTargets { get; private set; } = new();
+        public HashSet<Vector2Int> SkillRangeTiles { get; private set; } = new();
+        public HashSet<Vector2Int> BlockedSkillTiles { get; private set; } = new();
+        public HashSet<Vector2Int> OutOfRangeSkillTiles { get; private set; } = new();
         public BiomeTheme Theme { get; private set; }
         public HashSet<Vector2Int> HazardTiles { get; private set; } = new();
         public HashSet<Vector2Int> ArmedHazards { get; private set; } = new();
@@ -61,7 +64,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6I.1: Phase 6H visual-cohesion refinement.",
+            "Prototype v0.6I.2: gameplay polish, predictable AI, and range readability.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -194,8 +197,9 @@ namespace Lanternfall
             LastInputAccepted = true;
             RejectedTile = null;
             SelectedSkill = id;
+            PreviewArea.Clear();
             RefreshTargets();
-            Message = ValidTargets.Count == 0 ? $"No valid targets for {def.Name}." : $"{def.Name}: choose a gold target. Costs {def.ApCost} AP.";
+            Message = ValidTargets.Count == 0 ? $"{def.Name}: no legal target is currently in range. Gold shows reach; dim tiles are blocked or out of range." : $"{def.Name}: choose a gold target. Dim tiles show blocked and out-of-range spaces. Costs {def.ApCost} AP.";
             Changed?.Invoke();
         }
 
@@ -405,9 +409,21 @@ namespace Lanternfall
                 else if (e.RootTurns <= 0)
                 {
                     var before = e.Position;
-                    var next = EnemyAI.ChooseReposition(e, Player.Position, Grid, q => Occupied(q) || q == Player.Position, p => HazardTiles.Contains(p), Enemies);
-                    if (next != e.Position) e.Position = next;
-                    Message = next == before ? $"{NameOf(e.Kind)} holds a threatening angle." : $"{NameOf(e.Kind)} repositions to pressure your next move.";
+                    var next = EnemyAI.ChooseReposition(e, Player.Position, Grid, q => Occupied(q) || q == Player.Position, p => HazardTiles.Contains(p), Enemies, p=>BiomeRules.EnemyTraversalCost(Theme,p,HazardTiles));
+                    if (next != e.Position)
+                    {
+                        e.PreviousPosition=before;
+                        e.CommittedDestination=next;
+                        e.Position = next;
+                        EnemyAI.AssignIntent(e,Player.Position,Grid);
+                    }
+                    if(e.Preview.Contains(Player.Position))
+                    {
+                        Player.Damage(e.AttackDamage);
+                        HitTiles.Add(Player.Position);
+                        Message=$"{NameOf(e.Kind)} commits and strikes for {e.AttackDamage}.";
+                    }
+                    else Message = next == before ? $"{NameOf(e.Kind)} holds a threatening angle." : $"{NameOf(e.Kind)} commits toward your position.";
                 }
                 else Message = $"{NameOf(e.Kind)} is rooted.";
                 Changed?.Invoke();
@@ -428,6 +444,7 @@ namespace Lanternfall
             Player.TickStatuses();
             Player.TickCooldowns();
             Player.ResetTurnResources();
+            Player.MovementPoints=Mathf.Min(Player.MovementPoints,BiomeRules.MoveRange(Player,Theme,HazardTiles));
             if (pendingApDrain > 0) Player.ActionPoints = Mathf.Max(0, Player.ActionPoints - pendingApDrain);
             if (pendingMpDrain > 0) Player.MovementPoints = Mathf.Max(0, Player.MovementPoints - pendingMpDrain);
             pendingApDrain = pendingMpDrain = 0;
@@ -445,12 +462,20 @@ namespace Lanternfall
             if (SelectedSkill.HasValue)
             {
                 var def = SkillBook.Get(SelectedSkill.Value);
-                ValidTargets = SkillBook.Targets(Grid, Player, def, Occupied, BiomeRules.SkillRangeBonus(Theme, Player.Position, HazardTiles, def.Id));
-                PreviewArea = ValidTargets.Count > 0 ? SkillBook.AffectedTiles(Grid, ValidTargets.First(), def) : new HashSet<Vector2Int>();
+                int range=def.Range+BiomeRules.SkillRangeBonus(Theme,Player.Position,HazardTiles,def.Id);
+                ValidTargets = SkillBook.Targets(Grid, Player, def, Occupied, range-def.Range);
+                SkillRangeTiles=Grid.Floors().Where(p=>Manhattan(Player.Position,p)<=range).ToHashSet();
+                if(def.Effect==SkillEffect.SelfShield)SkillRangeTiles=new HashSet<Vector2Int>{Player.Position};
+                BlockedSkillTiles=SkillRangeTiles.Where(p=>!ValidTargets.Contains(p)).Concat(BlockerTiles.Where(p=>Manhattan(Player.Position,p)<=range)).ToHashSet();
+                OutOfRangeSkillTiles=Grid.Floors().Where(p=>Manhattan(Player.Position,p)>range).ToHashSet();
             }
-            else ValidTargets = Grid.Reachable(Player.Position, BiomeRules.MoveRange(Player, Theme, HazardTiles), Occupied)
-                .Where(p => Grid.ShortestPath(Player.Position, p, Occupied).Count <= Player.MovementPoints)
-                .ToHashSet();
+            else
+            {
+                SkillRangeTiles.Clear(); BlockedSkillTiles.Clear(); OutOfRangeSkillTiles.Clear();
+                ValidTargets = Grid.Reachable(Player.Position, BiomeRules.MoveRange(Player, Theme, HazardTiles), Occupied)
+                    .Where(p => Grid.ShortestPath(Player.Position, p, Occupied).Count <= Player.MovementPoints)
+                    .ToHashSet();
+            }
         }
 
         public void RefreshPreviews()
@@ -460,6 +485,7 @@ namespace Lanternfall
 
         void ApplyIntentPressure(EnemyModel e)
         {
+            if(e.Threat==ThreatKind.HP)Player.Damage(e.AttackDamage);
             if (e.Threat == ThreatKind.AP || e.Threat == ThreatKind.Mixed) pendingApDrain += e.Kind == EnemyKind.LanternWarden ? 2 : 1;
             if (e.Threat == ThreatKind.MP || e.Threat == ThreatKind.Mixed) pendingMpDrain += 1;
         }

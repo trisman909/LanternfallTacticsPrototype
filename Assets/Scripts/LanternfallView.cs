@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6I.1";
+        public const string PrototypeVersion = "Prototype v0.6I.2";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -345,7 +345,13 @@ namespace Lanternfall
                     DrawRect(r,new Color(.01f,.012f,.018f,game.HazardTiles.Contains(p) ? .10f : .22f));
                     DrawRect(r, new Color(c.r, c.g, c.b, VisualReadability.TacticalOverlayAlpha(state)));
                 }
+                if(game.SelectedSkill.HasValue&&!game.ValidTargets.Contains(p))
+                {
+                    if(game.SkillRangeTiles.Contains(p))DrawRect(r,new Color(.42f,.28f,.08f,.22f));
+                    else if(game.OutOfRangeSkillTiles.Contains(p))DrawRect(r,new Color(.01f,.012f,.02f,.30f));
+                }
                 DrawOutline(r, new Color(0f, 0f, 0f, .45f), Mathf.Max(1, tile * .035f));
+                if(game.SelectedSkill.HasValue&&game.BlockedSkillTiles.Contains(p))DrawOutline(r,new Color(.72f,.66f,.58f,.72f),Mathf.Max(2,tile*.035f));
                 if (game.PreviewArea.Contains(p)) DrawOutline(r, new Color(1f, .84f, .32f), Mathf.Max(3, tile * .055f));
                 if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) DrawOutline(r, game.SelectedSkill.HasValue ? new Color(1f, .94f, .28f) : new Color(.36f, 1f, 1f), Mathf.Max(3, tile * .065f));
                 if (game.LastTappedTile == p) DrawOutline(r, Color.white, 3);
@@ -359,6 +365,7 @@ namespace Lanternfall
                 DrawRect(r, new Color(.025f, .022f, .035f));
                 bool authored = AuthoredBiomes.Draw(r, game.Theme.Id, BiomeArtCell.Obstacle, Color.white);
                 DrawOutline(r, new Color(.38f, .32f, .48f), Mathf.Max(2, tile * .045f));
+                if(game.SelectedSkill.HasValue&&game.BlockedSkillTiles.Contains(p))DrawOutline(r,new Color(.92f,.72f,.32f),Mathf.Max(3,tile*.06f));
                 if (!authored) DrawIcon(new Rect(r.x + tile * .25f, r.y + tile * .25f, tile * .46f, tile * .46f), VisualIcon.Obstacle);
             }
 
@@ -366,7 +373,7 @@ namespace Lanternfall
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
                 DrawOutline(r, game.ArmedHazards.Contains(p) ? Color.white : game.Theme.Accent, Mathf.Max(2, tile * .045f));
-                DrawIcon(new Rect(r.x + tile * .23f, r.y + tile * .23f, tile * .50f, tile * .50f), IconLanguage.ForHazard(game.Theme.Hazard));
+                DrawIcon(new Rect(r.x + tile * .10f, r.y + tile * .10f, tile * .80f, tile * .80f), IconLanguage.ForHazard(game.Theme.Hazard));
             }
 
             foreach (var p in game.PropTiles)

@@ -52,6 +52,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 6G - lightweight combat effects and animation pass (complete)
 - Phase 6H - visual readability and art-direction polish (complete)
 - Phase 6I - presentation integration and cleanup (complete)
+- Phase 6I.2 - gameplay polish, AI fixes, hazard audit, and range readability (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -167,6 +168,8 @@ Phase 6G adds a presentation-only combat-effects layer: short unit interpolation
 Phase 6H is a strict readability and art-direction polish pass. Its post-integration refinement normalizes the five authored biome atlases with per-biome contrast control, a consistent fixed painted-light direction, quieter floors beneath tactical states, sparse structural props, and a clearer player/enemy/boss scale hierarchy. No content, effects, mechanics, maps, shaders, particles, animations, or gameplay systems were added. See [READABILITY_6H.md](READABILITY_6H.md).
 
 Phase 6I integrates and cleans the complete presentation stack. Obsolete letter, prop-glyph, floor-glyph, and mojibake fallbacks are removed; reliability fallbacks now use the authored icon language. First-time instructions explicitly cover hero identity, movement, selected skills, enemy HP/AP/MP intent, danger timing, End Turn, rewards, and boss Phase 2. The WebGL shell gains a themed loading card and landscape install manifest. See [INTEGRATION_6I.md](INTEGRATION_6I.md).
+
+Phase 6I.2 keeps the existing content while making its rules more predictable. Skill selection always exposes maximum reach, legal targets, blocked spaces, and out-of-range floor. Enemies use deterministic hazard costs, remember their previous position, commit toward useful destinations, and attack after repositioning when the player is in range. Hazard timing, procedural connectivity, and the widened late-phase boss telegraph are covered by regression tests. See [GAMEPLAY_POLISH_6I.md](GAMEPLAY_POLISH_6I.md).
 
 
 

@@ -77,6 +77,8 @@ namespace Lanternfall
         public int AttackDamage;
         public int MoveRange;
         public int BossPhaseAnnounced;
+        public Vector2Int? PreviousPosition;
+        public Vector2Int? CommittedDestination;
         public EnemyModel(EnemyKind kind, Vector2Int position)
         {
             Kind = kind; Position = position;

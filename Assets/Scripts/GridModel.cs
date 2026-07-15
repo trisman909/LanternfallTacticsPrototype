@@ -50,5 +50,25 @@ namespace Lanternfall
             var path = new List<Vector2Int>(); if (!seen.Contains(goal)) return path;
             for (var p = goal; p != start; p = prev[p]) path.Add(p); path.Reverse(); return path;
         }
+
+        public int WeightedDistance(Vector2Int start, Vector2Int goal, Func<Vector2Int,bool> blocked, Func<Vector2Int,int> traversalCost)
+        {
+            var distance=new Dictionary<Vector2Int,int>{{start,0}};
+            var open=new HashSet<Vector2Int>{start};
+            while(open.Count>0)
+            {
+                Vector2Int current=start; int best=int.MaxValue;
+                foreach(var p in open)if(distance[p]<best){current=p;best=distance[p];}
+                open.Remove(current);
+                if(current==goal)return best;
+                foreach(var next in Neighbors(current))
+                {
+                    if(blocked(next)&&next!=goal)continue;
+                    int candidate=best+Mathf.Max(1,traversalCost(next));
+                    if(!distance.TryGetValue(next,out int known)||candidate<known){distance[next]=candidate;open.Add(next);}
+                }
+            }
+            return int.MaxValue;
+        }
     }
 }
