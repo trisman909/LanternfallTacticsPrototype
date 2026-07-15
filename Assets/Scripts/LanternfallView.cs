@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6E";
+        public const string PrototypeVersion = "Prototype v0.6F";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -240,15 +240,20 @@ namespace Lanternfall
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
                 bool alternate = (p.x + p.y) % 2 == 0;
-                Color c = VisualReadability.TileColor(game.Theme, TileVisualState.Floor, alternate);
-                if (game.HazardTiles.Contains(p)) c = VisualReadability.TileColor(game.Theme, game.ArmedHazards.Contains(p) ? TileVisualState.ArmedHazard : TileVisualState.Hazard, alternate);
-                if (game.Enemies.Any(e => e.Alive && e.Preview.Contains(p))) c = VisualReadability.TileColor(game.Theme, TileVisualState.EnemyPreview, alternate);
-                if (game.PreviewArea.Contains(p)) c = VisualReadability.TileColor(game.Theme, TileVisualState.AreaPreview, alternate);
-                if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) c = VisualReadability.TileColor(game.Theme, game.SelectedSkill.HasValue ? TileVisualState.SkillTarget : TileVisualState.MoveTarget, alternate);
-                if (game.HitTiles.Contains(p)) c = VisualReadability.TileColor(game.Theme, TileVisualState.Hit, alternate);
-                DrawRect(r, c);
+                TileVisualState state = TileVisualState.Floor;
+                if (game.HazardTiles.Contains(p)) state = game.ArmedHazards.Contains(p) ? TileVisualState.ArmedHazard : TileVisualState.Hazard;
+                if (game.Enemies.Any(e => e.Alive && e.Preview.Contains(p))) state = TileVisualState.EnemyPreview;
+                if (game.PreviewArea.Contains(p)) state = TileVisualState.AreaPreview;
+                if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) state = game.SelectedSkill.HasValue ? TileVisualState.SkillTarget : TileVisualState.MoveTarget;
+                if (game.HitTiles.Contains(p)) state = TileVisualState.Hit;
+                Color c = VisualReadability.TileColor(game.Theme, state, alternate);
+                DrawRect(r, alternate ? game.Theme.Alternate : game.Theme.Floor);
+                BiomeArtCell artCell = game.HazardTiles.Contains(p) ? BiomeArtCell.Hazard : alternate ? BiomeArtCell.Alternate : BiomeArtCell.Floor;
+                if (game.RoomNumber == 5 && !game.HazardTiles.Contains(p) && Mathf.Abs(p.x * 13 + p.y * 7) % 11 == 0) artCell = BiomeArtCell.BossAccent;
+                bool authored = AuthoredBiomes.Draw(r, game.Theme.Id, artCell, Color.white);
+                if (state != TileVisualState.Floor) DrawRect(r, new Color(c.r, c.g, c.b, state == TileVisualState.Hit ? .72f : .52f));
                 DrawOutline(r, new Color(0f, 0f, 0f, .45f), Mathf.Max(1, tile * .035f));
-                if (!game.HazardTiles.Contains(p) && !game.ValidTargets.Contains(p))
+                if (!authored && !game.HazardTiles.Contains(p) && !game.ValidTargets.Contains(p))
                     DrawTileGlyph(r, VisualReadability.FloorGlyph(game.Theme.Id, alternate), new Color(1f, 1f, 1f, .18f), .22f);
                 if (game.PreviewArea.Contains(p)) DrawOutline(r, new Color(1f, .84f, .32f), Mathf.Max(2, tile * .045f));
                 if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) DrawOutline(r, game.SelectedSkill.HasValue ? new Color(1f, .94f, .28f) : new Color(.36f, 1f, 1f), Mathf.Max(2, tile * .05f));
@@ -261,8 +266,9 @@ namespace Lanternfall
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
                 DrawRect(r, new Color(.025f, .022f, .035f));
+                bool authored = AuthoredBiomes.Draw(r, game.Theme.Id, BiomeArtCell.Obstacle, Color.white);
                 DrawOutline(r, new Color(.38f, .32f, .48f), Mathf.Max(2, tile * .045f));
-                DrawIcon(new Rect(r.x + tile * .25f, r.y + tile * .25f, tile * .46f, tile * .46f), VisualIcon.Obstacle);
+                if (!authored) DrawIcon(new Rect(r.x + tile * .25f, r.y + tile * .25f, tile * .46f, tile * .46f), VisualIcon.Obstacle);
             }
 
             foreach (var p in game.HazardTiles)
@@ -273,14 +279,19 @@ namespace Lanternfall
             }
 
             foreach (var p in game.PropTiles)
-                DrawTileGlyph(TileRect(p, ox, oy, minX, maxY), game.Theme.PropGlyph, game.Theme.Accent, .34f);
+            {
+                var r = TileRect(p, ox, oy, minX, maxY);
+                if (!AuthoredBiomes.Draw(r, game.Theme.Id, AuthoredBiomes.PropCell(p), Color.white))
+                    DrawTileGlyph(r, game.Theme.PropGlyph, game.Theme.Accent, .34f);
+            }
 
             if (game.HealingPickup.HasValue)
             {
                 var r = TileRect(game.HealingPickup.Value, ox, oy, minX, maxY);
-                DrawRect(new Rect(r.x + tile * .08f, r.y + tile * .08f, tile * .78f, tile * .78f), new Color(.16f, 1f, .44f, .92f));
+                bool authored = AuthoredBiomes.Draw(r, game.Theme.Id, BiomeArtCell.HealingPickup, Color.white);
+                if (!authored) DrawRect(new Rect(r.x + tile * .08f, r.y + tile * .08f, tile * .78f, tile * .78f), new Color(.16f, 1f, .44f, .92f));
                 DrawOutline(r, new Color(.82f, 1f, .76f), Mathf.Max(4, tile * .075f));
-                DrawIcon(new Rect(r.x + tile * .20f, r.y + tile * .20f, tile * .56f, tile * .56f), VisualIcon.HealingPickup);
+                DrawIcon(new Rect(r.x + tile * .34f, r.y + tile * .34f, tile * .30f, tile * .30f), VisualIcon.HealingPickup);
             }
 
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.DelayedPreview).Distinct())
