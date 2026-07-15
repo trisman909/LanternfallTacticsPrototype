@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6I";
+        public const string PrototypeVersion = "Prototype v0.6I.1";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -333,9 +333,18 @@ namespace Lanternfall
                 DrawRect(r, alternate ? game.Theme.Alternate : game.Theme.Floor);
                 BiomeArtCell artCell = game.HazardTiles.Contains(p) ? BiomeArtCell.Hazard : alternate ? BiomeArtCell.Alternate : BiomeArtCell.Floor;
                 if (game.RoomNumber == 5 && !game.HazardTiles.Contains(p) && Mathf.Abs(p.x * 13 + p.y * 7) % 11 == 0) artCell = BiomeArtCell.BossAccent;
-                bool authored = AuthoredBiomes.Draw(r, game.Theme.Id, artCell, Color.white);
-                if(authored)DrawRect(r,VisualReadability.QuietEnvironmentOverlay(alternate?game.Theme.Alternate:game.Theme.Floor,game.HazardTiles.Contains(p)));
-                if (state != TileVisualState.Floor) DrawRect(r, new Color(c.r, c.g, c.b, VisualReadability.TacticalOverlayAlpha(state)));
+                bool authored = AuthoredBiomes.Draw(r, game.Theme.Id, artCell, VisualReadability.EnvironmentTextureTint(game.Theme.Id));
+                if(authored)
+                {
+                    DrawRect(r,VisualReadability.QuietEnvironmentOverlay(game.Theme,game.HazardTiles.Contains(p)));
+                    float diagonal=((p.x-minX)/(float)Mathf.Max(1,maxX-minX)+(maxY-p.y)/(float)Mathf.Max(1,maxY-minY))*.5f;
+                    DrawRect(r,VisualReadability.PaintedLightOverlay(game.Theme,diagonal));
+                }
+                if (state != TileVisualState.Floor)
+                {
+                    DrawRect(r,new Color(.01f,.012f,.018f,game.HazardTiles.Contains(p) ? .10f : .22f));
+                    DrawRect(r, new Color(c.r, c.g, c.b, VisualReadability.TacticalOverlayAlpha(state)));
+                }
                 DrawOutline(r, new Color(0f, 0f, 0f, .45f), Mathf.Max(1, tile * .035f));
                 if (game.PreviewArea.Contains(p)) DrawOutline(r, new Color(1f, .84f, .32f), Mathf.Max(3, tile * .055f));
                 if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) DrawOutline(r, game.SelectedSkill.HasValue ? new Color(1f, .94f, .28f) : new Color(.36f, 1f, 1f), Mathf.Max(3, tile * .065f));
@@ -455,7 +464,7 @@ namespace Lanternfall
 
         void DrawToken(Vector2 p, float ox, float oy, int minX, int maxY, Color c, string hp = "", UnitModel unit = null, bool player = false, bool boss = false, PlayerClassId? playerClass = null, EnemyKind? enemyKind = null, bool hit = false)
         {
-            float size=VisualReadability.UnitTokenScale(boss),inset=(1f-size)*.5f;
+            float size=VisualReadability.UnitTokenScale(player,boss),inset=(1f-size)*.5f;
             var r = new Rect(ox + (p.x - minX) * tile + tile * inset, oy + (maxY - p.y) * tile + tile * inset, tile * size, tile * size);
             DrawRect(new Rect(r.x - 3, r.y - 3, r.width + 6, r.height + 6), new Color(0f, 0f, 0f, .70f));
             float idle=player ? .30f : boss ? .23f : .18f;

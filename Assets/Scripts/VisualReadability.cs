@@ -44,12 +44,35 @@ namespace Lanternfall
 
         public static float Contrast(Color a, Color b) => Mathf.Abs(Luminance(a) - Luminance(b));
 
-        public static Color QuietEnvironmentOverlay(Color biomeColor,bool hazard=false)
+        public static Color EnvironmentTextureTint(BiomeId biome)=>biome==BiomeId.SiltglassObservatory?new Color(.42f,.42f,.42f):Color.white;
+
+        public static float EnvironmentQuietingAlpha(BiomeId biome)=>biome switch
         {
-            float grey=Luminance(biomeColor);
-            Color muted=Color.Lerp(biomeColor,new Color(grey,grey,grey),.24f);
-            muted.a=hazard ? .18f : .36f;
+            BiomeId.DrownedNarthex=>.50f,
+            BiomeId.SiltglassObservatory=>.66f,
+            BiomeId.EmberOssuary=>.24f,
+            BiomeId.GloamOrchard=>.56f,
+            BiomeId.StormvaultFoundry=>.40f,
+            _=>.44f
+        };
+
+        public static Color QuietEnvironmentOverlay(BiomeTheme theme,bool hazard=false)
+        {
+            float grey=Luminance(theme.Floor);
+            Color muted=Color.Lerp(theme.Floor,new Color(grey,grey,grey),.28f);
+            muted.a=hazard ? Mathf.Min(.24f,EnvironmentQuietingAlpha(theme.Id)*.45f) : EnvironmentQuietingAlpha(theme.Id);
             return muted;
+        }
+
+        public static Color PaintedLightOverlay(BiomeTheme theme,float diagonal)
+        {
+            diagonal=Mathf.Clamp01(diagonal);
+            if(diagonal<.5f)
+            {
+                float a=(.5f-diagonal)*.08f;
+                return new Color(theme.Accent.r*.34f,theme.Accent.g*.34f,theme.Accent.b*.34f,a);
+            }
+            return new Color(.01f,.012f,.02f,(diagonal-.5f)*.14f);
         }
 
         public static float TacticalOverlayAlpha(TileVisualState state)=>state switch
@@ -64,7 +87,7 @@ namespace Lanternfall
             _=>.52f
         };
 
-        public static float UnitTokenScale(bool boss)=>boss ? .99f : .98f;
+        public static float UnitTokenScale(bool player,bool boss)=>boss ? .99f : player ? .98f : .96f;
 
         static Color Boost(Color c, float amount) => new(Mathf.Clamp01(c.r + amount), Mathf.Clamp01(c.g + amount), Mathf.Clamp01(c.b + amount), c.a);
         static float Luminance(Color c) => c.r * .299f + c.g * .587f + c.b * .114f;
