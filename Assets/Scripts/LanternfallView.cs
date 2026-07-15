@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6B.1";
+        public const string PrototypeVersion = "Prototype v0.6C";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -257,15 +257,14 @@ namespace Lanternfall
                 var r = TileRect(p, ox, oy, minX, maxY);
                 DrawRect(r, new Color(.025f, .022f, .035f));
                 DrawOutline(r, new Color(.38f, .32f, .48f), Mathf.Max(2, tile * .045f));
-                DrawTileGlyph(r, "■", new Color(.75f, .68f, .92f), .38f);
+                DrawIcon(new Rect(r.x + tile * .25f, r.y + tile * .25f, tile * .46f, tile * .46f), VisualIcon.BlockedLineOfSight);
             }
 
-            string hazardGlyph = VisualReadability.HazardGlyph(game.Theme.Hazard);
             foreach (var p in game.HazardTiles)
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
                 DrawOutline(r, game.ArmedHazards.Contains(p) ? Color.white : game.Theme.Accent, Mathf.Max(2, tile * .045f));
-                DrawTileGlyph(r, hazardGlyph, Color.white, .36f);
+                DrawIcon(new Rect(r.x + tile * .23f, r.y + tile * .23f, tile * .50f, tile * .50f), IconLanguage.ForHazard(game.Theme.Hazard));
             }
 
             foreach (var p in game.PropTiles)
@@ -276,8 +275,7 @@ namespace Lanternfall
                 var r = TileRect(game.HealingPickup.Value, ox, oy, minX, maxY);
                 DrawRect(new Rect(r.x + tile * .08f, r.y + tile * .08f, tile * .78f, tile * .78f), new Color(.16f, 1f, .44f, .92f));
                 DrawOutline(r, new Color(.82f, 1f, .76f), Mathf.Max(4, tile * .075f));
-                DrawTileGlyph(r, "♥", Color.white, .50f);
-                GUI.Label(new Rect(r.x - tile * .15f, r.yMax - tile * .30f, tile * 1.25f, tile * .34f), "HEAL +3", new GUIStyle(center){fontSize=Mathf.Max(10,Mathf.RoundToInt(tile*.18f)),fontStyle=FontStyle.Bold,normal={textColor=Color.white}});
+                DrawIcon(new Rect(r.x + tile * .20f, r.y + tile * .20f, tile * .56f, tile * .56f), VisualIcon.HealingPickup);
             }
 
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.DelayedPreview).Distinct())
@@ -285,7 +283,7 @@ namespace Lanternfall
                 var r = TileRect(p, ox, oy, minX, maxY);
                 var threat = game.ThreatKindAt(p);
                 DrawOutline(r, new Color(.72f, .30f, .90f, .82f), Mathf.Max(2, tile * .035f));
-                DrawTileGlyph(r, ThreatReadability.TileMarker(threat), ThreatReadability.TileMarkerColor(threat), .22f);
+                DrawIcon(new Rect(r.x + tile * .35f, r.y + tile * .35f, tile * .26f, tile * .26f), threat == ThreatKind.HP ? VisualIcon.DelayedDanger : IconLanguage.ForThreat(threat));
             }
 
             foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.Preview).Distinct())
@@ -294,7 +292,7 @@ namespace Lanternfall
                 bool bossAttack = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && e.Preview.Contains(p));
                 bool heavyBoss = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && EnemyAI.BossPhase(e) >= 3 && e.Preview.Contains(p));
                 DrawOutline(r, bossAttack ? new Color(1f, .54f, .12f) : new Color(1f, .20f, .18f), Mathf.Max(2, tile * (bossAttack ? .075f : .05f)));
-                DrawTileGlyph(r, heavyBoss ? "!!" : "!", Color.white, heavyBoss ? .34f : .42f);
+                DrawIcon(new Rect(r.x + tile * .30f, r.y + tile * .26f, tile * .40f, tile * .48f), bossAttack ? VisualIcon.BossDanger : VisualIcon.ImmediateDanger);
             }
 
             DrawToken(game.Player.Position, ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), VisualReadability.ClassGlyph(game.Player.ClassId), "", game.Player, true);
@@ -302,10 +300,10 @@ namespace Lanternfall
             {
                 DrawToken(e.Position, ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), e.Shield > 0 ? $"{e.Health}+{e.Shield}" : $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden);
                 var er = TileRect(e.Position, ox, oy, minX, maxY);
-                var badge = new Rect(er.xMax - tile * .42f, er.y - tile * .05f, tile * .48f, tile * .25f);
+                var badge = new Rect(er.xMax - tile * .32f, er.y + tile * .02f, tile * .28f, tile * .28f);
                 DrawRect(badge, new Color(.04f, .03f, .06f, .88f));
                 DrawOutline(badge, ThreatReadability.TileMarkerColor(e.Threat), 1);
-                GUI.Label(badge, ThreatReadability.EnemyBadge(e), new GUIStyle(center){fontSize=Mathf.Max(8,Mathf.RoundToInt(tile*.12f)),fontStyle=FontStyle.Bold,normal={textColor=Color.white}});
+                DrawIcon(new Rect(badge.x + 2, badge.y + 2, badge.width - 4, badge.height - 4), IconLanguage.ForThreat(e.Threat));
             }
         }
 
@@ -319,13 +317,16 @@ namespace Lanternfall
             DrawRect(new Rect(r.x - 3, r.y - 3, r.width + 6, r.height + 6), new Color(0f, 0f, 0f, .70f));
             DrawRect(r, c);
             DrawOutline(r, player ? Color.white : (boss ? new Color(1f, .75f, .2f) : new Color(.08f, .04f, .05f)), Mathf.Max(2, tile * .045f));
-            GUI.Label(r, glyph, new GUIStyle(center){fontSize = Mathf.RoundToInt(tile * (boss ? .48f : .42f)), fontStyle = FontStyle.Bold, normal = {textColor = Color.black}});
+            DrawUnitSymbol(r, player ? game.Player.ClassId : (PlayerClassId?)null, glyph, boss);
             if (hp != "") GUI.Label(new Rect(r.x, r.y + r.height - 18, r.width, 20), hp, new GUIStyle(center){fontSize = 14, fontStyle = FontStyle.Bold, normal = {textColor = Color.white}});
             if (unit != null)
             {
-                string statuses = VisualReadability.StatusGlyph(unit);
-                if (!string.IsNullOrEmpty(statuses))
-                    GUI.Label(new Rect(r.x - 4, r.yMax - 2, r.width + 8, 18), statuses, new GUIStyle(center){fontSize = Mathf.Max(12, Mathf.RoundToInt(tile * .20f)), fontStyle = FontStyle.Bold, normal = {textColor = Color.white}});
+                int count = (unit.Shield > 0 ? 1 : 0) + (unit.BurnTurns > 0 ? 1 : 0) + (unit.RootTurns > 0 ? 1 : 0) + (unit.MarkedTurns > 0 ? 1 : 0);
+                float iconSize = tile * .19f, x = r.center.x - count * iconSize * .5f;
+                if (unit.Shield > 0) { DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Shield); x += iconSize; }
+                if (unit.BurnTurns > 0) { DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Burn); x += iconSize; }
+                if (unit.RootTurns > 0) { DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Root); x += iconSize; }
+                if (unit.MarkedTurns > 0) DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Mark);
             }
         }
 
@@ -349,7 +350,8 @@ namespace Lanternfall
             bool hasSkill = game.SelectedSkill.HasValue;
             if (hasSkill && GUI.Button(hud.CancelButton, compact ? "CANCEL" : HudText.CancelSkillButton, hudButton)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
-            if (GUI.Button(hasSkill ? hud.EndTurnButton : new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height), HudText.EndTurnButton, hudButton)) game.WaitTurn();
+            var endTurn = !hasSkill && !IsPhoneViewport() ? new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height) : hud.EndTurnButton;
+            if (GUI.Button(endTurn, HudText.EndTurnButton, hudButton)) game.WaitTurn();
             GUI.enabled = true;
             DrawMessageBox(hud.Message);
         }
@@ -372,7 +374,8 @@ namespace Lanternfall
             bool hasSkill = game.SelectedSkill.HasValue;
             if (hasSkill && GUI.Button(hud.CancelButton, HudText.CancelSkillButton, hudButton)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
-            if (GUI.Button(hasSkill ? hud.EndTurnButton : new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height), HudText.EndTurnButton, hudButton)) game.WaitTurn();
+            var endTurn = !hasSkill && !IsPhoneViewport() ? new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height) : hud.EndTurnButton;
+            if (GUI.Button(endTurn, HudText.EndTurnButton, hudButton)) game.WaitTurn();
             GUI.enabled = true;
             DrawMessageBox(hud.Message);
         }
@@ -417,7 +420,9 @@ namespace Lanternfall
             {
                 DrawRect(chips[i], new Color(.08f, .075f, .13f));
                 DrawOutline(chips[i], i == 1 ? new Color(.92f, .68f, .22f) : i == 2 ? new Color(.35f, .88f, .95f) : new Color(.82f, .25f, .25f), 2);
-                GUI.Label(chips[i], values[i], hudChip);
+                float iconSize = Mathf.Min(chips[i].height * .42f, chips[i].width * .18f);
+                DrawIcon(new Rect(chips[i].x + 6, chips[i].center.y - iconSize * .5f, iconSize, iconSize), i == 0 ? VisualIcon.Health : i == 1 ? VisualIcon.ActionPoint : VisualIcon.MovementPoint);
+                GUI.Label(new Rect(chips[i].x + iconSize + 8, chips[i].y, chips[i].width - iconSize - 12, chips[i].height), values[i], hudChip);
             }
         }
 
@@ -526,6 +531,77 @@ namespace Lanternfall
         void DrawTileGlyph(Rect r, string glyph, Color color, float scale)
         {
             GUI.Label(r, glyph, new GUIStyle(center){fontSize = Mathf.Max(12, Mathf.RoundToInt(tile * scale)), fontStyle = FontStyle.Bold, normal = {textColor = color}});
+        }
+
+        void DrawUnitSymbol(Rect r, PlayerClassId? cls, string enemyGlyph, bool boss)
+        {
+            Color ink = new Color(.025f, .02f, .035f);
+            var icon = new Rect(r.x + r.width * .20f, r.y + r.height * .15f, r.width * .60f, r.height * .60f);
+            if (boss)
+            {
+                DrawOutline(new Rect(r.x + 3, r.y + 3, r.width - 6, r.height - 6), new Color(1f, .42f, .12f), Mathf.Max(2, tile * .025f));
+                DrawIcon(icon, VisualIcon.BossDanger, ink);
+                return;
+            }
+            if (cls.HasValue)
+            {
+                VisualIcon classIcon = cls.Value switch
+                {
+                    PlayerClassId.Vanguard => VisualIcon.Shield,
+                    PlayerClassId.Wayfinder => VisualIcon.Mark,
+                    PlayerClassId.Cantor => VisualIcon.Burn,
+                    PlayerClassId.Gloamstep => VisualIcon.MovementPoint,
+                    _ => VisualIcon.Prism
+                };
+                DrawIcon(icon, classIcon, ink);
+                return;
+            }
+            VisualIcon enemyIcon = enemyGlyph == "A" ? VisualIcon.Burn : enemyGlyph == "G" ? VisualIcon.Mark : VisualIcon.Shield;
+            DrawIcon(icon, enemyIcon, ink);
+        }
+
+        void DrawIcon(Rect r, VisualIcon icon) => DrawIcon(r, icon, IconLanguage.Describe(icon).Color);
+
+        void DrawIcon(Rect r, VisualIcon icon, Color color)
+        {
+            float u = Mathf.Max(1f, Mathf.Min(r.width, r.height) / 8f);
+            Rect P(float x, float y, float w, float h) => new(r.x + r.width * x, r.y + r.height * y, r.width * w, r.height * h);
+            void Bar(float x, float y, float w, float h) => DrawRect(P(x, y, w, h), color);
+            switch (icon)
+            {
+                case VisualIcon.Health: case VisualIcon.Heal: case VisualIcon.HealingPickup:
+                    Bar(.40f,.10f,.20f,.80f); Bar(.10f,.40f,.80f,.20f); break;
+                case VisualIcon.ActionPoint:
+                    Bar(.42f,.06f,.16f,.88f); Bar(.17f,.34f,.66f,.16f); Bar(.25f,.66f,.50f,.14f); break;
+                case VisualIcon.MovementPoint:
+                    Bar(.10f,.42f,.62f,.16f); Bar(.56f,.22f,.16f,.56f); Bar(.68f,.30f,.18f,.16f); Bar(.68f,.54f,.18f,.16f); break;
+                case VisualIcon.Shield:
+                    DrawOutline(P(.16f,.08f,.68f,.70f),color,u); Bar(.26f,.66f,.48f,.16f); Bar(.40f,.78f,.20f,.12f); break;
+                case VisualIcon.Burn: case VisualIcon.EmberVent:
+                    Bar(.42f,.08f,.18f,.34f); Bar(.25f,.34f,.50f,.48f); Bar(.39f,.54f,.22f,.36f); break;
+                case VisualIcon.Root: case VisualIcon.GraspingRoots:
+                    Bar(.43f,.08f,.14f,.84f); Bar(.18f,.32f,.64f,.14f); Bar(.16f,.68f,.30f,.14f); Bar(.54f,.54f,.30f,.14f); break;
+                case VisualIcon.Mark:
+                    DrawOutline(P(.12f,.12f,.76f,.76f),color,u); Bar(.42f,.02f,.16f,.28f); Bar(.42f,.70f,.16f,.28f); Bar(.02f,.42f,.28f,.16f); Bar(.70f,.42f,.28f,.16f); break;
+                case VisualIcon.ActionDrain:
+                    Bar(.18f,.18f,.48f,.16f); Bar(.42f,.18f,.16f,.54f); Bar(.18f,.56f,.48f,.16f); Bar(.70f,.42f,.24f,.16f); break;
+                case VisualIcon.MovementDrain:
+                    Bar(.10f,.42f,.54f,.16f); Bar(.50f,.26f,.16f,.48f); Bar(.70f,.42f,.24f,.16f); break;
+                case VisualIcon.ImmediateDanger:
+                    Bar(.42f,.10f,.16f,.54f); Bar(.42f,.76f,.16f,.16f); break;
+                case VisualIcon.DelayedDanger:
+                    DrawOutline(P(.12f,.12f,.76f,.76f),color,u); Bar(.46f,.22f,.12f,.34f); Bar(.46f,.50f,.28f,.12f); break;
+                case VisualIcon.BossDanger:
+                    DrawOutline(P(.05f,.05f,.90f,.90f),color,u); Bar(.20f,.18f,.14f,.25f); Bar(.66f,.18f,.14f,.25f); Bar(.43f,.28f,.14f,.48f); break;
+                case VisualIcon.BlockedLineOfSight:
+                    DrawOutline(P(.08f,.24f,.84f,.52f),color,u); Bar(.12f,.42f,.76f,.16f); Bar(.44f,.10f,.12f,.80f); break;
+                case VisualIcon.ShallowWater:
+                    Bar(.06f,.25f,.28f,.13f); Bar(.36f,.37f,.28f,.13f); Bar(.66f,.25f,.28f,.13f); Bar(.06f,.62f,.28f,.13f); Bar(.36f,.74f,.28f,.13f); Bar(.66f,.62f,.28f,.13f); break;
+                case VisualIcon.Prism:
+                    Bar(.44f,.05f,.12f,.90f); Bar(.18f,.42f,.64f,.14f); Bar(.26f,.20f,.14f,.60f); Bar(.60f,.20f,.14f,.60f); break;
+                case VisualIcon.ChargedFloor:
+                    Bar(.50f,.06f,.14f,.34f); Bar(.28f,.34f,.36f,.14f); Bar(.28f,.34f,.14f,.34f); Bar(.28f,.62f,.22f,.14f); Bar(.38f,.62f,.14f,.30f); break;
+            }
         }
 
         void DrawRect(Rect r, Color c)

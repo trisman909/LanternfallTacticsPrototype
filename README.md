@@ -45,6 +45,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5P - mobile HUD playability and threat clarity cleanup (complete)
 - Phase 5Q - real phone HUD readability and normal enemy AI regression fix (complete)
 - Phase 5Q.3 - mobile landscape-first HUD redesign (complete)
+- Phase 6C - visual language and lightweight icon foundation (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -146,6 +147,8 @@ Phase 6A focuses on mobile UX, tactical AI, and first-time polish without adding
 Phase 6B is a real iPhone landscape layout fix: phone landscape now uses explicit responsive modes and a stacked bottom command HUD, while the WebGL shell avoids `100vw` plus safe-area overflow so the board and HUD stay inside the visible iPhone browser viewport.
 
 Phase 6B.1 keeps that accepted layout and improves real-phone readability with larger mobile landscape HUD text, slightly taller stat/skill/action rows, and compact two-line skill labels.
+
+Phase 6C replaces repeated board text with a 20-icon, code-drawn visual language for stats, statuses, threats, blockers, healing, and all five biome hazards. Unit tokens gain class/enemy symbols and a distinct Lantern Warden frame without changing silhouettes, colors, gameplay, or the accepted Phase 6B.1 layouts. See [PLAYTEST_6C.md](PLAYTEST_6C.md).
 
 
 

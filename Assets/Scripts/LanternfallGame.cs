@@ -54,14 +54,14 @@ namespace Lanternfall
             "AP means Action Points for skills. MP means Movement Points for tile movement.",
             "Tap cyan tiles to move. Tap a skill, then tap a gold target to use it.",
             "Red tiles hit this turn. Purple intent tiles show AP/MP or delayed pressure.",
-            "Green HEAL tiles restore 3 HP when stepped on.",
+            "Green lantern-bloom icons restore 3 HP when stepped on.",
             "If a target is not gold, it is out of range, blocked, or not valid for that skill.",
             "After each cleared room, pick one blessing. Win or lose, Start New Run restarts."
         };
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6B.1: short WebGL/Windows playtest build.",
+            "Prototype v0.6C: visual-language WebGL/Windows playtest build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",

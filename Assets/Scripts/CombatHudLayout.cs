@@ -152,7 +152,8 @@ namespace Lanternfall
                 };
                 y += cardH + gap;
                 snap.CancelButton = new Rect(x, y, Mathf.Max(68f, w * .24f), phoneActionH);
-                snap.EndTurnButton = new Rect(snap.CancelButton.xMax + gap, y, Mathf.Max(118f, w - snap.CancelButton.width - gap), phoneActionH);
+                float endTurnW = Mathf.Max(180f, w * .48f);
+                snap.EndTurnButton = new Rect(x + (w - endTurnW) * .5f, y, endTurnW, phoneActionH);
                 snap.Message = new Rect(x, panel.yMax - 1f, w, 0f);
                 return snap;
             }

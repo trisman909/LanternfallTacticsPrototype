@@ -4,7 +4,7 @@ Playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
-Current visible build label: `Prototype v0.6B.1`.
+Current visible build label: `Prototype v0.6C`.
 
 This is a small prototype, not a finished game. Please note what confused you, what felt fun, and if anything broke.
 
@@ -24,7 +24,7 @@ This is a small prototype, not a finished game. Please note what confused you, w
 - Tap/click cyan tiles to move.
 - Tap/click a skill, then tap/click a gold target to use it.
 - Red tiles show where enemies will attack after `End Turn`.
-- A green `HEAL +3` heart tile is an optional Lantern bloom pickup that restores a small amount of HP.
+- A green lantern-bloom cross icon is an optional healing pickup that restores 3 HP; tap it for the exact rule.
 - Purple intent markers warn about delayed pressure, AP drain, or MP bind effects. Tap/check the tile and read the message panel for details.
 - If a tile is not highlighted, it is blocked, out of range, occupied, or invalid.
 - After clearing a room, choose one reward card.
