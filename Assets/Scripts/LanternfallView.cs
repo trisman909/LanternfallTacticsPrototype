@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6H";
+        public const string PrototypeVersion = "Prototype v0.6I";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -337,8 +337,6 @@ namespace Lanternfall
                 if(authored)DrawRect(r,VisualReadability.QuietEnvironmentOverlay(alternate?game.Theme.Alternate:game.Theme.Floor,game.HazardTiles.Contains(p)));
                 if (state != TileVisualState.Floor) DrawRect(r, new Color(c.r, c.g, c.b, VisualReadability.TacticalOverlayAlpha(state)));
                 DrawOutline(r, new Color(0f, 0f, 0f, .45f), Mathf.Max(1, tile * .035f));
-                if (!authored && !game.HazardTiles.Contains(p) && !game.ValidTargets.Contains(p))
-                    DrawTileGlyph(r, VisualReadability.FloorGlyph(game.Theme.Id, alternate), new Color(1f, 1f, 1f, .18f), .22f);
                 if (game.PreviewArea.Contains(p)) DrawOutline(r, new Color(1f, .84f, .32f), Mathf.Max(3, tile * .055f));
                 if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) DrawOutline(r, game.SelectedSkill.HasValue ? new Color(1f, .94f, .28f) : new Color(.36f, 1f, 1f), Mathf.Max(3, tile * .065f));
                 if (game.LastTappedTile == p) DrawOutline(r, Color.white, 3);
@@ -367,7 +365,7 @@ namespace Lanternfall
                 var r = TileRect(p, ox, oy, minX, maxY);
                 var propRect=new Rect(r.x+r.width*.14f,r.y+r.height*.14f,r.width*.72f,r.height*.72f);
                 if (!AuthoredBiomes.Draw(propRect, game.Theme.Id, AuthoredBiomes.PropCell(p),new Color(.82f,.82f,.82f)))
-                    DrawTileGlyph(r, game.Theme.PropGlyph, game.Theme.Accent, .34f);
+                    DrawIcon(propRect,VisualIcon.Obstacle);
             }
 
             if (game.HealingPickup.HasValue)
@@ -398,10 +396,10 @@ namespace Lanternfall
                 DrawIcon(new Rect(r.x + tile * .30f, r.y + tile * .26f, tile * .40f, tile * .48f), bossAttack ? VisualIcon.BossDanger : VisualIcon.ImmediateDanger);
             }
 
-            DrawToken(AnimatedPosition(game.Player, game.Player.Position), ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), VisualReadability.ClassGlyph(game.Player.ClassId), "", game.Player, true, false, game.Player.ClassId, null, game.HitTiles.Contains(game.Player.Position));
+            DrawToken(AnimatedPosition(game.Player, game.Player.Position), ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), "", game.Player, true, false, game.Player.ClassId, null, game.HitTiles.Contains(game.Player.Position));
             foreach (var e in game.Enemies.Where(e => e.Alive))
             {
-                DrawToken(AnimatedPosition(e, e.Position), ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), e.Shield > 0 ? $"{e.Health}+{e.Shield}" : $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden, null, e.Kind, game.HitTiles.Contains(e.Position));
+                DrawToken(AnimatedPosition(e, e.Position), ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), e.Shield > 0 ? $"{e.Health}+{e.Shield}" : $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden, null, e.Kind, game.HitTiles.Contains(e.Position));
                 var er = TileRect(e.Position, ox, oy, minX, maxY);
                 var badge = new Rect(er.xMax - tile * .32f, er.y + tile * .02f, tile * .28f, tile * .28f);
                 DrawRect(badge, new Color(.04f, .03f, .06f, .88f));
@@ -455,7 +453,7 @@ namespace Lanternfall
 
         Rect TileRect(Vector2Int p, float ox, float oy, int minX, int maxY) => new(ox + (p.x - minX) * tile, oy + (maxY - p.y) * tile, tile - 2, tile - 2);
 
-        void DrawToken(Vector2 p, float ox, float oy, int minX, int maxY, Color c, string glyph, string hp = "", UnitModel unit = null, bool player = false, bool boss = false, PlayerClassId? playerClass = null, EnemyKind? enemyKind = null, bool hit = false)
+        void DrawToken(Vector2 p, float ox, float oy, int minX, int maxY, Color c, string hp = "", UnitModel unit = null, bool player = false, bool boss = false, PlayerClassId? playerClass = null, EnemyKind? enemyKind = null, bool hit = false)
         {
             float size=VisualReadability.UnitTokenScale(boss),inset=(1f-size)*.5f;
             var r = new Rect(ox + (p.x - minX) * tile + tile * inset, oy + (maxY - p.y) * tile + tile * inset, tile * size, tile * size);
@@ -468,7 +466,7 @@ namespace Lanternfall
             if(boss)DrawOutline(new Rect(r.x-4,r.y-4,r.width+8,r.height+8),new Color(1f,.42f,.10f,.9f),Mathf.Max(2,tile*.035f));
             var spriteRect = new Rect(r.x+r.width*.01f,r.y+r.height*.01f,r.width*.98f,r.height*.98f);
             if (!AuthoredUnits.Draw(spriteRect, playerClass, enemyKind, AuthoredUnits.Tint(hit)))
-                DrawUnitSymbol(r, player ? game.Player.ClassId : (PlayerClassId?)null, glyph, boss);
+                DrawUnitSymbol(r, playerClass, enemyKind, boss);
             if (boss && unit is EnemyModel bossUnit && AuthoredUnits.IsOverchargedBoss(bossUnit))
             {
                 DrawOutline(new Rect(r.x - 5, r.y - 5, r.width + 10, r.height + 10), new Color(1f, .22f, .78f), Mathf.Max(2, tile * .035f));
@@ -702,12 +700,7 @@ namespace Lanternfall
             DrawOutline(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), accent, 2);
         }
 
-        void DrawTileGlyph(Rect r, string glyph, Color color, float scale)
-        {
-            GUI.Label(r, glyph, new GUIStyle(center){fontSize = Mathf.Max(12, Mathf.RoundToInt(tile * scale)), fontStyle = FontStyle.Bold, normal = {textColor = color}});
-        }
-
-        void DrawUnitSymbol(Rect r, PlayerClassId? cls, string enemyGlyph, bool boss)
+        void DrawUnitSymbol(Rect r, PlayerClassId? cls, EnemyKind? enemyKind, bool boss)
         {
             Color ink = new Color(.025f, .02f, .035f);
             var icon = new Rect(r.x + r.width * .20f, r.y + r.height * .15f, r.width * .60f, r.height * .60f);
@@ -730,7 +723,7 @@ namespace Lanternfall
                 DrawIcon(icon, classIcon, ink);
                 return;
             }
-            VisualIcon enemyIcon = enemyGlyph == "A" ? VisualIcon.Burn : enemyGlyph == "G" ? VisualIcon.Mark : VisualIcon.Shield;
+            VisualIcon enemyIcon = enemyKind == EnemyKind.Ashling ? VisualIcon.Burn : enemyKind == EnemyKind.GloomArcher ? VisualIcon.Mark : VisualIcon.Shield;
             DrawIcon(icon, enemyIcon, ink);
         }
 

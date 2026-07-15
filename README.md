@@ -51,6 +51,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 6F - authored five-biome environment pass (complete)
 - Phase 6G - lightweight combat effects and animation pass (complete)
 - Phase 6H - visual readability and art-direction polish (complete)
+- Phase 6I - presentation integration and cleanup (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -164,6 +165,8 @@ Phase 6F replaces procedural board surfaces and prop glyphs with five compact or
 Phase 6G adds a presentation-only combat-effects layer: short unit interpolation, movement trails, destination pulses, action-family attack cues, status auras, death fades, threat breathing, and room/outcome banners. A persisted Full/Reduced Motion toggle is available in How to Play. The layer uses existing IMGUI primitives and cached art, with no particles, shaders, gameplay waits, or balance changes. See [EFFECTS_6G.md](EFFECTS_6G.md).
 
 Phase 6H is a strict readability and art-direction polish pass. Biome atlases are reused under a 36% muted veil, alternate patterns and props are sparser, unit tokens are roughly 14% larger, player/boss silhouettes receive stronger framing, tactical overlays gain priority, and HUD ornament is restrained through consistent tinting. No content, effects, mechanics, maps, shaders, particles, animations, or gameplay systems were added. See [READABILITY_6H.md](READABILITY_6H.md).
+
+Phase 6I integrates and cleans the complete presentation stack. Obsolete letter, prop-glyph, floor-glyph, and mojibake fallbacks are removed; reliability fallbacks now use the authored icon language. First-time instructions explicitly cover hero identity, movement, selected skills, enemy HP/AP/MP intent, danger timing, End Turn, rewards, and boss Phase 2. The WebGL shell gains a themed loading card and landscape install manifest. See [INTEGRATION_6I.md](INTEGRATION_6I.md).
 
 
 

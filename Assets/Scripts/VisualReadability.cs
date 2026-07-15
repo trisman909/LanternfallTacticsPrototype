@@ -42,55 +42,6 @@ namespace Lanternfall
             _ => Color.red
         };
 
-        public static string ClassGlyph(PlayerClassId id) => id switch
-        {
-            PlayerClassId.Vanguard => "S",
-            PlayerClassId.Wayfinder => "B",
-            PlayerClassId.Cantor => "F",
-            PlayerClassId.Gloamstep => "D",
-            PlayerClassId.Artificer => "L",
-            _ => "*"
-        };
-
-        public static string EnemyGlyph(EnemyKind kind) => kind switch
-        {
-            EnemyKind.Ashling => "A",
-            EnemyKind.GloomArcher => "G",
-            EnemyKind.StoneSentinel => "S",
-            EnemyKind.LanternWarden => "W",
-            _ => "?"
-        };
-
-        public static string HazardGlyph(HazardKind hazard) => hazard switch
-        {
-            HazardKind.ShallowWater => "~",
-            HazardKind.Prism => "<>",
-            HazardKind.EmberVent => "!",
-            HazardKind.GraspingRoots => "#",
-            HazardKind.ChargedFloor => "Z",
-            _ => "!"
-        };
-
-        public static string FloorGlyph(BiomeId id, bool alternate) => id switch
-        {
-            BiomeId.DrownedNarthex => alternate ? "≈" : "·",
-            BiomeId.SiltglassObservatory => alternate ? "◇" : "·",
-            BiomeId.EmberOssuary => alternate ? "⌁" : "·",
-            BiomeId.GloamOrchard => alternate ? "✣" : "·",
-            BiomeId.StormvaultFoundry => alternate ? "═" : "·",
-            _ => "·"
-        };
-
-        public static string StatusGlyph(UnitModel unit)
-        {
-            string glyphs = "";
-            if (unit.Shield > 0) glyphs += "□";
-            if (unit.BurnTurns > 0) glyphs += "•";
-            if (unit.RootTurns > 0) glyphs += "×";
-            if (unit.MarkedTurns > 0) glyphs += "◇";
-            return glyphs;
-        }
-
         public static float Contrast(Color a, Color b) => Mathf.Abs(Luminance(a) - Luminance(b));
 
         public static Color QuietEnvironmentOverlay(Color biomeColor,bool hazard=false)

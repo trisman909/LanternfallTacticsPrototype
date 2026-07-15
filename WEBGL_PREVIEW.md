@@ -62,7 +62,7 @@ The build is configured for simple static hosting:
 - iPhone Safari may behave differently from desktop browsers; physical-device testing is still needed.
 - GitHub Pages must be enabled manually from repository settings before the public URL can be claimed as live.
 - Full iPhone app testing still requires Unity iOS Build Support, a Mac, and Xcode.
-- The prototype uses placeholder IMGUI/code-driven visuals.
+- The prototype uses original authored icon, UI, unit, and biome atlases with a lightweight IMGUI presentation layer. Art remains production-placeholder quality and is documented by milestone.
 - Audio and final art are not part of this preview milestone.
 
 ## GitHub Pages troubleshooting

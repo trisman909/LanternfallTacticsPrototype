@@ -1,0 +1,12 @@
+{
+  "name": "Lanternfall Tactics",
+  "short_name": "Lanternfall",
+  "description": "A compact dark-fantasy turn-based tactics prototype.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#05040b",
+  "theme_color": "#b9832d",
+  "icons": [{"src": "TemplateData/favicon.ico", "sizes": "any", "type": "image/x-icon"}]
+}

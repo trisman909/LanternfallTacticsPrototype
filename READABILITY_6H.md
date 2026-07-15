@@ -4,7 +4,7 @@ Phase 6H is a presentation polish pass only. It adds no enemies, classes, props,
 
 ## Readability hierarchy
 
-The intended scan order is player → enemies → danger/targets → board → background.
+The intended scan order is player > enemies > danger/targets > board > background.
 
 - Environment: every authored floor tile is blended toward a slightly desaturated biome colour at 36% opacity, reducing local texture contrast by roughly 36% while keeping each realm's palette. Hazards use an 18% veil so their identity remains clear.
 - Patterns: alternate floor art appears on about one quarter of tiles rather than every other tile, avoiding a strong checkerboard rhythm.

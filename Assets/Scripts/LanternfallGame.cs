@@ -51,17 +51,17 @@ namespace Lanternfall
         public static readonly string[] HowToPlayLines =
         {
             "Goal: clear four rooms, then defeat the Lantern Warden in room five.",
-            "AP means Action Points for skills. MP means Movement Points for tile movement.",
-            "Tap cyan tiles to move. Tap a skill, then tap a gold target to use it.",
-            "Red tiles hit this turn. Purple intent tiles show AP/MP or delayed pressure.",
+            "You control the bright cyan-white framed hero. AP fuels skills; MP fuels movement.",
+            "Tap cyan to move. Tap a skill, then a gold target. End Turn lets enemies act.",
+            "Red hits now. Purple is delayed or AP/MP pressure; its icon names the resource.",
             "Green lantern-bloom icons restore 3 HP when stepped on.",
             "If a target is not gold, it is out of range, blocked, or not valid for that skill.",
-            "After each cleared room, pick one blessing. Win or lose, Start New Run restarts."
+            "Pick one blessing after each room. A magenta boss frame and banner signal Phase 2."
         };
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6H: visual-readability and art-direction polish build.",
+            "Prototype v0.6I: presentation integration and cleanup build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
