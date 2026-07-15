@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6J";
+        public const string PrototypeVersion = "Prototype v0.6K";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -325,6 +325,7 @@ namespace Lanternfall
                 bool alternate = Mathf.Abs(p.x * 3 + p.y * 5) % 4 == 0;
                 TileVisualState state = TileVisualState.Floor;
                 if (game.HazardTiles.Contains(p)) state = game.ArmedHazards.Contains(p) ? TileVisualState.ArmedHazard : TileVisualState.Hazard;
+                if (game.ArmedHazardDamageTiles.Contains(p)) state = TileVisualState.ArmedHazard;
                 if (game.Enemies.Any(e => e.Alive && e.Preview.Contains(p))) state = TileVisualState.EnemyPreview;
                 if (game.PreviewArea.Contains(p)) state = TileVisualState.AreaPreview;
                 if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) state = game.SelectedSkill.HasValue ? TileVisualState.SkillTarget : TileVisualState.MoveTarget;
@@ -352,6 +353,7 @@ namespace Lanternfall
                 }
                 DrawOutline(r, new Color(0f, 0f, 0f, .45f), Mathf.Max(1, tile * .035f));
                 if(game.SelectedSkill.HasValue&&game.BlockedSkillTiles.Contains(p))DrawOutline(r,new Color(.72f,.66f,.58f,.72f),Mathf.Max(2,tile*.035f));
+                if(game.SelectedSkill.HasValue&&game.PotentialImpactTiles.Contains(p)&&!game.ValidTargets.Contains(p))DrawOutline(r,new Color(1f,.48f,.10f,.82f),Mathf.Max(2,tile*.045f));
                 if (game.PreviewArea.Contains(p)) DrawOutline(r, new Color(1f, .84f, .32f), Mathf.Max(3, tile * .055f));
                 if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) DrawOutline(r, game.SelectedSkill.HasValue ? new Color(1f, .94f, .28f) : new Color(.36f, 1f, 1f), Mathf.Max(3, tile * .065f));
                 if (game.LastTappedTile == p) DrawOutline(r, Color.white, 3);
@@ -416,6 +418,12 @@ namespace Lanternfall
             }
 
             DrawToken(AnimatedPosition(game.Player, game.Player.Position), ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), "", game.Player, true, false, game.Player.ClassId, null, game.HitTiles.Contains(game.Player.Position));
+            if(game.PlayerBiomeEffectActive)
+            {
+                var playerTile=TileRect(game.Player.Position,ox,oy,minX,maxY);
+                DrawOutline(playerTile,game.Theme.WarningColor,Mathf.Max(4,tile*.08f));
+                DrawIcon(new Rect(playerTile.x+tile*.04f,playerTile.y+tile*.04f,tile*.24f,tile*.24f),IconLanguage.ForHazard(game.Theme.Hazard));
+            }
             foreach (var e in game.Enemies.Where(e => e.Alive))
             {
                 DrawToken(AnimatedPosition(e, e.Position), ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), e.Shield > 0 ? $"{e.Health}+{e.Shield}" : $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden, null, e.Kind, game.HitTiles.Contains(e.Position));

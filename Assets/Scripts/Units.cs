@@ -79,6 +79,7 @@ namespace Lanternfall
         public int BossPhaseAnnounced;
         public Vector2Int? PreviousPosition;
         public Vector2Int? CommittedDestination;
+        public int NoProgressTurns;
         public EnemyModel(EnemyKind kind, Vector2Int position)
         {
             Kind = kind; Position = position;

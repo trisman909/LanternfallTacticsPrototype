@@ -91,7 +91,7 @@ namespace Lanternfall
 
         public static Rect HazardIconRect(Rect tileRect)
         {
-            float inset=Mathf.Min(tileRect.width,tileRect.height)*.09f;
+            float inset=Mathf.Min(tileRect.width,tileRect.height)*.16f;
             return new Rect(tileRect.x+inset,tileRect.y+inset,tileRect.width-inset*2f,tileRect.height-inset*2f);
         }
 

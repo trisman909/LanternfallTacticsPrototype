@@ -33,9 +33,11 @@ namespace Lanternfall
         public HashSet<Vector2Int> SkillRangeTiles { get; private set; } = new();
         public HashSet<Vector2Int> BlockedSkillTiles { get; private set; } = new();
         public HashSet<Vector2Int> OutOfRangeSkillTiles { get; private set; } = new();
+        public HashSet<Vector2Int> PotentialImpactTiles { get; private set; } = new();
         public BiomeTheme Theme { get; private set; }
         public HashSet<Vector2Int> HazardTiles { get; private set; } = new();
         public HashSet<Vector2Int> ArmedHazards { get; private set; } = new();
+        public HashSet<Vector2Int> ArmedHazardDamageTiles => Grid==null||Theme==null?new HashSet<Vector2Int>():BiomeRules.HazardDamageTiles(Theme,Grid,ArmedHazards);
         public HashSet<Vector2Int> PropTiles { get; private set; } = new();
         public HashSet<Vector2Int> BlockerTiles { get; private set; } = new();
         public Vector2Int? HealingPickup { get; private set; }
@@ -64,7 +66,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6J: coordinated squad AI and contained hazard pieces.",
+            "Prototype v0.6K: telegraph-accurate combat and fairness polish.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -174,9 +176,10 @@ namespace Lanternfall
                     ? $"{NameOf(e.Kind)}: {e.IntentLabel} {(e.Preview.Contains(p) ? $"now for {e.AttackDamage} damage" : "next turn")} - {EnemyAI.BossPhaseSummary(e)}"
                     : $"{NameOf(e.Kind)}: {ThreatReadability.ThreatName(e.Threat)} {(e.Preview.Contains(p) ? "now" : "next turn")}")
                 .Distinct()
-                .ToArray();
-            if (details.Length > 0) return string.Join(" | ", details);
-            if (HazardTiles.Contains(p)) return $"{Theme.HazardName}: {Theme.HazardRule}";
+                .ToList();
+            if (ArmedHazardDamageTiles.Contains(p)) details.Add($"ARMED {Theme.HazardName}: this tile takes 2 damage after End Turn.");
+            else if (HazardTiles.Contains(p)) details.Add($"{Theme.HazardName}: {Theme.HazardRule}");
+            if(details.Count>0)return string.Join(" | ",details);
             if (HealingPickup.HasValue && HealingPickup.Value == p) return "Lantern bloom: step here to heal 3 HP.";
             if (BlockerTiles.Contains(p)) return "Blocker: blocks movement and line of sight.";
             return "";
@@ -186,6 +189,8 @@ namespace Lanternfall
             : Enemies.Any(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)) ? "WARNING: enemy intent targets your AP/MP or next tile" : "Safe tile - red spaces strike after End Turn";
         public bool HasFocusTile => LastTappedTile.HasValue;
         public string FocusThreatSummary => ThreatDetailAt(LastTappedTile ?? Player.Position);
+        public bool PlayerBiomeEffectActive=>Player!=null&&HazardTiles.Contains(Player.Position);
+        public string PlayerBiomeEffectSummary=>PlayerBiomeEffectActive?$"ACTIVE {Theme.HazardName}: {Theme.HazardRule}":"";
 
         public void SelectSkill(SkillId id)
         {
@@ -237,7 +242,8 @@ namespace Lanternfall
             RefreshTargets();
             RefreshPreviews();
             string pickup = TryCollectHealingPickup(p);
-            Message = !string.IsNullOrEmpty(pickup) ? pickup : Player.MovementPoints > 0 ? $"Moved {cost}. MP {Player.MovementPoints}/{Player.MoveRange}." : "No MP left. Use AP or End Turn.";
+            string biome=PlayerBiomeEffectActive?$" ENTERED {Theme.HazardName.ToUpper()}: {Theme.HazardRule}.":"";
+            Message = !string.IsNullOrEmpty(pickup) ? pickup : Player.MovementPoints > 0 ? $"Moved {cost}. MP {Player.MovementPoints}/{Player.MoveRange}.{biome}" : $"No MP left. Use AP or End Turn.{biome}";
             Changed?.Invoke();
         }
 
@@ -377,11 +383,14 @@ namespace Lanternfall
 
         IEnumerator EnemyTurn()
         {
+            var committedTelegraphs=Enemies.Where(e=>e.Alive).ToDictionary(e=>e,e=>new HashSet<Vector2Int>(e.Preview.Concat(e.DelayedPreview)));
+            var committedHazardTelegraph=new HashSet<Vector2Int>(ArmedHazardDamageTiles);
             Changed?.Invoke();
             yield return new WaitForSeconds(.35f);
-            ResolveArmedHazards();
+            ResolveArmedHazards(committedHazardTelegraph);
             if (!Player.Alive){Turns.Lose(); RecordProgress(); Message = "DEFEAT - your lantern is extinguished. Start New Run to retry."; Changed?.Invoke(); yield break;}
 
+            foreach(var stalled in Enemies.Where(e=>e.Alive&&e.NoProgressTurns>=2)){stalled.PreviousPosition=null;stalled.CommittedDestination=null;}
             var squadPlan=EnemyAI.BuildSquadPlan(Enemies,Player.Position,Grid,q=>Occupied(q)||q==Player.Position,p=>HazardTiles.Contains(p),p=>BiomeRules.EnemyTraversalCost(Theme,p,HazardTiles));
 
             foreach (var e in Enemies.Where(x => x.Alive).ToList())
@@ -398,13 +407,17 @@ namespace Lanternfall
                 }
                 if (e.Preview.Contains(Player.Position))
                 {
-                    Player.Damage(e.AttackDamage);
-                    HitTiles.Add(Player.Position);
-                    Message = $"{NameOf(e.Kind)} strikes your tile for {e.AttackDamage}.";
+                    if(TryDealTelegraphedDamage(NameOf(e.Kind),e.AttackDamage,committedTelegraphs[e]))
+                    {
+                        e.NoProgressTurns=0;
+                        HitTiles.Add(Player.Position);
+                        Message = $"{NameOf(e.Kind)} resolves its visible attack for {e.AttackDamage}.";
+                    }
                 }
                 else if (e.DelayedPreview.Contains(Player.Position))
                 {
-                    ApplyIntentPressure(e);
+                    ApplyIntentPressureCommitted(e,committedTelegraphs[e]);
+                    e.NoProgressTurns=0;
                     HitTiles.Add(Player.Position);
                     Message = $"{NameOf(e.Kind)} triggers {e.IntentLabel}.";
                 }
@@ -414,18 +427,14 @@ namespace Lanternfall
                     var next = squadPlan.DestinationFor(e);
                     if (next != e.Position)
                     {
+                        e.NoProgressTurns=0;
                         e.PreviousPosition=before;
                         e.CommittedDestination=next;
                         e.Position = next;
                         EnemyAI.AssignIntent(e,Player.Position,Grid);
                     }
-                    if(e.Preview.Contains(Player.Position))
-                    {
-                        Player.Damage(e.AttackDamage);
-                        HitTiles.Add(Player.Position);
-                        Message=$"{NameOf(e.Kind)} commits and strikes for {e.AttackDamage}.";
-                    }
-                    else Message = next == before ? $"{NameOf(e.Kind)} holds a threatening angle." : $"{NameOf(e.Kind)} commits toward your position.";
+                    else e.NoProgressTurns++;
+                    Message = next == before ? $"{NameOf(e.Kind)} holds a threatening angle." : e.Preview.Contains(Player.Position) ? $"{NameOf(e.Kind)} advances; its new attack is telegraphed for next End Turn." : $"{NameOf(e.Kind)} commits toward your position.";
                 }
                 else Message = $"{NameOf(e.Kind)} is rooted.";
                 Changed?.Invoke();
@@ -470,10 +479,13 @@ namespace Lanternfall
                 if(def.Effect==SkillEffect.SelfShield)SkillRangeTiles=new HashSet<Vector2Int>{Player.Position};
                 BlockedSkillTiles=SkillRangeTiles.Where(p=>!ValidTargets.Contains(p)).Concat(BlockerTiles.Where(p=>Manhattan(Player.Position,p)<=range)).ToHashSet();
                 OutOfRangeSkillTiles=Grid.Floors().Where(p=>Manhattan(Player.Position,p)>range).ToHashSet();
+                PotentialImpactTiles=def.Effect==SkillEffect.AreaBurn||def.Effect==SkillEffect.DelayedArea
+                    ?ValidTargets.SelectMany(p=>SkillBook.AffectedTiles(Grid,p,def)).ToHashSet()
+                    :new HashSet<Vector2Int>(ValidTargets);
             }
             else
             {
-                SkillRangeTiles.Clear(); BlockedSkillTiles.Clear(); OutOfRangeSkillTiles.Clear();
+                SkillRangeTiles.Clear(); BlockedSkillTiles.Clear(); OutOfRangeSkillTiles.Clear(); PotentialImpactTiles.Clear();
                 ValidTargets = Grid.Reachable(Player.Position, BiomeRules.MoveRange(Player, Theme, HazardTiles), Occupied)
                     .Where(p => Grid.ShortestPath(Player.Position, p, Occupied).Count <= Player.MovementPoints)
                     .ToHashSet();
@@ -485,9 +497,11 @@ namespace Lanternfall
             foreach (var e in Enemies.Where(x => x.Alive)) EnemyAI.AssignIntent(e, Player.Position, Grid);
         }
 
-        void ApplyIntentPressure(EnemyModel e)
+        void ApplyIntentPressure(EnemyModel e)=>ApplyIntentPressureCommitted(e,e.DelayedPreview);
+
+        void ApplyIntentPressureCommitted(EnemyModel e,ISet<Vector2Int> committedTelegraph)
         {
-            if(e.Threat==ThreatKind.HP)Player.Damage(e.AttackDamage);
+            if(e.Threat==ThreatKind.HP)TryDealTelegraphedDamage(NameOf(e.Kind),e.AttackDamage,committedTelegraph);
             if (e.Threat == ThreatKind.AP || e.Threat == ThreatKind.Mixed) pendingApDrain += e.Kind == EnemyKind.LanternWarden ? 2 : 1;
             if (e.Threat == ThreatKind.MP || e.Threat == ThreatKind.Mixed) pendingMpDrain += 1;
         }
@@ -520,12 +534,17 @@ namespace Lanternfall
             ArmedHazards = BiomeRules.IsDelayedDamage(Theme) ? new HashSet<Vector2Int>(HazardTiles) : new HashSet<Vector2Int>();
         }
 
-        void ResolveArmedHazards()
+        bool TryDealTelegraphedDamage(string source,int damage,ISet<Vector2Int> telegraphedTiles)
+        {
+            if(damage<=0||!CombatTelegraphValidator.AllowsDamage(source,Player.Position,telegraphedTiles))return false;
+            Player.Damage(damage); return true;
+        }
+
+        void ResolveArmedHazards(ISet<Vector2Int> committedTelegraph=null)
         {
             int playerDamage = BiomeRules.HazardDamage(Theme, Player.Position, ArmedHazards);
-            if (playerDamage > 0)
+            if (playerDamage > 0&&TryDealTelegraphedDamage(Theme.HazardName,playerDamage,committedTelegraph??ArmedHazardDamageTiles))
             {
-                Player.Damage(playerDamage);
                 HitTiles.Add(Player.Position);
                 Message = Theme.Hazard == HazardKind.EmberVent ? "An ember vent erupts for 2 damage." : "Charged plates arc for 2 damage.";
             }

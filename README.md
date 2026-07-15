@@ -54,6 +54,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 6I - presentation integration and cleanup (complete)
 - Phase 6I.2 - gameplay polish, AI fixes, hazard audit, and range readability (complete)
 - Phase 6J - group AI coordination and hazard containment polish (complete)
+- Phase 6K - combat fairness, telegraph accuracy, and gameplay readability (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -173,6 +174,8 @@ Phase 6I integrates and cleans the complete presentation stack. Obsolete letter,
 Phase 6I.2 keeps the existing content while making its rules more predictable. Skill selection always exposes maximum reach, legal targets, blocked spaces, and out-of-range floor. Enemies use deterministic hazard costs, remember their previous position, commit toward useful destinations, and attack after repositioning when the player is in range. Hazard timing, procedural connectivity, and the widened late-phase boss telegraph are covered by regression tests. See [GAMEPLAY_POLISH_6I.md](GAMEPLAY_POLISH_6I.md).
 
 Phase 6J plans each enemy turn as a coordinated squad. Role-ordered destination and attack reservations prevent collisions, reward distinct flanks and uncovered escape pressure, keep archers separated behind the front line, and limit adjacent escape denial to preserve fairness. Hazard icons retain an 82% footprint with equal padding and an explicit tile clip. See [AI_COORDINATION_6J.md](AI_COORDINATION_6J.md).
+
+Phase 6K makes the combat pipeline fail closed against invisible damage. Enemy and hazard telegraphs are snapshotted when End Turn is pressed; every player HP loss is validated against that committed tile set. Same-turn move-and-hit is removed, charged-floor splash tiles are visibly armed, hazards use a quieter 68% footprint, area skills expose their potential impact, and active biome effects receive an explicit player frame and message. See [COMBAT_FAIRNESS_6K.md](COMBAT_FAIRNESS_6K.md).
 
 
 

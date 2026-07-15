@@ -58,5 +58,17 @@ namespace Lanternfall
             if(theme.Hazard==HazardKind.ChargedFloor) foreach(var h in armed)if(Mathf.Abs(h.x-position.x)+Mathf.Abs(h.y-position.y)<=1)return 2;
             return 0;
         }
+
+        public static HashSet<Vector2Int> HazardDamageTiles(BiomeTheme theme,GridModel grid,ISet<Vector2Int> armed)
+        {
+            var result=new HashSet<Vector2Int>();
+            if(!IsDelayedDamage(theme))return result;
+            foreach(var tile in armed)
+            {
+                if(grid.IsFloor(tile))result.Add(tile);
+                if(theme.Hazard==HazardKind.ChargedFloor)foreach(var neighbor in grid.Neighbors(tile))result.Add(neighbor);
+            }
+            return result;
+        }
     }
 }

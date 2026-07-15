@@ -162,7 +162,7 @@ namespace Lanternfall
                 else score-=routeCost*2;
                 bool hasLine = c.x == player.x || c.y == player.y;
                 bool lineClear = hasLine && SkillBook.HasLineOfSight(grid, c, player);
-                if (preview.Contains(player)) score += 120;
+                if (preview.Contains(player)) score += 150;
                 score += preview.Count(escapeTiles.Contains) * 10;
                 score += delayed.Count(escapeTiles.Contains) * 5;
                 if(reservedAttackTiles!=null)
@@ -215,6 +215,8 @@ namespace Lanternfall
                 if (hazard != null && hazard(c)) score -= Mathf.Max(1,(traversalCost?.Invoke(c)??2)-1)*12;
                 if(e.PreviousPosition.HasValue&&c==e.PreviousPosition.Value&&!preview.Contains(player))score-=90;
                 if(e.CommittedDestination.HasValue&&c==e.CommittedDestination.Value)score+=12;
+                if(e.NoProgressTurns>0&&e.Kind!=EnemyKind.GloomArcher)score+=(startDistance-distance)*12;
+                if(e.NoProgressTurns>=2&&c==e.Position&&!preview.Contains(player))score-=100;
                 if (c == e.Position && !preview.Contains(player)) score -= 30;
                 if (score > bestScore || score == bestScore && BetterTieBreak(c, best, player, e.Position, grid, e))
                 {
