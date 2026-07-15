@@ -66,7 +66,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6K: telegraph-accurate combat and fairness polish.",
+            "Prototype v0.6K.1: tactical clarity and environmental hazard polish.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",

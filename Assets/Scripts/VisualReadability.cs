@@ -44,7 +44,14 @@ namespace Lanternfall
 
         public static float Contrast(Color a, Color b) => Mathf.Abs(Luminance(a) - Luminance(b));
 
-        public static Color EnvironmentTextureTint(BiomeId biome)=>biome==BiomeId.SiltglassObservatory?new Color(.42f,.42f,.42f):Color.white;
+        public static Color EnvironmentTextureTint(BiomeId biome)=>biome==BiomeId.SiltglassObservatory?new Color(.38f,.38f,.38f):new Color(.88f,.88f,.88f);
+
+        public static Color EnvironmentalHazardTint(BiomeTheme theme)
+        {
+            float grey=Luminance(theme.HazardColor);
+            Color graded=Color.Lerp(theme.HazardColor,new Color(grey,grey,grey),.32f);
+            return new Color(graded.r*.70f,graded.g*.70f,graded.b*.70f,.92f);
+        }
 
         public static float EnvironmentQuietingAlpha(BiomeId biome)=>biome switch
         {
@@ -89,9 +96,9 @@ namespace Lanternfall
 
         public static float UnitTokenScale(bool player,bool boss)=>boss ? .99f : player ? .98f : .96f;
 
-        public static Rect HazardIconRect(Rect tileRect)
+        public static Rect EnvironmentalHazardRect(Rect tileRect)
         {
-            float inset=Mathf.Min(tileRect.width,tileRect.height)*.16f;
+            float inset=Mathf.Min(tileRect.width,tileRect.height)*.03f;
             return new Rect(tileRect.x+inset,tileRect.y+inset,tileRect.width-inset*2f,tileRect.height-inset*2f);
         }
 

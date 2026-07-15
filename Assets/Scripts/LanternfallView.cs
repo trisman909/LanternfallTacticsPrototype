@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6K";
+        public const string PrototypeVersion = "Prototype v0.6K.1";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -332,9 +332,14 @@ namespace Lanternfall
                 if (game.HitTiles.Contains(p)) state = TileVisualState.Hit;
                 Color c = VisualReadability.TileColor(game.Theme, state, alternate);
                 DrawRect(r, alternate ? game.Theme.Alternate : game.Theme.Floor);
-                BiomeArtCell artCell = game.HazardTiles.Contains(p) ? BiomeArtCell.Hazard : alternate ? BiomeArtCell.Alternate : BiomeArtCell.Floor;
-                if (game.RoomNumber == 5 && !game.HazardTiles.Contains(p) && Mathf.Abs(p.x * 13 + p.y * 7) % 11 == 0) artCell = BiomeArtCell.BossAccent;
+                BiomeArtCell artCell = alternate ? BiomeArtCell.Alternate : BiomeArtCell.Floor;
+                if (game.RoomNumber == 5 && !game.HazardTiles.Contains(p) && Mathf.Abs(p.x * 13 + p.y * 7) % 17 == 0) artCell = BiomeArtCell.BossAccent;
                 bool authored = AuthoredBiomes.Draw(r, game.Theme.Id, artCell, VisualReadability.EnvironmentTextureTint(game.Theme.Id));
+                if(game.HazardTiles.Contains(p))
+                {
+                    var hazardRect=VisualReadability.EnvironmentalHazardRect(r);
+                    AuthoredBiomes.Draw(hazardRect,game.Theme.Id,BiomeArtCell.Hazard,VisualReadability.EnvironmentalHazardTint(game.Theme));
+                }
                 if(authored)
                 {
                     DrawRect(r,VisualReadability.QuietEnvironmentOverlay(game.Theme,game.HazardTiles.Contains(p)));
@@ -343,8 +348,10 @@ namespace Lanternfall
                 }
                 if (state != TileVisualState.Floor)
                 {
-                    DrawRect(r,new Color(.01f,.012f,.018f,game.HazardTiles.Contains(p) ? .10f : .22f));
-                    DrawRect(r, new Color(c.r, c.g, c.b, VisualReadability.TacticalOverlayAlpha(state)));
+                    DrawRect(r,new Color(.01f,.012f,.018f,game.HazardTiles.Contains(p) ? (game.SelectedSkill.HasValue?.22f:.12f) : .22f));
+                    float overlayAlpha=VisualReadability.TacticalOverlayAlpha(state);
+                    if(game.SelectedSkill.HasValue&&state==TileVisualState.EnemyPreview)overlayAlpha*=.38f;
+                    DrawRect(r, new Color(c.r, c.g, c.b, overlayAlpha));
                 }
                 if(game.SelectedSkill.HasValue&&!game.ValidTargets.Contains(p))
                 {
@@ -374,11 +381,7 @@ namespace Lanternfall
             foreach (var p in game.HazardTiles)
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
-                var iconRect=VisualReadability.HazardIconRect(r);
-                GUI.BeginClip(r);
-                DrawIcon(new Rect(iconRect.x-r.x,iconRect.y-r.y,iconRect.width,iconRect.height),IconLanguage.ForHazard(game.Theme.Hazard));
-                GUI.EndClip();
-                DrawOutline(r, game.ArmedHazards.Contains(p) ? Color.white : game.Theme.Accent, Mathf.Max(2, tile * .045f));
+                if(game.ArmedHazards.Contains(p))DrawOutline(r,Color.white,Mathf.Max(2,tile*.045f));
             }
 
             foreach (var p in game.PropTiles)
@@ -398,24 +401,13 @@ namespace Lanternfall
                 DrawIcon(new Rect(r.x + tile * .34f, r.y + tile * .34f, tile * .30f, tile * .30f), VisualIcon.HealingPickup);
             }
 
-            foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.DelayedPreview).Distinct())
-            {
-                var r = TileRect(p, ox, oy, minX, maxY);
-                var threat = game.ThreatKindAt(p);
-                DrawOutline(r, new Color(.72f, .30f, .90f, .82f), Mathf.Max(2, tile * .035f));
-                DrawIcon(new Rect(r.x + tile * .35f, r.y + tile * .35f, tile * .26f, tile * .26f), threat == ThreatKind.HP ? VisualIcon.DelayedDanger : IconLanguage.ForThreat(threat));
-            }
+            var delayedTiles=game.Enemies.Where(e=>e.Alive).SelectMany(e=>e.DelayedPreview).ToHashSet();
+            DrawMergedThreatBoundary(delayedTiles,ox,oy,minX,maxY,new Color(.56f,.24f,.68f,game.SelectedSkill.HasValue?.12f:.30f),Mathf.Max(1,tile*.025f));
 
-            foreach (var p in game.Enemies.Where(e => e.Alive).SelectMany(e => e.Preview).Distinct())
-            {
-                var r = TileRect(p, ox, oy, minX, maxY);
-                bool bossAttack = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && e.Preview.Contains(p));
-                bool heavyBoss = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && EnemyAI.BossPhase(e) >= 3 && e.Preview.Contains(p));
-                float cue = PresentationMotion.Reduced ? .82f : .68f + Mathf.Sin(Time.unscaledTime * 7f) * .18f;
-                Color cueColor = bossAttack ? new Color(1f, .54f, .12f, cue) : new Color(1f, .20f, .18f, cue);
-                DrawOutline(r, cueColor, Mathf.Max(3, tile * (bossAttack ? .09f : .065f)));
-                DrawIcon(new Rect(r.x + tile * .30f, r.y + tile * .26f, tile * .40f, tile * .48f), bossAttack ? VisualIcon.BossDanger : VisualIcon.ImmediateDanger);
-            }
+            var immediateTiles=game.Enemies.Where(e=>e.Alive).SelectMany(e=>e.Preview).ToHashSet();
+            bool bossAttack=game.Enemies.Any(e=>e.Alive&&e.Kind==EnemyKind.LanternWarden&&e.Preview.Count>0);
+            float immediateAlpha=game.SelectedSkill.HasValue?.34f:.92f;
+            DrawMergedThreatBoundary(immediateTiles,ox,oy,minX,maxY,bossAttack?new Color(1f,.54f,.12f,immediateAlpha):new Color(1f,.20f,.18f,immediateAlpha),Mathf.Max(3,tile*(bossAttack?.09f:.065f)));
 
             DrawToken(AnimatedPosition(game.Player, game.Player.Position), ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), "", game.Player, true, false, game.Player.ClassId, null, game.HitTiles.Contains(game.Player.Position));
             if(game.PlayerBiomeEffectActive)
@@ -434,6 +426,18 @@ namespace Lanternfall
                 DrawIcon(new Rect(badge.x + 2, badge.y + 2, badge.width - 4, badge.height - 4), IconLanguage.ForThreat(e.Threat));
             }
             DrawBoardEffects(ox,oy,minX,maxY);
+        }
+
+        void DrawMergedThreatBoundary(HashSet<Vector2Int> tiles,float ox,float oy,int minX,int maxY,Color color,float width)
+        {
+            foreach(var p in tiles)
+            {
+                var r=TileRect(p,ox,oy,minX,maxY);
+                if(!tiles.Contains(p+Vector2Int.up))DrawRect(new Rect(r.x,r.y,r.width,width),color);
+                if(!tiles.Contains(p+Vector2Int.down))DrawRect(new Rect(r.x,r.yMax-width,r.width,width),color);
+                if(!tiles.Contains(p+Vector2Int.left))DrawRect(new Rect(r.x,r.y,width,r.height),color);
+                if(!tiles.Contains(p+Vector2Int.right))DrawRect(new Rect(r.xMax-width,r.y,width,r.height),color);
+            }
         }
 
         Vector2 AnimatedPosition(object unit, Vector2Int destination)
@@ -639,7 +643,7 @@ namespace Lanternfall
             DrawOutline(r, new Color(.24f, .22f, .34f), 1);
             string detail = game.FocusThreatSummary;
             bool phone = IsPhoneViewport();
-            string extra = string.IsNullOrWhiteSpace(detail) ? "RED now  PURPLE next  GOLD skill" : Shorten(detail, phone ? 50 : 74);
+            string extra = string.IsNullOrWhiteSpace(detail) ? "Current: RED   Next: PURPLE   Then: GOLD" : Shorten(detail, phone ? 50 : 74);
             GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), phone ? extra : $"{Shorten(game.Message, 68)}\n{extra}", hudMessage);
         }
 
@@ -650,9 +654,9 @@ namespace Lanternfall
             if (game.SelectedSkill.HasValue)
             {
                 var s = SkillBook.Get(game.SelectedSkill.Value);
-                label = $"Selected: {s.Name} - tap a GOLD target";
+                label = $"Selected: {s.Name}\nGold: in range  •  Dark: out of range";
             }
-            GUI.Label(r, label, hudTiny);
+            GUI.Label(new Rect(r.x+5,r.y+2,r.width-10,r.height-4), label, hudTiny);
         }
 
         void DrawSkills(Rect[] cards, bool compact)

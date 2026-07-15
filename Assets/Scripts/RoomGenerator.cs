@@ -52,9 +52,11 @@ namespace Lanternfall
                 else grid.SetFloor(b,true);
             }
             var dressing=grid.Floors().Where(v=>v!=player&&!enemies.Contains(v)&&v.y>2).OrderBy(_=>rng.Next()).ToList();
-            var hazards=dressing.Take(5).ToHashSet();
-            int propTarget=roomNumber>=4?2:1;
-            var propPool=dressing.Skip(5).Where(v=>IsPropAnchor(grid,v)).OrderBy(_=>rng.Next()).ToList();
+            int hazardTarget=roomNumber==5?3:5;
+            var hazardPool=roomNumber==5?dressing.Where(v=>enemies.All(e=>Mathf.Abs(v.x-e.x)+Mathf.Abs(v.y-e.y)>=3)).ToList():dressing;
+            var hazards=hazardPool.Take(hazardTarget).ToHashSet();
+            int propTarget=roomNumber==5?1:roomNumber>=4?2:1;
+            var propPool=dressing.Skip(hazardTarget).Where(v=>!hazards.Contains(v)&&IsPropAnchor(grid,v)).Where(v=>roomNumber<5||enemies.All(e=>Mathf.Abs(v.x-e.x)+Mathf.Abs(v.y-e.y)>=3)).OrderBy(_=>rng.Next()).ToList();
             var props=propPool.Take(propTarget).ToHashSet();
             Vector2Int? heal=null;
             if(roomNumber>=2 && roomNumber<5 && rng.NextDouble()<.35)

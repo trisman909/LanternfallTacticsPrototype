@@ -55,6 +55,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 6I.2 - gameplay polish, AI fixes, hazard audit, and range readability (complete)
 - Phase 6J - group AI coordination and hazard containment polish (complete)
 - Phase 6K - combat fairness, telegraph accuracy, and gameplay readability (complete)
+- Phase 6K.1 - tactical clarity, environmental hazard integration, and boss-room decluttering (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -176,6 +177,8 @@ Phase 6I.2 keeps the existing content while making its rules more predictable. S
 Phase 6J plans each enemy turn as a coordinated squad. Role-ordered destination and attack reservations prevent collisions, reward distinct flanks and uncovered escape pressure, keep archers separated behind the front line, and limit adjacent escape denial to preserve fairness. Hazard icons retain an 82% footprint with equal padding and an explicit tile clip. See [AI_COORDINATION_6J.md](AI_COORDINATION_6J.md).
 
 Phase 6K makes the combat pipeline fail closed against invisible damage. Enemy and hazard telegraphs are snapshotted when End Turn is pressed; every player HP loss is validated against that committed tile set. Same-turn move-and-hit is removed, charged-floor splash tiles are visibly armed, hazards use a quieter 68% footprint, area skills expose their potential impact, and active biome effects receive an explicit player frame and message. See [COMBAT_FAIRNESS_6K.md](COMBAT_FAIRNESS_6K.md).
+
+Phase 6K.1 removes the floating hazard-icon layer and blends biome-authored hazard art into 94% of each tile with darker, desaturated grading. Current and future enemy regions use clean merged boundaries, selected-skill mode suppresses unrelated warnings, the right HUD uses wrapped range guidance and a simple Current/Next/Then sequence, and boss rooms reserve more clear floor around the Lantern Warden. No new content or combat rules were added. See [TACTICAL_CLARITY_6K1.md](TACTICAL_CLARITY_6K1.md).
 
 
 
