@@ -47,6 +47,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 5Q.3 - mobile landscape-first HUD redesign (complete)
 - Phase 6C - visual language and lightweight icon foundation (complete)
 - Phase 6D - authored icon and UI art pass (complete)
+- Phase 6E - authored player, enemy, and boss sprite pass (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -152,6 +153,8 @@ Phase 6B.1 keeps that accepted layout and improves real-phone readability with l
 Phase 6C replaces repeated board text with a 20-icon, code-drawn visual language for stats, statuses, threats, blockers, healing, and all five biome hazards. Unit tokens gain class/enemy symbols and a distinct Lantern Warden frame without changing silhouettes, colors, gameplay, or the accepted Phase 6B.1 layouts. See [PLAYTEST_6C.md](PLAYTEST_6C.md).
 
 Phase 6D replaces the visible procedural icon set and plain combat frames with two original, lightweight hand-painted atlases inspired by the official Lanternfall concept sheet. Authored icons cover resources, statuses, targeting, danger, pickups, obstacles, and biome hazards; authored frames cover skills, stat chips, command buttons, utility buttons, selected-skill information, rewards, outcomes, and tooltips. Procedural drawing remains only as a load-failure fallback. See [ART_ASSETS_6D.md](ART_ASSETS_6D.md).
+
+Phase 6E replaces visible letter/abstract unit bodies with a single original nine-cell top-down production-placeholder atlas covering all five player classes, Ashling, Gloom Archer, Stone Sentinel, and Lantern Warden. Existing selection, health, shield, hit, and status communication remains layered above the sprites; Lantern Warden overcharge gains a distinct magenta frame and overcharge badge. See [ART_ASSETS_6E.md](ART_ASSETS_6E.md).
 
 
 

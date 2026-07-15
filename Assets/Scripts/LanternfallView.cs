@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6D";
+        public const string PrototypeVersion = "Prototype v0.6E";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -300,10 +300,10 @@ namespace Lanternfall
                 DrawIcon(new Rect(r.x + tile * .30f, r.y + tile * .26f, tile * .40f, tile * .48f), bossAttack ? VisualIcon.BossDanger : VisualIcon.ImmediateDanger);
             }
 
-            DrawToken(game.Player.Position, ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), VisualReadability.ClassGlyph(game.Player.ClassId), "", game.Player, true);
+            DrawToken(game.Player.Position, ox, oy, minX, maxY, VisualReadability.ClassAccent(game.Player.ClassId), VisualReadability.ClassGlyph(game.Player.ClassId), "", game.Player, true, false, game.Player.ClassId, null, game.HitTiles.Contains(game.Player.Position));
             foreach (var e in game.Enemies.Where(e => e.Alive))
             {
-                DrawToken(e.Position, ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), e.Shield > 0 ? $"{e.Health}+{e.Shield}" : $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden);
+                DrawToken(e.Position, ox, oy, minX, maxY, VisualReadability.EnemyColor(e.Kind), VisualReadability.EnemyGlyph(e.Kind), e.Shield > 0 ? $"{e.Health}+{e.Shield}" : $"{e.Health}", e, false, e.Kind == EnemyKind.LanternWarden, null, e.Kind, game.HitTiles.Contains(e.Position));
                 var er = TileRect(e.Position, ox, oy, minX, maxY);
                 var badge = new Rect(er.xMax - tile * .32f, er.y + tile * .02f, tile * .28f, tile * .28f);
                 DrawRect(badge, new Color(.04f, .03f, .06f, .88f));
@@ -314,15 +314,23 @@ namespace Lanternfall
 
         Rect TileRect(Vector2Int p, float ox, float oy, int minX, int maxY) => new(ox + (p.x - minX) * tile, oy + (maxY - p.y) * tile, tile - 2, tile - 2);
 
-        void DrawToken(Vector2Int p, float ox, float oy, int minX, int maxY, Color c, string glyph, string hp = "", UnitModel unit = null, bool player = false, bool boss = false)
+        void DrawToken(Vector2Int p, float ox, float oy, int minX, int maxY, Color c, string glyph, string hp = "", UnitModel unit = null, bool player = false, bool boss = false, PlayerClassId? playerClass = null, EnemyKind? enemyKind = null, bool hit = false)
         {
-            float inset = boss ? .04f : .12f;
-            float size = boss ? .88f : .72f;
+            float inset = boss ? .00f : .05f;
+            float size = boss ? .96f : .86f;
             var r = new Rect(ox + (p.x - minX) * tile + tile * inset, oy + (maxY - p.y) * tile + tile * .08f, tile * size, tile * size);
             DrawRect(new Rect(r.x - 3, r.y - 3, r.width + 6, r.height + 6), new Color(0f, 0f, 0f, .70f));
-            DrawRect(r, c);
-            DrawOutline(r, player ? Color.white : (boss ? new Color(1f, .75f, .2f) : new Color(.08f, .04f, .05f)), Mathf.Max(2, tile * .045f));
-            DrawUnitSymbol(r, player ? game.Player.ClassId : (PlayerClassId?)null, glyph, boss);
+            DrawRect(r, new Color(c.r * .18f, c.g * .18f, c.b * .18f, .92f));
+            Color outline = player ? Color.white : boss ? new Color(1f, .75f, .2f) : new Color(.08f, .04f, .05f);
+            DrawOutline(r, hit ? new Color(1f, .92f, .28f) : outline, Mathf.Max(2, tile * (hit ? .075f : .045f)));
+            var spriteRect = new Rect(r.x - r.width * (boss ? .08f : .02f), r.y - r.height * (boss ? .10f : .04f), r.width * (boss ? 1.16f : 1.04f), r.height * (boss ? 1.16f : 1.04f));
+            if (!AuthoredUnits.Draw(spriteRect, playerClass, enemyKind, AuthoredUnits.Tint(hit)))
+                DrawUnitSymbol(r, player ? game.Player.ClassId : (PlayerClassId?)null, glyph, boss);
+            if (boss && unit is EnemyModel bossUnit && AuthoredUnits.IsOverchargedBoss(bossUnit))
+            {
+                DrawOutline(new Rect(r.x - 5, r.y - 5, r.width + 10, r.height + 10), new Color(1f, .22f, .78f), Mathf.Max(2, tile * .035f));
+                DrawIcon(new Rect(r.x + r.width * .34f, r.y - r.height * .16f, r.width * .32f, r.height * .32f), VisualIcon.BossOvercharge);
+            }
             if (hp != "") GUI.Label(new Rect(r.x, r.y + r.height - 18, r.width, 20), hp, new GUIStyle(center){fontSize = 14, fontStyle = FontStyle.Bold, normal = {textColor = Color.white}});
             if (unit != null)
             {

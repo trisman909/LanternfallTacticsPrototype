@@ -61,7 +61,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6D: authored icon and UI-art WebGL playtest build.",
+            "Prototype v0.6E: authored unit-sprite WebGL playtest build.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
