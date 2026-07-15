@@ -5,7 +5,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6C";
+        public const string PrototypeVersion = "Prototype v0.6D";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -53,6 +53,7 @@ namespace Lanternfall
             {
                 fontSize = s,
                 fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
                 wordWrap = true,
                 normal = {textColor = Color.white, background = Tex(new Color(.12f, .12f, .2f))},
                 hover = {background = Tex(new Color(.23f, .2f, .32f))},
@@ -62,9 +63,9 @@ namespace Lanternfall
             hudChip = new GUIStyle(center){fontSize = readable.StatFont, fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
             hudMessage = new GUIStyle(center){fontSize = readable.MessageFont, fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
             hudTiny = new GUIStyle(center){fontSize = readable.MessageFont, fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
-            hudButton = new GUIStyle(button){fontSize = readable.ButtonFont, fontStyle = FontStyle.Bold, wordWrap = true};
-            hudSkill = new GUIStyle(button){fontSize = readable.SkillFont, fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
-            hudSkillCompact = new GUIStyle(button){fontSize = readable.CompactSkillFont, fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter};
+            hudButton = new GUIStyle(button){fontSize = readable.ButtonFont, fontStyle = FontStyle.Bold, alignment=TextAnchor.MiddleCenter, wordWrap = true, normal={textColor=Color.white,background=Tex(Color.clear)},hover={background=Tex(new Color(1f,1f,1f,.08f))},active={background=Tex(new Color(1f,.62f,.18f,.16f))}};
+            hudSkill = new GUIStyle(button){fontSize = readable.SkillFont, fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter, normal={textColor=Color.white,background=Tex(Color.clear)},hover={background=Tex(new Color(1f,1f,1f,.08f))},active={background=Tex(new Color(1f,.62f,.18f,.16f))}};
+            hudSkillCompact = new GUIStyle(button){fontSize = readable.CompactSkillFont, fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter, normal={textColor=Color.white,background=Tex(Color.clear)},hover={background=Tex(new Color(1f,1f,1f,.08f))},active={background=Tex(new Color(1f,.62f,.18f,.16f))}};
         }
 
         Texture2D Tex(Color c)
@@ -132,20 +133,24 @@ namespace Lanternfall
         {
             DrawRect(area, new Color(.025f, .02f, .055f));
             bool compact = area.height < 500f;
+            var startTitle = compact ? new GUIStyle(title){fontSize=Mathf.Clamp(Mathf.RoundToInt(area.height/12f),26,34)} : title;
+            var startBody = compact ? new GUIStyle(center){fontSize=Mathf.Clamp(Mathf.RoundToInt(area.height/20f),17,22)} : center;
+            var startSmall = compact ? new GUIStyle(small){fontSize=Mathf.Clamp(Mathf.RoundToInt(area.height/23f),15,19)} : small;
+            var startButton = compact ? new GUIStyle(button){fontSize=Mathf.Clamp(Mathf.RoundToInt(area.height/17f),20,25),alignment=TextAnchor.MiddleCenter} : button;
             float pad = Mathf.Max(18, area.width * .06f);
             float w = area.width - pad * 2;
             float y = compact ? 14 : Mathf.Max(26, area.height * .10f);
             DrawRect(new Rect(pad * .55f, y - 10, area.width - pad * 1.1f, area.height - y * 1.35f), new Color(.055f, .045f, .085f));
             DrawOutline(new Rect(pad * .55f, y - 10, area.width - pad * 1.1f, area.height - y * 1.35f), new Color(.55f, .38f, .12f), 2);
 
-            GUI.Label(new Rect(pad, y, w, compact ? 40 : 72), "LANTERNFALL TACTICS", title); y += compact ? 34 : 58;
-            GUI.Label(new Rect(pad, y, w, compact ? 22 : 28), PrototypeVersion, small); y += compact ? 24 : 34;
+            GUI.Label(new Rect(pad, y, w, compact ? 40 : 72), "LANTERNFALL TACTICS", startTitle); y += compact ? 34 : 58;
+            GUI.Label(new Rect(pad, y, w, compact ? 22 : 28), PrototypeVersion, startSmall); y += compact ? 24 : 34;
             GUI.Label(new Rect(pad, y, w, compact ? 54 : 118),
                 compact ? "Turn tactics: spend AP/MP, avoid red previews, survive five rooms."
                         : "A short turn-based roguelite prototype.\nFirst time? Open How to Play, then move on cyan tiles, spend AP on skills, avoid red previews, and survive five rooms.",
-                center); y += compact ? 58 : 128;
+                startBody); y += compact ? 58 : 128;
             var cls = ClassCatalog.Get(game.SelectedClass);
-            GUI.Label(new Rect(pad, y, w, compact ? 42 : 72), compact ? $"{cls.name} / {cls.title}" : $"{cls.name} / {cls.title}\n{cls.description}", center); y += compact ? 48 : 82;
+            GUI.Label(new Rect(pad, y, w, compact ? 42 : 72), compact ? $"{cls.name} / {cls.title}" : $"{cls.name} / {cls.title}\n{cls.description}", startBody); y += compact ? 48 : 82;
             if (game.BestRoomReached > 0 && !compact){GUI.Label(new Rect(pad, y, w, 34), $"Best run: room {game.BestRoomReached}/5", center); y += 42;}
             float gap = compact ? 8 : 12;
             float h = compact ? 46 : 62;
@@ -153,10 +158,10 @@ namespace Lanternfall
             if (compact)
             {
                 bw = (w - gap * 3) / 4f;
-                if (GUI.Button(new Rect(pad, y, bw, h), "CLASS", button)) game.CycleClass();
-                if (GUI.Button(new Rect(pad + bw + gap, y, bw, h), "START", button)) game.StartRun();
-                if (GUI.Button(new Rect(pad + (bw + gap) * 2, y, bw, h), "HELP", button)) game.ShowHelp();
-                if (GUI.Button(new Rect(pad + (bw + gap) * 3, y, bw, h), "INFO", button)) game.ShowPlaytestInfo();
+                if (GUI.Button(new Rect(pad, y, bw, h), "CLASS", startButton)) game.CycleClass();
+                if (GUI.Button(new Rect(pad + bw + gap, y, bw, h), "START", startButton)) game.StartRun();
+                if (GUI.Button(new Rect(pad + (bw + gap) * 2, y, bw, h), "HELP", startButton)) game.ShowHelp();
+                if (GUI.Button(new Rect(pad + (bw + gap) * 3, y, bw, h), "INFO", startButton)) game.ShowPlaytestInfo();
                 y += h + 10;
             }
             else
@@ -228,7 +233,7 @@ namespace Lanternfall
             float oy = fit.Bounds.y;
 
             string turn = game.Turns.Phase == TurnPhase.Enemy ? "ENEMY TURN" : game.Turns.Phase == TurnPhase.Reward ? "ROOM CLEAR" : game.Turns.Phase.ToString().ToUpper();
-            GUI.Label(new Rect(area.x, area.y + 1, area.width, phoneBoard ? 15 : compact ? 24 : 34), turn, phoneBoard ? small : title);
+            GUI.Label(new Rect(area.x, area.y + (phoneBoard ? 1 : 10), area.width, phoneBoard ? 15 : compact ? 24 : 30), turn, phoneBoard ? small : title);
             GUI.Label(new Rect(area.x, area.y + (phoneBoard ? 15 : compact ? 24 : 34), area.width, phoneBoard ? 12 : compact ? 20 : 26), game.RoomNumber == 5 ? "BOSS ROOM - " + game.Theme.Name : game.Theme.Name, phoneBoard ? small : center);
 
             foreach (var p in floors)
@@ -248,7 +253,7 @@ namespace Lanternfall
                 if (game.PreviewArea.Contains(p)) DrawOutline(r, new Color(1f, .84f, .32f), Mathf.Max(2, tile * .045f));
                 if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) DrawOutline(r, game.SelectedSkill.HasValue ? new Color(1f, .94f, .28f) : new Color(.36f, 1f, 1f), Mathf.Max(2, tile * .05f));
                 if (game.LastTappedTile == p) DrawOutline(r, Color.white, 3);
-                if (game.RejectedTile == p){ DrawOutline(r, VisualReadability.TileColor(game.Theme, TileVisualState.Invalid), 4); DrawTileGlyph(r, "X", Color.white, .46f); }
+                if (game.RejectedTile == p){ DrawOutline(r, VisualReadability.TileColor(game.Theme, TileVisualState.Invalid), 4); DrawIcon(new Rect(r.x + tile * .28f, r.y + tile * .28f, tile * .40f, tile * .40f), VisualIcon.InvalidTarget); }
                 if (Event.current.type == EventType.MouseDown && r.Contains(Event.current.mousePosition)){game.TapTile(p); Event.current.Use();}
             }
 
@@ -257,7 +262,7 @@ namespace Lanternfall
                 var r = TileRect(p, ox, oy, minX, maxY);
                 DrawRect(r, new Color(.025f, .022f, .035f));
                 DrawOutline(r, new Color(.38f, .32f, .48f), Mathf.Max(2, tile * .045f));
-                DrawIcon(new Rect(r.x + tile * .25f, r.y + tile * .25f, tile * .46f, tile * .46f), VisualIcon.BlockedLineOfSight);
+                DrawIcon(new Rect(r.x + tile * .25f, r.y + tile * .25f, tile * .46f, tile * .46f), VisualIcon.Obstacle);
             }
 
             foreach (var p in game.HazardTiles)
@@ -337,6 +342,8 @@ namespace Lanternfall
             DrawCombatHeader(hud.Header, compact);
             DrawStatChips(hud.StatChips);
             DrawHazardNote(hud.HazardNote);
+            AuthoredArt.DrawSkin(hud.HelpButton, UiSkin.Utility);
+            AuthoredArt.DrawSkin(hud.InfoButton, UiSkin.Utility);
             if (GUI.Button(hud.HelpButton, HudText.HelpButton, hudButton)) game.ShowHelp();
             if (GUI.Button(hud.InfoButton, HudText.InfoButton, hudButton)) game.ShowPlaytestInfo();
 
@@ -348,9 +355,11 @@ namespace Lanternfall
             DrawSkills(hud.SkillCards, compact || hud.SkillCards[0].width < 140f);
 
             bool hasSkill = game.SelectedSkill.HasValue;
+            if (hasSkill) AuthoredArt.DrawSkin(hud.CancelButton, UiSkin.Utility);
             if (hasSkill && GUI.Button(hud.CancelButton, compact ? "CANCEL" : HudText.CancelSkillButton, hudButton)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
             var endTurn = !hasSkill && !IsPhoneViewport() ? new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height) : hud.EndTurnButton;
+            AuthoredArt.DrawSkin(endTurn, UiSkin.EndTurn);
             if (GUI.Button(endTurn, HudText.EndTurnButton, hudButton)) game.WaitTurn();
             GUI.enabled = true;
             DrawMessageBox(hud.Message);
@@ -363,6 +372,8 @@ namespace Lanternfall
             DrawCombatHeader(hud.Header, true);
             DrawStatChips(hud.StatChips);
             DrawHazardNote(hud.HazardNote);
+            AuthoredArt.DrawSkin(hud.HelpButton, UiSkin.Utility);
+            AuthoredArt.DrawSkin(hud.InfoButton, UiSkin.Utility);
             if (GUI.Button(hud.HelpButton, HudText.HelpButton, hudButton)){game.ShowHelp(); return;}
             if (GUI.Button(hud.InfoButton, HudText.InfoButton, hudButton)){game.ShowPlaytestInfo(); return;}
 
@@ -372,9 +383,11 @@ namespace Lanternfall
             DrawSelectedSkillInfo(hud.SelectedSkill);
             DrawSkills(hud.SkillCards, true);
             bool hasSkill = game.SelectedSkill.HasValue;
+            if (hasSkill) AuthoredArt.DrawSkin(hud.CancelButton, UiSkin.Utility);
             if (hasSkill && GUI.Button(hud.CancelButton, HudText.CancelSkillButton, hudButton)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
             var endTurn = !hasSkill && !IsPhoneViewport() ? new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height) : hud.EndTurnButton;
+            AuthoredArt.DrawSkin(endTurn, UiSkin.EndTurn);
             if (GUI.Button(endTurn, HudText.EndTurnButton, hudButton)) game.WaitTurn();
             GUI.enabled = true;
             DrawMessageBox(hud.Message);
@@ -393,7 +406,9 @@ namespace Lanternfall
             }
             if (game.Turns.Phase == TurnPhase.Won || game.Turns.Phase == TurnPhase.Lost)
             {
-                GUI.Label(new Rect(x, y, w, compact ? 80 : 100), game.Turns.Phase == TurnPhase.Won ? "VICTORY\nThe Warden falls." : "DEFEAT\nThe dark closes in.", title);
+                var outcome = new Rect(x, y, w, compact ? 80 : 100);
+                AuthoredArt.DrawSkin(outcome, game.Turns.Phase == TurnPhase.Won ? UiSkin.VictoryPanel : UiSkin.DefeatPanel);
+                GUI.Label(outcome, game.Turns.Phase == TurnPhase.Won ? "VICTORY\nThe Warden falls." : "DEFEAT\nThe dark closes in.", title);
                 y += compact ? 86 : 112;
                 if (GUI.Button(new Rect(x, y, w, 64), "START NEW RUN", button)) game.Restart();
                 return true;
@@ -412,13 +427,13 @@ namespace Lanternfall
         {
             string[] values =
             {
-                HudText.Hp(game.Player.Health, game.Player.MaxHealth),
-                HudText.Ap(game.Player.ActionPoints, game.Player.MaxActionPoints),
-                HudText.Mp(game.Player.MovementPoints, game.Player.MoveRange)
+                $"{game.Player.Health}/{game.Player.MaxHealth}",
+                $"{game.Player.ActionPoints}/{game.Player.MaxActionPoints}",
+                $"{game.Player.MovementPoints}/{game.Player.MoveRange}"
             };
             for (int i = 0; i < chips.Length; i++)
             {
-                DrawRect(chips[i], new Color(.08f, .075f, .13f));
+                if (!AuthoredArt.DrawSkin(chips[i], UiSkin.StatChip)) DrawRect(chips[i], new Color(.08f, .075f, .13f));
                 DrawOutline(chips[i], i == 1 ? new Color(.92f, .68f, .22f) : i == 2 ? new Color(.35f, .88f, .95f) : new Color(.82f, .25f, .25f), 2);
                 float iconSize = Mathf.Min(chips[i].height * .42f, chips[i].width * .18f);
                 DrawIcon(new Rect(chips[i].x + 6, chips[i].center.y - iconSize * .5f, iconSize, iconSize), i == 0 ? VisualIcon.Health : i == 1 ? VisualIcon.ActionPoint : VisualIcon.MovementPoint);
@@ -428,7 +443,7 @@ namespace Lanternfall
 
         void DrawHazardNote(Rect r)
         {
-            DrawRect(r, new Color(.055f, .047f, .075f));
+            if (!AuthoredArt.DrawSkin(r, UiSkin.Tooltip)) DrawRect(r, new Color(.055f, .047f, .075f));
             DrawOutline(r, new Color(.26f, .22f, .34f), 1);
             bool phone = IsPhoneViewport();
             string focus = game.HasFocusTile ? game.FocusThreatSummary : "";
@@ -438,7 +453,7 @@ namespace Lanternfall
 
         void DrawMessageBox(Rect r)
         {
-            DrawRect(r, new Color(.03f, .03f, .055f));
+            if (!AuthoredArt.DrawSkin(r, UiSkin.Tooltip)) DrawRect(r, new Color(.03f, .03f, .055f));
             DrawOutline(r, new Color(.24f, .22f, .34f), 1);
             string detail = game.FocusThreatSummary;
             bool phone = IsPhoneViewport();
@@ -448,6 +463,7 @@ namespace Lanternfall
 
         void DrawSelectedSkillInfo(Rect r)
         {
+            AuthoredArt.DrawSkin(r, UiSkin.SelectedSkill);
             string label = "Selected skill: none";
             if (game.SelectedSkill.HasValue)
             {
@@ -467,7 +483,7 @@ namespace Lanternfall
                 bool selected = game.SelectedSkill == s.Id;
                 bool usable = game.Turns.Phase == TurnPhase.Player && cd == 0 && game.Player.ActionPoints >= s.ApCost;
                 var accent = selected ? VisualReadability.ClassAccent(game.Player.ClassId) : usable ? new Color(.24f, .22f, .34f) : new Color(.12f, .11f, .16f);
-                DrawCardFrame(cards[i], accent);
+                DrawCardFrame(cards[i], accent, UiSkin.SkillCard);
                 GUI.enabled = usable;
                 bool phone = IsPhoneViewport();
                 bool hover = !phone && cards[i].Contains(Event.current.mousePosition);
@@ -499,7 +515,7 @@ namespace Lanternfall
             for (int i = 0; i < 3; i++)
             {
                 var r = new Rect(x + i * (bw + gap), y, bw, RewardPanelLayout.PortraitCardHeight);
-                DrawCardFrame(r, new Color(1f, .62f, .18f));
+                DrawCardFrame(r, new Color(1f, .62f, .18f), UiSkin.RewardCard);
                 if (GUI.Button(r, RewardCatalog.Get(i).CompactLabel, hudSkillCompact)) game.ChooseReward(i);
             }
         }
@@ -509,7 +525,7 @@ namespace Lanternfall
             for (int i = 0; i < 3; i++)
             {
                 var r = new Rect(x, y, w, RewardPanelLayout.SideCardHeight);
-                DrawCardFrame(r, new Color(1f, .62f, .18f));
+                DrawCardFrame(r, new Color(1f, .62f, .18f), UiSkin.RewardCard);
                 if (GUI.Button(r, RewardCatalog.WebGLCardLabel(i), hudSkill)) game.ChooseReward(i);
                 y += RewardPanelLayout.SideCardHeight + RewardPanelLayout.Gap;
             }
@@ -522,9 +538,10 @@ namespace Lanternfall
             DrawRect(new Rect(r.x, r.y, r.width, 4), new Color(.72f, .47f, .14f));
         }
 
-        void DrawCardFrame(Rect r, Color accent)
+        void DrawCardFrame(Rect r, Color accent, UiSkin skin = UiSkin.SkillCard)
         {
-            DrawRect(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), new Color(0f, 0f, 0f, .35f));
+            if (!AuthoredArt.DrawSkin(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), skin))
+                DrawRect(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), new Color(0f, 0f, 0f, .35f));
             DrawOutline(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), accent, 2);
         }
 
@@ -560,7 +577,10 @@ namespace Lanternfall
             DrawIcon(icon, enemyIcon, ink);
         }
 
-        void DrawIcon(Rect r, VisualIcon icon) => DrawIcon(r, icon, IconLanguage.Describe(icon).Color);
+        void DrawIcon(Rect r, VisualIcon icon)
+        {
+            if (!AuthoredArt.DrawIcon(r, icon)) DrawIcon(r, icon, IconLanguage.Describe(icon).Color);
+        }
 
         void DrawIcon(Rect r, VisualIcon icon, Color color)
         {

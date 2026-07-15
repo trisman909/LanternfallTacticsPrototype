@@ -4,7 +4,7 @@ Playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
-Current visible build label: `Prototype v0.6C`.
+Current visible build label: `Prototype v0.6D`.
 
 This is a small prototype, not a finished game. Please note what confused you, what felt fun, and if anything broke.
 

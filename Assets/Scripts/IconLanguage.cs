@@ -7,7 +7,8 @@ namespace Lanternfall
         Health, ActionPoint, MovementPoint, Shield,
         Burn, Root, Mark, Heal, ActionDrain, MovementDrain,
         ImmediateDanger, DelayedDanger, BossDanger, BlockedLineOfSight,
-        HealingPickup, ShallowWater, Prism, EmberVent, GraspingRoots, ChargedFloor
+        HealingPickup, ShallowWater, Prism, EmberVent, GraspingRoots, ChargedFloor,
+        DelayedCast, Shielded, BossOvercharge, Move, ValidTarget, InvalidTarget, Obstacle
     }
 
     public readonly struct IconDescriptor
@@ -47,7 +48,28 @@ namespace Lanternfall
             VisualIcon.EmberVent => new("hazard.ember", "Ember vent", new Color(1f, .45f, .08f)),
             VisualIcon.GraspingRoots => new("hazard.roots", "Grasping roots", new Color(.52f, 1f, .48f)),
             VisualIcon.ChargedFloor => new("hazard.charge", "Charged floor", new Color(.34f, .78f, 1f)),
+            VisualIcon.DelayedCast => new("status.delayed_cast", "Delayed cast", new Color(.72f, .36f, 1f)),
+            VisualIcon.Shielded => new("status.shielded", "Shielded", new Color(.76f, .86f, 1f)),
+            VisualIcon.BossOvercharge => new("status.boss_overcharge", "Boss overcharge", new Color(1f, .42f, .14f)),
+            VisualIcon.Move => new("target.move", "Move", new Color(.28f, .90f, 1f)),
+            VisualIcon.ValidTarget => new("target.valid", "Valid target", new Color(1f, .72f, .18f)),
+            VisualIcon.InvalidTarget => new("target.invalid", "Invalid target", new Color(1f, .18f, .16f)),
+            VisualIcon.Obstacle => new("board.obstacle", "Obstacle", new Color(.62f, .60f, .64f)),
             _ => new("unknown", "Unknown", Color.white)
+        };
+
+        public static int AtlasCell(VisualIcon icon) => icon switch
+        {
+            VisualIcon.Health => 0, VisualIcon.ActionPoint => 1, VisualIcon.MovementPoint => 2,
+            VisualIcon.Shield => 3, VisualIcon.Burn => 4, VisualIcon.Root => 5, VisualIcon.Mark => 6,
+            VisualIcon.Heal => 7, VisualIcon.ActionDrain => 8, VisualIcon.MovementDrain => 9,
+            VisualIcon.DelayedCast => 10, VisualIcon.Shielded => 11, VisualIcon.BossOvercharge => 12,
+            VisualIcon.Move => 13, VisualIcon.ValidTarget => 14, VisualIcon.InvalidTarget => 15,
+            VisualIcon.BlockedLineOfSight => 16, VisualIcon.ImmediateDanger => 17,
+            VisualIcon.DelayedDanger => 18, VisualIcon.BossDanger => 19, VisualIcon.HealingPickup => 20,
+            VisualIcon.Obstacle => 21, VisualIcon.ShallowWater => 22, VisualIcon.Prism => 23,
+            VisualIcon.EmberVent => 4, VisualIcon.GraspingRoots => 5, VisualIcon.ChargedFloor => 24,
+            _ => 0
         };
 
         public static VisualIcon ForHazard(HazardKind hazard) => hazard switch
