@@ -47,7 +47,7 @@ namespace Lanternfall
         public static string MobileSkillCard(SkillDefinition skill, int cooldown, int currentAp, TurnPhase phase, bool selected)
         {
             string prefix = selected ? "SEL " : "";
-            return $"{prefix}{MobileSkillName(skill)}   AP {skill.ApCost}\n{SkillState(skill, cooldown, currentAp, phase)}";
+            return $"{prefix}{MobileSkillName(skill)} AP {skill.ApCost}\n{SkillState(skill, cooldown, currentAp, phase)}";
         }
 
         public static string MobileSkillName(SkillDefinition skill)

@@ -145,6 +145,8 @@ Phase 6A focuses on mobile UX, tactical AI, and first-time polish without adding
 
 Phase 6B is a real iPhone landscape layout fix: phone landscape now uses explicit responsive modes and a stacked bottom command HUD, while the WebGL shell avoids `100vw` plus safe-area overflow so the board and HUD stay inside the visible iPhone browser viewport.
 
+Phase 6B.1 keeps that accepted layout and improves real-phone readability with larger mobile landscape HUD text, slightly taller stat/skill/action rows, and compact two-line skill labels.
+
 
 
 

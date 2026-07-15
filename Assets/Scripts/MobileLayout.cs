@@ -33,6 +33,46 @@ namespace Lanternfall
         }
     }
 
+    public readonly struct MobileHudReadabilitySnapshot
+    {
+        public readonly int BaseFont;
+        public readonly int HeaderFont;
+        public readonly int StatFont;
+        public readonly int MessageFont;
+        public readonly int ButtonFont;
+        public readonly int SkillFont;
+        public readonly int CompactSkillFont;
+        public MobileHudReadabilitySnapshot(int baseFont, int headerFont, int statFont, int messageFont, int buttonFont, int skillFont, int compactSkillFont)
+        {
+            BaseFont = baseFont;
+            HeaderFont = headerFont;
+            StatFont = statFont;
+            MessageFont = messageFont;
+            ButtonFont = buttonFont;
+            SkillFont = skillFont;
+            CompactSkillFont = compactSkillFont;
+        }
+    }
+
+    public static class MobileHudReadability
+    {
+        public static MobileHudReadabilitySnapshot Compute(float width, float height)
+        {
+            bool phoneSized = Mathf.Min(width, height) < 620 && Mathf.Max(width, height) <= 1200;
+            bool phoneLandscape = phoneSized && width > height;
+            int min = Mathf.RoundToInt(Mathf.Min(width, height));
+            int s = phoneLandscape ? Mathf.Clamp(min / 7, 42, 52) : phoneSized ? Mathf.Clamp(min / 8, 38, 48) : Mathf.Clamp(min / 28, 18, 30);
+            return new MobileHudReadabilitySnapshot(
+                s,
+                Mathf.Clamp(s - 10, phoneLandscape ? 32 : phoneSized ? 28 : 15, phoneLandscape ? 40 : phoneSized ? 36 : 19),
+                Mathf.Clamp(s - 1, phoneLandscape ? 42 : phoneSized ? 36 : 15, phoneLandscape ? 52 : phoneSized ? 46 : 19),
+                Mathf.Clamp(s - 8, phoneLandscape ? 30 : phoneSized ? 28 : 13, phoneLandscape ? 36 : phoneSized ? 34 : 16),
+                Mathf.Clamp(s - 4, phoneLandscape ? 38 : phoneSized ? 34 : 13, phoneLandscape ? 48 : phoneSized ? 44 : 17),
+                Mathf.Clamp(s - 8, phoneLandscape ? 34 : phoneSized ? 32 : 13, phoneLandscape ? 42 : phoneSized ? 40 : 16),
+                Mathf.Clamp(s - 10, phoneLandscape ? 32 : phoneSized ? 31 : 12, phoneLandscape ? 40 : phoneSized ? 38 : 14));
+        }
+    }
+
     public static class MobileLayout
     {
         public static MobileLayoutSnapshot Compute(float width,float height)
@@ -60,21 +100,21 @@ namespace Lanternfall
                 result.PhoneLandscape=height<=620f&&width<=1200f&&width>height*1.15f;
                 result.PhoneHud = result.PhoneLandscape;
                 result.Mode = result.PhoneLandscape ? MobileLayoutMode.PhoneLandscape : result.CompactLandscape ? MobileLayoutMode.TabletLandscape : MobileLayoutMode.Desktop;
-                if(result.PhoneLandscape) result.FontSize=Mathf.Clamp(Mathf.RoundToInt(height/9f),34,42);
+                if(result.PhoneLandscape) result.FontSize=Mathf.Clamp(Mathf.RoundToInt(height/8f),38,46);
                 float panelW=result.PhoneLandscape?width:result.CompactLandscape?Mathf.Clamp(width*.30f,280f,340f):Mathf.Clamp(width*.32f,300f,360f);
-                float panelH=result.PhoneLandscape?Mathf.Clamp(height*.38f,168f,220f):height;
+                float panelH=result.PhoneLandscape?Mathf.Clamp(height*.40f,178f,228f):height;
                 result.Board=result.PhoneLandscape?new Rect(0,0,width,height-panelH):new Rect(0,0,width-panelW,height);
                 result.Panel=result.PhoneLandscape?new Rect(0,height-panelH,width,panelH):new Rect(width-panelW,0,panelW,height);
-                float pad=10,y=result.PhoneLandscape?result.Panel.y+54f:result.CompactLandscape?94:198,h=result.PhoneLandscape?Mathf.Max(56f,(panelH-72f)*.45f):result.CompactLandscape?50:68;
+                float pad=10,y=result.PhoneLandscape?result.Panel.y+58f:result.CompactLandscape?94:198,h=result.PhoneLandscape?Mathf.Max(60f,(panelH-82f)*.45f):result.CompactLandscape?50:68;
                 if(result.PhoneLandscape)
                 {
-                    float gap=6,bw=(panelW-pad*2-gap*2)/3f,sy=result.Panel.y+50f;
+                    float gap=6,bw=(panelW-pad*2-gap*2)/3f,sy=result.Panel.y+54f;
                     result.SkillButtons=new[]{new Rect(result.Panel.x+pad,sy,bw,h),new Rect(result.Panel.x+pad+bw+gap,sy,bw,h),new Rect(result.Panel.x+pad+(bw+gap)*2,sy,bw,h)};
                 }
                 else result.SkillButtons=new[]{new Rect(result.Panel.x+pad,y,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+h+6,panelW-pad*2,h),new Rect(result.Panel.x+pad,y+(h+6)*2,panelW-pad*2,h)};
                 if(result.CompactLandscape){float gap=6,bw=(panelW-pad*2-gap*2)/3f,ry=128;result.RewardButtons=new[]{new Rect(result.Panel.x+pad,ry,bw,76),new Rect(result.Panel.x+pad+bw+gap,ry,bw,76),new Rect(result.Panel.x+pad+(bw+gap)*2,ry,bw,76)};}
                 else result.RewardButtons=new[]{new Rect(result.Panel.x+pad,210,panelW-pad*2,76),new Rect(result.Panel.x+pad,294,panelW-pad*2,76),new Rect(result.Panel.x+pad,378,panelW-pad*2,76)};
-                result.ActionButton=new Rect(result.Panel.x+pad,result.PhoneLandscape?result.Panel.y+panelH-62f:result.CompactLandscape?y+(h+6)*3:500,panelW-pad*2,result.PhoneLandscape?54f:48f);
+                result.ActionButton=new Rect(result.Panel.x+pad,result.PhoneLandscape?result.Panel.y+panelH-68f:result.CompactLandscape?y+(h+6)*3:500,panelW-pad*2,result.PhoneLandscape?60f:48f);
                 result.RestartButton=new Rect(result.Panel.x+pad,result.CompactLandscape?176:260,panelW-pad*2,64);
             }
             float boardHeader=result.PhoneLandscape?28:result.Portrait||result.CompactLandscape?42:64;

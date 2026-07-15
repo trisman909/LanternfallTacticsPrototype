@@ -75,7 +75,7 @@ namespace Lanternfall
             bool ultraShortPhoneLandscape = phoneLandscape && panel.height < 360f;
             bool shortPanel = compact && panel.height < 420f && !phoneLandscape;
             float pad = shortPanel ? 8f : phoneLandscape || phonePortrait ? 10f : 12f;
-            float gap = ultraShortPhonePortrait ? 4f : ultraShortPhoneLandscape ? 4f : shortPanel || phoneLandscape ? 4f : phonePortrait ? 6f : compact ? 8f : 10f;
+            float gap = ultraShortPhonePortrait ? 4f : ultraShortPhoneLandscape ? 5f : shortPanel ? 4f : phoneLandscape ? 5f : phonePortrait ? 6f : compact ? 8f : 10f;
             float x = panel.x + pad;
             float w = panel.width - pad * 2f;
             float y = panel.y + (phoneLandscape ? 6f : phonePortrait ? 10f : shortPanel ? 10f : compact ? 14f : 16f);
@@ -126,7 +126,7 @@ namespace Lanternfall
             if (phoneLandscape)
             {
                 float landChipGap = 6f;
-                float landChipH = Mathf.Clamp(panel.height * .24f, 40f, 48f);
+                float landChipH = Mathf.Clamp(panel.height * .25f, 44f, 52f);
                 float landChipW = (w - landChipGap * 2f) / 3f;
                 snap.Header = new Rect(x, y, w, 0f);
                 snap.StatChips = new[]
@@ -141,8 +141,8 @@ namespace Lanternfall
                 y += landChipH + gap;
 
                 snap.SelectedSkill = new Rect(x, y, w, 0f);
-                float phoneActionH = Mathf.Clamp(panel.height * .28f, 50f, 62f);
-                float cardH = Mathf.Max(56f, panel.yMax - y - pad - phoneActionH - gap);
+                float phoneActionH = Mathf.Clamp(panel.height * .30f, 56f, 68f);
+                float cardH = Mathf.Max(60f, panel.yMax - y - pad - phoneActionH - gap);
                 float skillW = (w - gap * 2f) / 3f;
                 snap.SkillCards = new[]
                 {
