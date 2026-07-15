@@ -4,7 +4,7 @@ Playtest link:
 
 `https://trisman909.github.io/LanternfallTacticsPrototype/`
 
-Current visible build label: `Prototype v0.6K.1`.
+Current visible build label: `Prototype v0.6L`.
 
 This is a small prototype, not a finished game. Please note what confused you, what felt fun, and if anything broke.
 
@@ -27,6 +27,7 @@ This is a small prototype, not a finished game. Please note what confused you, w
 - A green lantern-bloom cross icon is an optional healing pickup that restores 3 HP; tap it for the exact rule.
 - A restrained purple boundary shows future pressure; current red attack regions remain stronger. Tap/check a tile and read the message panel for exact details.
 - If a tile is not highlighted, it is blocked, out of range, occupied, or invalid.
+- Audio begins only after your first tap. Open `How to Play` to cycle master, SFX, and music volume or mute all sound.
 - After clearing a room, choose one reward card.
 - If you win or lose, press `Start New Run` to restart.
 - On phone, rotate to landscape to play. Add to Home Screen/fullscreen is best if available, but normal browser landscape should still be playable.
@@ -56,7 +57,7 @@ This is a small prototype, not a finished game. Please note what confused you, w
 - Art is still lightweight prototype presentation.
 - Mobile browser play is useful to test but still experimental.
 - iPhone Safari still needs physical-device testing.
-- There is no final audio, account system, online save, monetization, or multiplayer.
+- Audio is an original procedural foundation rather than final mastered sound. There is no account system, online save, monetization, or multiplayer.
 - The run is intentionally short: five rooms total.
 
 ## Suggested note format

@@ -56,6 +56,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 6J - group AI coordination and hazard containment polish (complete)
 - Phase 6K - combat fairness, telegraph accuracy, and gameplay readability (complete)
 - Phase 6K.1 - tactical clarity, environmental hazard integration, and boss-room decluttering (complete)
+- Phase 6L - mobile polish, Sentinel AI correction, terrain integration, status clarity, and audio foundation (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -179,6 +180,8 @@ Phase 6J plans each enemy turn as a coordinated squad. Role-ordered destination 
 Phase 6K makes the combat pipeline fail closed against invisible damage. Enemy and hazard telegraphs are snapshotted when End Turn is pressed; every player HP loss is validated against that committed tile set. Same-turn move-and-hit is removed, charged-floor splash tiles are visibly armed, hazards use a quieter 68% footprint, area skills expose their potential impact, and active biome effects receive an explicit player frame and message. See [COMBAT_FAIRNESS_6K.md](COMBAT_FAIRNESS_6K.md).
 
 Phase 6K.1 removes the floating hazard-icon layer and blends biome-authored hazard art into 94% of each tile with darker, desaturated grading. Current and future enemy regions use clean merged boundaries, selected-skill mode suppresses unrelated warnings, the right HUD uses wrapped range guidance and a simple Current/Next/Then sequence, and boss rooms reserve more clear floor around the Lantern Warden. No new content or combat rules were added. See [TACTICAL_CLARITY_6K1.md](TACTICAL_CLARITY_6K1.md).
+
+Phase 6L modestly strengthens future-threat borders on phones, grades props into their biome floor, clips merged threat boundaries at walls and gaps, enlarges backed status badges, and replaces invalid-target art with concise wrapped reasons. Stone Sentinels now advance unless they are genuinely controlling close space, a chokepoint, or a ranged ally; their HP rises from 6 to 7 without a damage increase. An original procedural audio foundation adds short cues, two lightweight loops, first-interaction WebGL unlock, and saved master/SFX/music/mute controls. See [POLISH_6L.md](POLISH_6L.md).
 
 
 

@@ -66,12 +66,12 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6K.1: tactical clarity and environmental hazard polish.",
+            "Prototype v0.6L: mobile polish, intentional Sentinel AI, and original audio foundation.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
             "If stuck, refresh the page or use Start New Run after win/loss.",
-            "Known limits: placeholder art, no final audio, no physical iPhone Safari pass yet."
+            "Known limits: placeholder art, procedural foundation audio, no physical iPhone Safari pass yet."
         };
 
         void Awake()
@@ -198,7 +198,7 @@ namespace Lanternfall
             if (Turns.Phase != TurnPhase.Player) return;
             if (def.ClassId != Player.ClassId){Reject("That skill belongs to another class."); return;}
             if (Player.Cooldowns[def.Name] > 0){Reject($"{def.Name} is cooling down."); return;}
-            if (Player.ActionPoints < def.ApCost){Reject($"Need {def.ApCost} AP."); return;}
+            if (Player.ActionPoints < def.ApCost){Reject("Insufficient AP."); return;}
             LastInputAccepted = true;
             RejectedTile = null;
             SelectedSkill = id;
@@ -224,7 +224,7 @@ namespace Lanternfall
             if (Turns.Phase != TurnPhase.Player) return;
             LastTappedTile = p;
             HitTiles.Clear();
-            if (!Grid.IsFloor(p)){Reject("The void cannot be crossed."); return;}
+            if (!Grid.IsFloor(p)){Reject("Invalid destination."); return;}
             if (!ValidTargets.Contains(p)){Reject(SelectedSkill.HasValue ? ExplainInvalidTarget(p) : "Tile is blocked, occupied, or beyond your MP."); return;}
 
             LastInputAccepted = true;
@@ -589,18 +589,19 @@ namespace Lanternfall
         string ExplainInvalidTarget(Vector2Int p)
         {
             var def = SelectedSkill.HasValue ? SkillBook.Get(SelectedSkill.Value) : null;
-            if (def == null) return "Invalid target.";
+            if (def == null) return "No valid target.";
+            if (Enemies.Any(e=>e.Alive&&e.Position==p)||Player.Position==p&&def.Effect!=SkillEffect.SelfShield) return "Occupied.";
             int d = Manhattan(Player.Position, p);
-            if (d > def.Range) return "Target is out of range.";
-            if (def.RequiresLineOfSight && !SkillBook.HasLineOfSight(Grid, Player.Position, p)) return "Line of sight is blocked.";
-            return "No valid target there.";
+            if (d > def.Range) return "Out of range.";
+            if (def.RequiresLineOfSight && !SkillBook.HasLineOfSight(Grid, Player.Position, p)) return "Blocked line of sight.";
+            return "No valid target.";
         }
 
         void Reject(string why)
         {
             LastInputAccepted = false;
             RejectedTile = LastTappedTile;
-            Message = "INVALID: " + why + " Cyan = move, gold = skill target, red = danger.";
+            Message = "INVALID: " + why;
             Changed?.Invoke();
         }
 

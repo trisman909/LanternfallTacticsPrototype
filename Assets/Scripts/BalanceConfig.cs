@@ -23,7 +23,7 @@ namespace Lanternfall
         {
             EnemyKind.Ashling => (4, 2, 2),
             EnemyKind.GloomArcher => (5, 2, 2),
-            EnemyKind.StoneSentinel => (6, 3, 1),
+            EnemyKind.StoneSentinel => (7, 3, 1),
             _ => (24, 4, 2)
         };
 

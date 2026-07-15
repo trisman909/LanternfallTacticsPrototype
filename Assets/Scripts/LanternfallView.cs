@@ -6,8 +6,9 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6K.1";
+        public const string PrototypeVersion = "Prototype v0.6L";
         LanternfallGame game;
+        LanternfallAudio audioLayer;
         Camera cam;
         GUIStyle title, body, button, center, small;
         GUIStyle hudHeader, hudChip, hudMessage, hudButton, hudSkill, hudSkillCompact, hudTiny;
@@ -46,6 +47,7 @@ namespace Lanternfall
             Input.multiTouchEnabled = false;
 
             game = gameObject.AddComponent<LanternfallGame>();
+            audioLayer = gameObject.AddComponent<LanternfallAudio>();
             cam = new GameObject("Camera").AddComponent<Camera>();
             cam.orthographic = true;
             cam.transform.position = new Vector3(4, 5, -10);
@@ -57,6 +59,7 @@ namespace Lanternfall
         void OnGameChanged()
         {
             if (!game.HasStarted || game.Player == null) return;
+            audioLayer.Observe(game.Message,game.RoomNumber==5);
             float now = Time.unscaledTime;
             if (!presentationSnapshotReady || observedRoom != game.RoomNumber)
             {
@@ -86,6 +89,10 @@ namespace Lanternfall
                 if (observedPhase != game.Turns.Phase)
                 {
                     flowBanner = game.Turns.Phase switch { TurnPhase.Reward => "ROOM CLEAR", TurnPhase.Won => "VICTORY", TurnPhase.Lost => "DEFEAT", _ => "" };
+                    if(game.Turns.Phase==TurnPhase.Enemy)audioLayer.Play(AudioCue.EnemyPhase);
+                    else if(game.Turns.Phase==TurnPhase.Reward)audioLayer.Play(AudioCue.RoomClear);
+                    else if(game.Turns.Phase==TurnPhase.Won)audioLayer.Play(AudioCue.Victory);
+                    else if(game.Turns.Phase==TurnPhase.Lost)audioLayer.Play(AudioCue.Defeat);
                     if (flowBanner != "") flowBannerUntil = now + PresentationMotion.Duration(1.0f,.4f);
                 }
             }
@@ -93,6 +100,7 @@ namespace Lanternfall
             if (signature != observedEffectSignature && game.HitTiles.Count > 0)
             {
                 CombatEffectCue cue=CombatEffectLanguage.ForMessage(game.Message); Color color=CombatEffectLanguage.Color(cue);
+                audioLayer.PlayCombat(cue);
                 foreach (var hit in game.HitTiles)
                 {
                     Vector2 source=game.Player.Position;
@@ -150,6 +158,7 @@ namespace Lanternfall
         void OnGUI()
         {
             if (title == null) InitStyles();
+            if(Event.current.type==EventType.MouseDown&&!audioLayer.Unlocked){audioLayer.Unlock(game.HasStarted&&game.RoomNumber==5);audioLayer.Play(AudioCue.UiTap);}
             var guiSafe = MobileLayout.ToGuiSafeArea(Screen.height, Screen.safeArea);
             GUI.BeginGroup(guiSafe);
             var layout = MobileLayout.Compute(guiSafe.width, guiSafe.height);
@@ -265,17 +274,33 @@ namespace Lanternfall
             DrawRect(panel, new Color(.055f, .045f, .085f));
             DrawOutline(panel, new Color(.55f, .38f, .12f), 2);
             GUI.Label(new Rect(pad, y, w, 44), "HOW TO PLAY", title); y += 54;
-            foreach (var line in LanternfallGame.HowToPlayLines)
+            bool phoneHelp=area.height<500f;
+            if(phoneHelp)
             {
-                float lineH = area.height < 500f ? 34 : 54;
-                GUI.Label(new Rect(pad, y, w, lineH), "- " + line, area.height < 500f ? small : body);
-                y += lineH + 4;
+                float gapColumns=16f,columnW=(w-gapColumns)*.5f,lineH=44f;
+                for(int i=0;i<LanternfallGame.HowToPlayLines.Length;i++)
+                {
+                    int column=i%2,row=i/2;
+                    GUI.Label(new Rect(pad+column*(columnW+gapColumns),y+row*(lineH+3f),columnW,lineH),"- "+LanternfallGame.HowToPlayLines[i],small);
+                }
+            }
+            else foreach (var line in LanternfallGame.HowToPlayLines)
+            {
+                const float lineH=54f;GUI.Label(new Rect(pad,y,w,lineH),"- "+line,body);y+=lineH+4;
             }
             float actionY=area.height-(area.height<500f?58:84), actionH=area.height<500f?46:62, gap=10f, motionW=w*.34f;
+            float audioY=actionY-actionH-8f,audioGap=6f,audioW=(w-audioGap*3f)/4f;
+            var audioButton=new GUIStyle(button){fontSize=phoneHelp?Mathf.Max(14,small.fontSize):Mathf.Max(14,body.fontSize-2)};
+            if(GUI.Button(new Rect(pad,audioY,audioW,actionH),$"MASTER {Mathf.RoundToInt(LanternfallAudioSettings.Master*100)}",audioButton)){LanternfallAudioSettings.Master=NextVolume(LanternfallAudioSettings.Master);audioLayer.RefreshVolumes();}
+            if(GUI.Button(new Rect(pad+(audioW+audioGap),audioY,audioW,actionH),$"SFX {Mathf.RoundToInt(LanternfallAudioSettings.Sfx*100)}",audioButton)){LanternfallAudioSettings.Sfx=NextVolume(LanternfallAudioSettings.Sfx);audioLayer.RefreshVolumes();audioLayer.Play(AudioCue.UiTap);}
+            if(GUI.Button(new Rect(pad+(audioW+audioGap)*2,audioY,audioW,actionH),$"MUSIC {Mathf.RoundToInt(LanternfallAudioSettings.Music*100)}",audioButton)){LanternfallAudioSettings.Music=NextVolume(LanternfallAudioSettings.Music);audioLayer.RefreshVolumes();}
+            if(GUI.Button(new Rect(pad+(audioW+audioGap)*3,audioY,audioW,actionH),LanternfallAudioSettings.Muted?"UNMUTE":"MUTE",audioButton)){LanternfallAudioSettings.Muted=!LanternfallAudioSettings.Muted;audioLayer.RefreshVolumes();}
             if(GUI.Button(new Rect(pad,actionY,motionW,actionH),PresentationMotion.Reduced?"MOTION: REDUCED":"MOTION: FULL",button))PresentationMotion.Reduced=!PresentationMotion.Reduced;
             if (GUI.Button(new Rect(pad+motionW+gap,actionY,w-motionW-gap,actionH), game.HasStarted ? "BACK TO RUN" : "GOT IT", button))
                 game.HideHelp();
         }
+
+        static float NextVolume(float value)=>value>.75f?.5f:value>.25f?0f:1f;
 
         void DrawPlaytestInfoOverlay(Rect area)
         {
@@ -387,8 +412,9 @@ namespace Lanternfall
             foreach (var p in game.PropTiles)
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
-                var propRect=new Rect(r.x+r.width*.14f,r.y+r.height*.14f,r.width*.72f,r.height*.72f);
-                if (!AuthoredBiomes.Draw(propRect, game.Theme.Id, AuthoredBiomes.PropCell(p),new Color(.82f,.82f,.82f)))
+                var propRect=new Rect(r.x+r.width*.09f,r.y+r.height*.09f,r.width*.82f,r.height*.82f);
+                DrawRect(new Rect(propRect.x+propRect.width*.12f,propRect.y+propRect.height*.68f,propRect.width*.76f,propRect.height*.16f),new Color(0f,0f,0f,.22f));
+                if (!AuthoredBiomes.Draw(propRect, game.Theme.Id, AuthoredBiomes.PropCell(p),VisualReadability.EnvironmentalPropTint(game.Theme)))
                     DrawIcon(propRect,VisualIcon.Obstacle);
             }
 
@@ -402,7 +428,7 @@ namespace Lanternfall
             }
 
             var delayedTiles=game.Enemies.Where(e=>e.Alive).SelectMany(e=>e.DelayedPreview).ToHashSet();
-            DrawMergedThreatBoundary(delayedTiles,ox,oy,minX,maxY,new Color(.56f,.24f,.68f,game.SelectedSkill.HasValue?.12f:.30f),Mathf.Max(1,tile*.025f));
+            DrawMergedThreatBoundary(delayedTiles,ox,oy,minX,maxY,new Color(.62f,.30f,.76f,game.SelectedSkill.HasValue?.16f:.42f),Mathf.Max(2,tile*VisualReadability.FutureThreatBorderScale(IsPhoneViewport())));
 
             var immediateTiles=game.Enemies.Where(e=>e.Alive).SelectMany(e=>e.Preview).ToHashSet();
             bool bossAttack=game.Enemies.Any(e=>e.Alive&&e.Kind==EnemyKind.LanternWarden&&e.Preview.Count>0);
@@ -433,10 +459,10 @@ namespace Lanternfall
             foreach(var p in tiles)
             {
                 var r=TileRect(p,ox,oy,minX,maxY);
-                if(!tiles.Contains(p+Vector2Int.up))DrawRect(new Rect(r.x,r.y,r.width,width),color);
-                if(!tiles.Contains(p+Vector2Int.down))DrawRect(new Rect(r.x,r.yMax-width,r.width,width),color);
-                if(!tiles.Contains(p+Vector2Int.left))DrawRect(new Rect(r.x,r.y,width,r.height),color);
-                if(!tiles.Contains(p+Vector2Int.right))DrawRect(new Rect(r.xMax-width,r.y,width,r.height),color);
+                if(VisualReadability.IsExposedThreatEdge(tiles,p,Vector2Int.up,game.Grid))DrawRect(new Rect(r.x,r.y,r.width,width),color);
+                if(VisualReadability.IsExposedThreatEdge(tiles,p,Vector2Int.down,game.Grid))DrawRect(new Rect(r.x,r.yMax-width,r.width,width),color);
+                if(VisualReadability.IsExposedThreatEdge(tiles,p,Vector2Int.left,game.Grid))DrawRect(new Rect(r.x,r.y,width,r.height),color);
+                if(VisualReadability.IsExposedThreatEdge(tiles,p,Vector2Int.right,game.Grid))DrawRect(new Rect(r.xMax-width,r.y,width,r.height),color);
             }
         }
 
@@ -507,11 +533,11 @@ namespace Lanternfall
             if (unit != null)
             {
                 int count = (unit.Shield > 0 ? 1 : 0) + (unit.BurnTurns > 0 ? 1 : 0) + (unit.RootTurns > 0 ? 1 : 0) + (unit.MarkedTurns > 0 ? 1 : 0);
-                float iconSize = tile * .19f, x = r.center.x - count * iconSize * .5f;
-                if (unit.Shield > 0) { DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Shield); x += iconSize; }
-                if (unit.BurnTurns > 0) { DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Burn); x += iconSize; }
-                if (unit.RootTurns > 0) { DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Root); x += iconSize; }
-                if (unit.MarkedTurns > 0) DrawIcon(new Rect(x, r.yMax - iconSize * .55f, iconSize, iconSize), VisualIcon.Mark);
+                float iconSize = tile * VisualReadability.StatusIconScale(IsPhoneViewport()), x = r.center.x - count * iconSize * .5f;
+                if (unit.Shield > 0) { DrawStatusBadge(new Rect(x, r.yMax - iconSize * .62f, iconSize, iconSize), VisualIcon.Shield, unit.Shield); x += iconSize; }
+                if (unit.BurnTurns > 0) { DrawStatusBadge(new Rect(x, r.yMax - iconSize * .62f, iconSize, iconSize), VisualIcon.Burn, unit.BurnTurns); x += iconSize; }
+                if (unit.RootTurns > 0) { DrawStatusBadge(new Rect(x, r.yMax - iconSize * .62f, iconSize, iconSize), VisualIcon.Root, unit.RootTurns); x += iconSize; }
+                if (unit.MarkedTurns > 0) DrawStatusBadge(new Rect(x, r.yMax - iconSize * .62f, iconSize, iconSize), VisualIcon.Mark, unit.MarkedTurns);
                 if (!PresentationMotion.Reduced && count > 0)
                 {
                     Color aura=unit.BurnTurns>0?new Color(1f,.30f,.05f):unit.RootTurns>0?new Color(.35f,1f,.38f):unit.MarkedTurns>0?new Color(.76f,.26f,1f):new Color(.32f,.78f,1f);
@@ -519,6 +545,15 @@ namespace Lanternfall
                     DrawOutline(new Rect(r.x-pulse,r.y-pulse,r.width+pulse*2,r.height+pulse*2),new Color(aura.r,aura.g,aura.b,.58f),2);
                 }
             }
+        }
+
+        void DrawStatusBadge(Rect r,VisualIcon icon,int amount)
+        {
+            var color=IconLanguage.Describe(icon).Color;
+            DrawRect(r,new Color(.015f,.012f,.025f,.92f));
+            DrawOutline(r,color,Mathf.Max(1f,r.width*.07f));
+            DrawIcon(new Rect(r.x+r.width*.12f,r.y+r.height*.08f,r.width*.76f,r.height*.76f),icon);
+            if(amount>1)GUI.Label(new Rect(r.x+r.width*.48f,r.y+r.height*.48f,r.width*.48f,r.height*.46f),amount.ToString(),new GUIStyle(center){fontSize=Mathf.Max(12,Mathf.RoundToInt(r.width*.38f)),fontStyle=FontStyle.Bold,normal={textColor=Color.white}});
         }
 
         void DrawPanel(Rect r, bool compact)
@@ -546,7 +581,7 @@ namespace Lanternfall
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
             var endTurn = !hasSkill && !IsPhoneViewport() ? new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height) : hud.EndTurnButton;
             AuthoredArt.DrawSkin(endTurn, UiSkin.EndTurn);
-            if (GUI.Button(endTurn, HudText.EndTurnButton, hudButton)) game.WaitTurn();
+            if (GUI.Button(endTurn, HudText.EndTurnButton, hudButton)){audioLayer.Play(AudioCue.EndTurn);game.WaitTurn();}
             GUI.enabled = true;
             DrawMessageBox(hud.Message);
         }
@@ -574,7 +609,7 @@ namespace Lanternfall
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
             var endTurn = !hasSkill && !IsPhoneViewport() ? new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height) : hud.EndTurnButton;
             AuthoredArt.DrawSkin(endTurn, UiSkin.EndTurn);
-            if (GUI.Button(endTurn, HudText.EndTurnButton, hudButton)) game.WaitTurn();
+            if (GUI.Button(endTurn, HudText.EndTurnButton, hudButton)){audioLayer.Play(AudioCue.EndTurn);game.WaitTurn();}
             GUI.enabled = true;
             DrawMessageBox(hud.Message);
         }
@@ -649,12 +684,14 @@ namespace Lanternfall
 
         void DrawSelectedSkillInfo(Rect r)
         {
-            AuthoredArt.DrawSkin(r, UiSkin.SelectedSkill,new Color(.82f,.82f,.82f));
+            bool invalid=game.SelectedSkill.HasValue&&!game.LastInputAccepted&&game.Message.StartsWith("INVALID:");
+            if(invalid){DrawRect(r,new Color(.11f,.025f,.035f,.96f));DrawOutline(r,new Color(1f,.24f,.18f),2);}
+            else AuthoredArt.DrawSkin(r, UiSkin.SelectedSkill,new Color(.82f,.82f,.82f));
             string label = "Selected skill: none";
             if (game.SelectedSkill.HasValue)
             {
                 var s = SkillBook.Get(game.SelectedSkill.Value);
-                label = $"Selected: {s.Name}\nGold: in range  •  Dark: out of range";
+                label = invalid ? game.Message.Replace("INVALID: ","").Split('.')[0] : $"Selected: {s.Name}\nGold: in range  •  Dark: out of range";
             }
             GUI.Label(new Rect(r.x+5,r.y+2,r.width-10,r.height-4), label, hudTiny);
         }
@@ -676,7 +713,7 @@ namespace Lanternfall
                 string label = phone ? HudText.MobileSkillCard(s, cd, game.Player.ActionPoints, game.Turns.Phase, selected) : HudText.SkillCard(s, cd, game.Player.ActionPoints, game.Turns.Phase, selected, compact && !(selected || hover), selected || hover);
                 if (!phone && compact && cards[i].width < 145f)
                     label = $"{(selected ? "SEL " : "")}{ShortSkill(s)}\nAP {s.ApCost} - {HudText.SkillState(s, cd, game.Player.ActionPoints, game.Turns.Phase)}";
-                if (GUI.Button(cards[i], label, cards[i].width < 145f ? hudSkillCompact : hudSkill)) game.SelectSkill(s.Id);
+                if (GUI.Button(cards[i], label, cards[i].width < 145f ? hudSkillCompact : hudSkill)){audioLayer.Play(AudioCue.SelectSkill);game.SelectSkill(s.Id);}
                 GUI.enabled = true;
             }
         }
@@ -702,7 +739,7 @@ namespace Lanternfall
             {
                 var r = new Rect(x + i * (bw + gap), y, bw, RewardPanelLayout.PortraitCardHeight);
                 DrawCardFrame(r, new Color(1f, .62f, .18f), UiSkin.RewardCard);
-                if (GUI.Button(r, RewardCatalog.Get(i).CompactLabel, hudSkillCompact)) game.ChooseReward(i);
+                if (GUI.Button(r, RewardCatalog.Get(i).CompactLabel, hudSkillCompact)){audioLayer.Play(AudioCue.Reward);game.ChooseReward(i);}
             }
         }
 
@@ -712,7 +749,7 @@ namespace Lanternfall
             {
                 var r = new Rect(x, y, w, RewardPanelLayout.SideCardHeight);
                 DrawCardFrame(r, new Color(1f, .62f, .18f), UiSkin.RewardCard);
-                if (GUI.Button(r, RewardCatalog.WebGLCardLabel(i), hudSkill)) game.ChooseReward(i);
+                if (GUI.Button(r, RewardCatalog.WebGLCardLabel(i), hudSkill)){audioLayer.Play(AudioCue.Reward);game.ChooseReward(i);}
                 y += RewardPanelLayout.SideCardHeight + RewardPanelLayout.Gap;
             }
         }

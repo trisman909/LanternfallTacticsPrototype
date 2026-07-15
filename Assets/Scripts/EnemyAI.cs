@@ -119,7 +119,7 @@ namespace Lanternfall
             int escapeLimit=Mathf.Min(3,Mathf.Max(1,living.Count-1));
             foreach(var enemy in living)
             {
-                Vector2Int destination=enemy.Preview.Contains(player)||enemy.DelayedPreview.Contains(player)||enemy.RootTurns>0
+                Vector2Int destination=ShouldHoldPosition(enemy,player,grid,living)||enemy.RootTurns>0
                     ? enemy.Position
                     : ChooseReposition(enemy,player,grid,blocked,hazard,living,traversalCost,plan.ReservedDestinations,plan.ReservedAttackTiles,sectors,escapeLimit);
                 plan.Destinations[enemy]=destination;
@@ -131,6 +131,16 @@ namespace Lanternfall
                 if(Manhattan(destination,player)<=3)sectors.Add(FlankSector(destination,player));
             }
             return plan;
+        }
+
+        public static bool ShouldHoldPosition(EnemyModel enemy,Vector2Int player,GridModel grid,IEnumerable<EnemyModel> allies)
+        {
+            if(enemy.Preview.Contains(player))return true;
+            if(enemy.Kind==EnemyKind.GloomArcher&&enemy.DelayedPreview.Contains(player))return true;
+            if(enemy.Kind!=EnemyKind.StoneSentinel)return enemy.DelayedPreview.Contains(player);
+            int distance=Manhattan(enemy.Position,player);
+            bool protectsRanged=(allies??Enumerable.Empty<EnemyModel>()).Any(a=>a!=enemy&&a.Alive&&a.Kind==EnemyKind.GloomArcher&&Manhattan(a.Position,enemy.Position)<=2);
+            return enemy.DelayedPreview.Contains(player)&&(distance<=2||IsChokepoint(enemy.Position,grid)||protectsRanged);
         }
 
         public static Vector2Int ChooseReposition(EnemyModel e, Vector2Int player, GridModel grid, System.Func<Vector2Int, bool> blocked, System.Func<Vector2Int, bool> hazard = null, IEnumerable<EnemyModel> allies = null, System.Func<Vector2Int,int> traversalCost = null, ISet<Vector2Int> reservedDestinations=null, ISet<Vector2Int> reservedAttackTiles=null, ISet<int> reservedFlankSectors=null, int escapeReservationLimit=3)
@@ -191,6 +201,8 @@ namespace Lanternfall
                 }
                 else if (e.Kind == EnemyKind.StoneSentinel)
                 {
+                    if(distance<startDistance)score+=(startDistance-distance)*14;
+                    if(c==e.Position&&distance>2)score-=70;
                     if (distance <= 2) score += 16;
                     if (delayed.Contains(player) || delayed.Count(escapeTiles.Contains) > 0) score += 14;
                     if (IsChokepoint(c, grid)) score += 28;

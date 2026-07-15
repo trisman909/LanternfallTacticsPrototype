@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Lanternfall
@@ -52,6 +53,22 @@ namespace Lanternfall
             Color graded=Color.Lerp(theme.HazardColor,new Color(grey,grey,grey),.32f);
             return new Color(graded.r*.70f,graded.g*.70f,graded.b*.70f,.92f);
         }
+
+        public static Color EnvironmentalPropTint(BiomeTheme theme)
+        {
+            float grey=Luminance(theme.Accent);
+            Color graded=Color.Lerp(theme.Accent,new Color(grey,grey,grey),.42f);
+            return new Color(graded.r*.62f,graded.g*.62f,graded.b*.62f,.88f);
+        }
+
+        public static bool PropsReceiveTacticalOuterBorders=>false;
+
+        public static float FutureThreatBorderScale(bool phoneLandscape)=>phoneLandscape ? .045f : .035f;
+
+        public static bool IsExposedThreatEdge(ISet<Vector2Int> affected,Vector2Int tile,Vector2Int direction,GridModel grid)
+            =>affected.Contains(tile)&&grid.IsFloor(tile)&&(!grid.IsFloor(tile+direction)||!affected.Contains(tile+direction));
+
+        public static float StatusIconScale(bool phoneLandscape)=>phoneLandscape ? .38f : .34f;
 
         public static float EnvironmentQuietingAlpha(BiomeId biome)=>biome switch
         {
