@@ -334,7 +334,7 @@ namespace Lanternfall.Tests
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.6G",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.6H",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -399,7 +399,7 @@ namespace Lanternfall.Tests
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("mobile browser")));
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
-            Assert.That(guide,Does.Contain("Prototype v0.6G"));
+            Assert.That(guide,Does.Contain("Prototype v0.6H"));
             Assert.That(guide,Does.Contain("what confused you"));
             Assert.That(guide,Does.Contain("What device/browser did you use?"));
             Assert.That(guide,Does.Contain("Which class felt best/worst?"));
@@ -635,8 +635,8 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("max-width: 100%"));
             Assert.That(builder,Does.Contain("overflow: hidden"));
             Assert.That(builder,Does.Contain("env(safe-area-inset-left)"));
-            Assert.That(builder,Does.Contain("v=6G"));
-            Assert.That(builder,Does.Contain("Prototype v0.6G"));
+            Assert.That(builder,Does.Contain("v=6H"));
+            Assert.That(builder,Does.Contain("Prototype v0.6H"));
         }
 
         [Test] public void Phase6B1_PhoneLandscapeUsesLargerReadableFontsAndRowsWithoutDesktopChange()
@@ -742,8 +742,8 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("window.innerHeight"));
             Assert.That(builder,Does.Contain("orientationchange"));
             Assert.That(builder,Does.Contain("lanternfall-phone-portrait"));
-            Assert.That(builder,Does.Contain("v=6G"));
-            Assert.That(builder,Does.Contain("Prototype v0.6G"));
+            Assert.That(builder,Does.Contain("v=6H"));
+            Assert.That(builder,Does.Contain("Prototype v0.6H"));
         }
 
         [Test] public void Phase5Q2_PhoneHudUsesShortSkillLabelsAndHidesSecondaryCombatInfo()
@@ -821,6 +821,19 @@ namespace Lanternfall.Tests
             Assert.That(view,Does.Contain("DrawBoardEffects"));
             Assert.That(view,Does.Not.Contain("ParticleSystem"));
             Assert.That(view,Does.Not.Contain("WaitForSeconds"));
+        }
+
+        [Test] public void Phase6H_ReadabilityPolishIsDocumentedAndReusesExistingAtlases()
+        {
+            Assert.True(File.Exists("READABILITY_6H.md"));
+            var notes=File.ReadAllText("READABILITY_6H.md");
+            Assert.That(notes,Does.Contain("player → enemies → danger/targets → board → background"));
+            Assert.That(notes,Does.Contain("No textures or runtime systems were added"));
+            var view=File.ReadAllText("Assets/Scripts/LanternfallView.cs");
+            Assert.That(view,Does.Contain("QuietEnvironmentOverlay"));
+            Assert.That(view,Does.Contain("UnitTokenScale"));
+            Assert.That(view,Does.Not.Contain("PostProcess"));
+            Assert.That(view,Does.Not.Contain("DynamicLight"));
         }
     }
 }

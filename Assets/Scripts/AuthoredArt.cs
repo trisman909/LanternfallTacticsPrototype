@@ -34,10 +34,15 @@ namespace Lanternfall
         }
 
         public static bool DrawSkin(Rect rect, UiSkin skin)
+            =>DrawSkin(rect,skin,Color.white);
+
+        public static bool DrawSkin(Rect rect, UiSkin skin,Color tint)
         {
             if (!uiLoadAttempted) { uiAtlas = Resources.Load<Texture2D>(UiAtlasResource); uiLoadAttempted = true; }
             if (uiAtlas == null) return false;
+            var old=GUI.color; GUI.color=tint;
             GUI.DrawTextureWithTexCoords(rect, uiAtlas, CellUv((int)skin, UiColumns, UiRows), true);
+            GUI.color=old;
             return true;
         }
 

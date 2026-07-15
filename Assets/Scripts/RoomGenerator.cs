@@ -53,7 +53,9 @@ namespace Lanternfall
             }
             var dressing=grid.Floors().Where(v=>v!=player&&!enemies.Contains(v)&&v.y>2).OrderBy(_=>rng.Next()).ToList();
             var hazards=dressing.Take(5).ToHashSet();
-            var props=dressing.Skip(5).Take(3).ToHashSet();
+            int propTarget=roomNumber>=4?2:1;
+            var propPool=dressing.Skip(5).Where(v=>IsPropAnchor(grid,v)).OrderBy(_=>rng.Next()).ToList();
+            var props=propPool.Take(propTarget).ToHashSet();
             Vector2Int? heal=null;
             if(roomNumber>=2 && roomNumber<5 && rng.NextDouble()<.35)
             {
@@ -74,6 +76,13 @@ namespace Lanternfall
             var seen = new HashSet<Vector2Int>{all[0]}; var q = new Queue<Vector2Int>(); q.Enqueue(all[0]);
             while(q.Count > 0) foreach(var n in grid.Neighbors(q.Dequeue())) if(seen.Add(n)) q.Enqueue(n);
             return seen.Count == all.Count;
+        }
+
+        public static bool IsPropAnchor(GridModel grid,Vector2Int tile)
+        {
+            int neighbors=grid.Neighbors(tile).Count();
+            bool edge=tile.x<=2||tile.x>=6||tile.y<=3||tile.y>=8;
+            return neighbors<=2||edge;
         }
     }
 }

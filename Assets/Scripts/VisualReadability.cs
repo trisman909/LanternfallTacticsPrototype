@@ -93,6 +93,28 @@ namespace Lanternfall
 
         public static float Contrast(Color a, Color b) => Mathf.Abs(Luminance(a) - Luminance(b));
 
+        public static Color QuietEnvironmentOverlay(Color biomeColor,bool hazard=false)
+        {
+            float grey=Luminance(biomeColor);
+            Color muted=Color.Lerp(biomeColor,new Color(grey,grey,grey),.24f);
+            muted.a=hazard ? .18f : .36f;
+            return muted;
+        }
+
+        public static float TacticalOverlayAlpha(TileVisualState state)=>state switch
+        {
+            TileVisualState.Hit=>.80f,
+            TileVisualState.EnemyPreview=>.72f,
+            TileVisualState.AreaPreview=>.68f,
+            TileVisualState.MoveTarget=>.64f,
+            TileVisualState.SkillTarget=>.68f,
+            TileVisualState.Hazard=>.38f,
+            TileVisualState.ArmedHazard=>.62f,
+            _=>.52f
+        };
+
+        public static float UnitTokenScale(bool boss)=>boss ? .99f : .98f;
+
         static Color Boost(Color c, float amount) => new(Mathf.Clamp01(c.r + amount), Mathf.Clamp01(c.g + amount), Mathf.Clamp01(c.b + amount), c.a);
         static float Luminance(Color c) => c.r * .299f + c.g * .587f + c.b * .114f;
     }

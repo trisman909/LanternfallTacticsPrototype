@@ -50,6 +50,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 6E - authored player, enemy, and boss sprite pass (complete)
 - Phase 6F - authored five-biome environment pass (complete)
 - Phase 6G - lightweight combat effects and animation pass (complete)
+- Phase 6H - visual readability and art-direction polish (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -161,6 +162,8 @@ Phase 6E replaces visible letter/abstract unit bodies with a single original nin
 Phase 6F replaces procedural board surfaces and prop glyphs with five compact original production-placeholder biome atlases. Every biome now has distinct floor variants, blockers, hazard treatment, healing pickup, props, background palette, and a sparse boss-room accent while all tactical overlays and rules remain unchanged. See [ART_ASSETS_6F.md](ART_ASSETS_6F.md).
 
 Phase 6G adds a presentation-only combat-effects layer: short unit interpolation, movement trails, destination pulses, action-family attack cues, status auras, death fades, threat breathing, and room/outcome banners. A persisted Full/Reduced Motion toggle is available in How to Play. The layer uses existing IMGUI primitives and cached art, with no particles, shaders, gameplay waits, or balance changes. See [EFFECTS_6G.md](EFFECTS_6G.md).
+
+Phase 6H is a strict readability and art-direction polish pass. Biome atlases are reused under a 36% muted veil, alternate patterns and props are sparser, unit tokens are roughly 14% larger, player/boss silhouettes receive stronger framing, tactical overlays gain priority, and HUD ornament is restrained through consistent tinting. No content, effects, mechanics, maps, shaders, particles, animations, or gameplay systems were added. See [READABILITY_6H.md](READABILITY_6H.md).
 
 
 

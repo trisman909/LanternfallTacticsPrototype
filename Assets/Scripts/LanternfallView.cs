@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6G";
+        public const string PrototypeVersion = "Prototype v0.6H";
         LanternfallGame game;
         Camera cam;
         GUIStyle title, body, button, center, small;
@@ -322,7 +322,7 @@ namespace Lanternfall
             foreach (var p in floors)
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
-                bool alternate = (p.x + p.y) % 2 == 0;
+                bool alternate = Mathf.Abs(p.x * 3 + p.y * 5) % 4 == 0;
                 TileVisualState state = TileVisualState.Floor;
                 if (game.HazardTiles.Contains(p)) state = game.ArmedHazards.Contains(p) ? TileVisualState.ArmedHazard : TileVisualState.Hazard;
                 if (game.Enemies.Any(e => e.Alive && e.Preview.Contains(p))) state = TileVisualState.EnemyPreview;
@@ -334,12 +334,13 @@ namespace Lanternfall
                 BiomeArtCell artCell = game.HazardTiles.Contains(p) ? BiomeArtCell.Hazard : alternate ? BiomeArtCell.Alternate : BiomeArtCell.Floor;
                 if (game.RoomNumber == 5 && !game.HazardTiles.Contains(p) && Mathf.Abs(p.x * 13 + p.y * 7) % 11 == 0) artCell = BiomeArtCell.BossAccent;
                 bool authored = AuthoredBiomes.Draw(r, game.Theme.Id, artCell, Color.white);
-                if (state != TileVisualState.Floor) DrawRect(r, new Color(c.r, c.g, c.b, state == TileVisualState.Hit ? .72f : .52f));
+                if(authored)DrawRect(r,VisualReadability.QuietEnvironmentOverlay(alternate?game.Theme.Alternate:game.Theme.Floor,game.HazardTiles.Contains(p)));
+                if (state != TileVisualState.Floor) DrawRect(r, new Color(c.r, c.g, c.b, VisualReadability.TacticalOverlayAlpha(state)));
                 DrawOutline(r, new Color(0f, 0f, 0f, .45f), Mathf.Max(1, tile * .035f));
                 if (!authored && !game.HazardTiles.Contains(p) && !game.ValidTargets.Contains(p))
                     DrawTileGlyph(r, VisualReadability.FloorGlyph(game.Theme.Id, alternate), new Color(1f, 1f, 1f, .18f), .22f);
-                if (game.PreviewArea.Contains(p)) DrawOutline(r, new Color(1f, .84f, .32f), Mathf.Max(2, tile * .045f));
-                if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) DrawOutline(r, game.SelectedSkill.HasValue ? new Color(1f, .94f, .28f) : new Color(.36f, 1f, 1f), Mathf.Max(2, tile * .05f));
+                if (game.PreviewArea.Contains(p)) DrawOutline(r, new Color(1f, .84f, .32f), Mathf.Max(3, tile * .055f));
+                if (game.ValidTargets.Contains(p) && game.Turns.Phase == TurnPhase.Player) DrawOutline(r, game.SelectedSkill.HasValue ? new Color(1f, .94f, .28f) : new Color(.36f, 1f, 1f), Mathf.Max(3, tile * .065f));
                 if (game.LastTappedTile == p) DrawOutline(r, Color.white, 3);
                 if (game.RejectedTile == p){ DrawOutline(r, VisualReadability.TileColor(game.Theme, TileVisualState.Invalid), 4); DrawIcon(new Rect(r.x + tile * .28f, r.y + tile * .28f, tile * .40f, tile * .40f), VisualIcon.InvalidTarget); }
                 if (Event.current.type == EventType.MouseDown && r.Contains(Event.current.mousePosition)){game.TapTile(p); Event.current.Use();}
@@ -364,7 +365,8 @@ namespace Lanternfall
             foreach (var p in game.PropTiles)
             {
                 var r = TileRect(p, ox, oy, minX, maxY);
-                if (!AuthoredBiomes.Draw(r, game.Theme.Id, AuthoredBiomes.PropCell(p), Color.white))
+                var propRect=new Rect(r.x+r.width*.14f,r.y+r.height*.14f,r.width*.72f,r.height*.72f);
+                if (!AuthoredBiomes.Draw(propRect, game.Theme.Id, AuthoredBiomes.PropCell(p),new Color(.82f,.82f,.82f)))
                     DrawTileGlyph(r, game.Theme.PropGlyph, game.Theme.Accent, .34f);
             }
 
@@ -392,7 +394,7 @@ namespace Lanternfall
                 bool heavyBoss = game.Enemies.Any(e => e.Alive && e.Kind == EnemyKind.LanternWarden && EnemyAI.BossPhase(e) >= 3 && e.Preview.Contains(p));
                 float cue = PresentationMotion.Reduced ? .82f : .68f + Mathf.Sin(Time.unscaledTime * 7f) * .18f;
                 Color cueColor = bossAttack ? new Color(1f, .54f, .12f, cue) : new Color(1f, .20f, .18f, cue);
-                DrawOutline(r, cueColor, Mathf.Max(2, tile * (bossAttack ? .075f : .05f)));
+                DrawOutline(r, cueColor, Mathf.Max(3, tile * (bossAttack ? .09f : .065f)));
                 DrawIcon(new Rect(r.x + tile * .30f, r.y + tile * .26f, tile * .40f, tile * .48f), bossAttack ? VisualIcon.BossDanger : VisualIcon.ImmediateDanger);
             }
 
@@ -455,14 +457,16 @@ namespace Lanternfall
 
         void DrawToken(Vector2 p, float ox, float oy, int minX, int maxY, Color c, string glyph, string hp = "", UnitModel unit = null, bool player = false, bool boss = false, PlayerClassId? playerClass = null, EnemyKind? enemyKind = null, bool hit = false)
         {
-            float inset = boss ? .00f : .05f;
-            float size = boss ? .96f : .86f;
-            var r = new Rect(ox + (p.x - minX) * tile + tile * inset, oy + (maxY - p.y) * tile + tile * .08f, tile * size, tile * size);
+            float size=VisualReadability.UnitTokenScale(boss),inset=(1f-size)*.5f;
+            var r = new Rect(ox + (p.x - minX) * tile + tile * inset, oy + (maxY - p.y) * tile + tile * inset, tile * size, tile * size);
             DrawRect(new Rect(r.x - 3, r.y - 3, r.width + 6, r.height + 6), new Color(0f, 0f, 0f, .70f));
-            DrawRect(r, new Color(c.r * .18f, c.g * .18f, c.b * .18f, .92f));
+            float idle=player ? .30f : boss ? .23f : .18f;
+            DrawRect(r, new Color(c.r * idle, c.g * idle, c.b * idle, .96f));
             Color outline = player ? Color.white : boss ? new Color(1f, .75f, .2f) : new Color(.08f, .04f, .05f);
-            DrawOutline(r, hit ? new Color(1f, .92f, .28f) : outline, Mathf.Max(2, tile * (hit ? .075f : .045f)));
-            var spriteRect = new Rect(r.x - r.width * (boss ? .08f : .02f), r.y - r.height * (boss ? .10f : .04f), r.width * (boss ? 1.16f : 1.04f), r.height * (boss ? 1.16f : 1.04f));
+            DrawOutline(r, hit ? new Color(1f, .92f, .28f) : outline, Mathf.Max(player ? 3 : 2, tile * (hit ? .085f : player ? .065f : boss ? .075f : .05f)));
+            if(player)DrawOutline(new Rect(r.x-3,r.y-3,r.width+6,r.height+6),new Color(.28f,1f,.92f,.86f),Mathf.Max(2,tile*.025f));
+            if(boss)DrawOutline(new Rect(r.x-4,r.y-4,r.width+8,r.height+8),new Color(1f,.42f,.10f,.9f),Mathf.Max(2,tile*.035f));
+            var spriteRect = new Rect(r.x+r.width*.01f,r.y+r.height*.01f,r.width*.98f,r.height*.98f);
             if (!AuthoredUnits.Draw(spriteRect, playerClass, enemyKind, AuthoredUnits.Tint(hit)))
                 DrawUnitSymbol(r, player ? game.Player.ClassId : (PlayerClassId?)null, glyph, boss);
             if (boss && unit is EnemyModel bossUnit && AuthoredUnits.IsOverchargedBoss(bossUnit))
@@ -495,8 +499,8 @@ namespace Lanternfall
             DrawCombatHeader(hud.Header, compact);
             DrawStatChips(hud.StatChips);
             DrawHazardNote(hud.HazardNote);
-            AuthoredArt.DrawSkin(hud.HelpButton, UiSkin.Utility);
-            AuthoredArt.DrawSkin(hud.InfoButton, UiSkin.Utility);
+            AuthoredArt.DrawSkin(hud.HelpButton, UiSkin.Utility,new Color(.78f,.78f,.78f));
+            AuthoredArt.DrawSkin(hud.InfoButton, UiSkin.Utility,new Color(.78f,.78f,.78f));
             if (GUI.Button(hud.HelpButton, HudText.HelpButton, hudButton)) game.ShowHelp();
             if (GUI.Button(hud.InfoButton, HudText.InfoButton, hudButton)) game.ShowPlaytestInfo();
 
@@ -508,7 +512,7 @@ namespace Lanternfall
             DrawSkills(hud.SkillCards, compact || hud.SkillCards[0].width < 140f);
 
             bool hasSkill = game.SelectedSkill.HasValue;
-            if (hasSkill) AuthoredArt.DrawSkin(hud.CancelButton, UiSkin.Utility);
+            if (hasSkill) AuthoredArt.DrawSkin(hud.CancelButton, UiSkin.Utility,new Color(.78f,.78f,.78f));
             if (hasSkill && GUI.Button(hud.CancelButton, compact ? "CANCEL" : HudText.CancelSkillButton, hudButton)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
             var endTurn = !hasSkill && !IsPhoneViewport() ? new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height) : hud.EndTurnButton;
@@ -525,8 +529,8 @@ namespace Lanternfall
             DrawCombatHeader(hud.Header, true);
             DrawStatChips(hud.StatChips);
             DrawHazardNote(hud.HazardNote);
-            AuthoredArt.DrawSkin(hud.HelpButton, UiSkin.Utility);
-            AuthoredArt.DrawSkin(hud.InfoButton, UiSkin.Utility);
+            AuthoredArt.DrawSkin(hud.HelpButton, UiSkin.Utility,new Color(.78f,.78f,.78f));
+            AuthoredArt.DrawSkin(hud.InfoButton, UiSkin.Utility,new Color(.78f,.78f,.78f));
             if (GUI.Button(hud.HelpButton, HudText.HelpButton, hudButton)){game.ShowHelp(); return;}
             if (GUI.Button(hud.InfoButton, HudText.InfoButton, hudButton)){game.ShowPlaytestInfo(); return;}
 
@@ -536,7 +540,7 @@ namespace Lanternfall
             DrawSelectedSkillInfo(hud.SelectedSkill);
             DrawSkills(hud.SkillCards, true);
             bool hasSkill = game.SelectedSkill.HasValue;
-            if (hasSkill) AuthoredArt.DrawSkin(hud.CancelButton, UiSkin.Utility);
+            if (hasSkill) AuthoredArt.DrawSkin(hud.CancelButton, UiSkin.Utility,new Color(.78f,.78f,.78f));
             if (hasSkill && GUI.Button(hud.CancelButton, HudText.CancelSkillButton, hudButton)) game.CancelSkill();
             GUI.enabled = game.Turns.Phase == TurnPhase.Player;
             var endTurn = !hasSkill && !IsPhoneViewport() ? new Rect(hud.CancelButton.x, hud.EndTurnButton.y, hud.EndTurnButton.xMax - hud.CancelButton.x, hud.EndTurnButton.height) : hud.EndTurnButton;
@@ -586,7 +590,7 @@ namespace Lanternfall
             };
             for (int i = 0; i < chips.Length; i++)
             {
-                if (!AuthoredArt.DrawSkin(chips[i], UiSkin.StatChip)) DrawRect(chips[i], new Color(.08f, .075f, .13f));
+                if (!AuthoredArt.DrawSkin(chips[i], UiSkin.StatChip,new Color(.84f,.84f,.84f))) DrawRect(chips[i], new Color(.08f, .075f, .13f));
                 DrawOutline(chips[i], i == 1 ? new Color(.92f, .68f, .22f) : i == 2 ? new Color(.35f, .88f, .95f) : new Color(.82f, .25f, .25f), 2);
                 float iconSize = Mathf.Min(chips[i].height * .42f, chips[i].width * .18f);
                 DrawIcon(new Rect(chips[i].x + 6, chips[i].center.y - iconSize * .5f, iconSize, iconSize), i == 0 ? VisualIcon.Health : i == 1 ? VisualIcon.ActionPoint : VisualIcon.MovementPoint);
@@ -596,7 +600,7 @@ namespace Lanternfall
 
         void DrawHazardNote(Rect r)
         {
-            if (!AuthoredArt.DrawSkin(r, UiSkin.Tooltip)) DrawRect(r, new Color(.055f, .047f, .075f));
+            if (!AuthoredArt.DrawSkin(r, UiSkin.Tooltip,new Color(.76f,.76f,.76f))) DrawRect(r, new Color(.055f, .047f, .075f));
             DrawOutline(r, new Color(.26f, .22f, .34f), 1);
             bool phone = IsPhoneViewport();
             string focus = game.HasFocusTile ? game.FocusThreatSummary : "";
@@ -606,7 +610,7 @@ namespace Lanternfall
 
         void DrawMessageBox(Rect r)
         {
-            if (!AuthoredArt.DrawSkin(r, UiSkin.Tooltip)) DrawRect(r, new Color(.03f, .03f, .055f));
+            if (!AuthoredArt.DrawSkin(r, UiSkin.Tooltip,new Color(.74f,.74f,.74f))) DrawRect(r, new Color(.03f, .03f, .055f));
             DrawOutline(r, new Color(.24f, .22f, .34f), 1);
             string detail = game.FocusThreatSummary;
             bool phone = IsPhoneViewport();
@@ -616,7 +620,7 @@ namespace Lanternfall
 
         void DrawSelectedSkillInfo(Rect r)
         {
-            AuthoredArt.DrawSkin(r, UiSkin.SelectedSkill);
+            AuthoredArt.DrawSkin(r, UiSkin.SelectedSkill,new Color(.82f,.82f,.82f));
             string label = "Selected skill: none";
             if (game.SelectedSkill.HasValue)
             {
@@ -693,7 +697,7 @@ namespace Lanternfall
 
         void DrawCardFrame(Rect r, Color accent, UiSkin skin = UiSkin.SkillCard)
         {
-            if (!AuthoredArt.DrawSkin(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), skin))
+            if (!AuthoredArt.DrawSkin(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), skin,new Color(.80f,.80f,.80f)))
                 DrawRect(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), new Color(0f, 0f, 0f, .35f));
             DrawOutline(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), accent, 2);
         }
