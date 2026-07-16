@@ -56,7 +56,7 @@ namespace Lanternfall
             var r = new HashSet<Vector2Int>();
             if (e.Kind == EnemyKind.Ashling)
             {
-                if (Mathf.Abs(e.Position.x-player.x)+Mathf.Abs(e.Position.y-player.y)<=2)
+                if (Mathf.Abs(e.Position.x-player.x)+Mathf.Abs(e.Position.y-player.y)==2)
                     foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
             }
             else if (e.Kind == EnemyKind.GloomArcher)
@@ -65,7 +65,8 @@ namespace Lanternfall
             }
             else if (e.Kind == EnemyKind.StoneSentinel)
             {
-                if (Mathf.Abs(e.Position.x-player.x)+Mathf.Abs(e.Position.y-player.y)<=2)
+                // MP Bind is a deliberate chokepoint control action, not a generic reason to idle in open space.
+                if (Mathf.Abs(e.Position.x-player.x)+Mathf.Abs(e.Position.y-player.y)==2 && IsChokepoint(e.Position,grid))
                     foreach (var p in grid.Floors()) if (Mathf.Abs(p.x-player.x)+Mathf.Abs(p.y-player.y)<=1) r.Add(p);
             }
             else
@@ -90,9 +91,9 @@ namespace Lanternfall
         public static string IntentLabel(EnemyModel e)
         {
             if (e.Kind == EnemyKind.GloomArcher) return "AP drain";
-            if (e.Kind == EnemyKind.StoneSentinel) return "MP bind";
+            if (e.Kind == EnemyKind.StoneSentinel) return e.DelayedPreview.Count>0 ? "MP Bind" : "Shield Bash";
             if (e.Kind == EnemyKind.LanternWarden) return BossPhase(e) switch { 1 => "ward strike", 2 => "OVERCHARGE", _ => "HEAVY BLAST" };
-            return "rush strike";
+            return e.DelayedPreview.Count>0 ? "Flame Sigil" : "Claw Strike";
         }
 
         public static string BossPhaseSummary(EnemyModel e) => BossPhase(e) switch
@@ -140,7 +141,7 @@ namespace Lanternfall
             if(enemy.Kind!=EnemyKind.StoneSentinel)return enemy.DelayedPreview.Contains(player);
             int distance=Manhattan(enemy.Position,player);
             bool protectsRanged=(allies??Enumerable.Empty<EnemyModel>()).Any(a=>a!=enemy&&a.Alive&&a.Kind==EnemyKind.GloomArcher&&Manhattan(a.Position,enemy.Position)<=2);
-            return enemy.DelayedPreview.Contains(player)&&(distance<=2||IsChokepoint(enemy.Position,grid)||protectsRanged);
+            return enemy.DelayedPreview.Contains(player)&&(IsChokepoint(enemy.Position,grid)||protectsRanged);
         }
 
         public static Vector2Int ChooseReposition(EnemyModel e, Vector2Int player, GridModel grid, System.Func<Vector2Int, bool> blocked, System.Func<Vector2Int, bool> hazard = null, IEnumerable<EnemyModel> allies = null, System.Func<Vector2Int,int> traversalCost = null, ISet<Vector2Int> reservedDestinations=null, ISet<Vector2Int> reservedAttackTiles=null, ISet<int> reservedFlankSectors=null, int escapeReservationLimit=3)
@@ -235,6 +236,14 @@ namespace Lanternfall
                     bestScore = score;
                     best = c;
                 }
+            }
+            if(e.Kind==EnemyKind.StoneSentinel&&best==e.Position&&startDistance>1)
+            {
+                int startRoute=grid.WeightedDistance(e.Position,player,p=>blocked(p)&&p!=e.Position,traversalCost??(_=>1));
+                var improving=candidates.Where(c=>c!=e.Position&&(hazard==null||!hazard(c)))
+                    .Select(c=>new{Tile=c,Route=grid.WeightedDistance(c,player,p=>blocked(p)&&p!=e.Position,traversalCost??(_=>1))})
+                    .Where(x=>x.Route<startRoute).OrderBy(x=>x.Route).ThenBy(x=>Manhattan(x.Tile,player)).ThenByDescending(x=>x.Tile.x).ThenByDescending(x=>x.Tile.y).FirstOrDefault();
+                if(improving!=null)best=improving.Tile;
             }
             return best;
         }

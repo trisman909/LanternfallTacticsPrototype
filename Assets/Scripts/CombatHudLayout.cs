@@ -69,7 +69,7 @@ namespace Lanternfall
     {
         public static CombatHudLayoutSnapshot Compute(Rect panel, bool portrait, bool compact)
         {
-            bool phoneLandscape = compact && panel.height <= 230f && panel.width >= 320f && panel.width > panel.height * 2.4f;
+            bool phoneLandscape = compact && panel.height <= 290f && panel.width >= 320f && panel.width > panel.height * 2.4f;
             bool phonePortrait = portrait && panel.width < 520f;
             bool ultraShortPhonePortrait = phonePortrait && panel.height < 620f;
             bool ultraShortPhoneLandscape = phoneLandscape && panel.height < 360f;
@@ -127,7 +127,8 @@ namespace Lanternfall
             {
                 float landChipGap = 6f;
                 float landChipH = Mathf.Clamp(panel.height * .25f, 44f, 52f);
-                float landChipW = (w - landChipGap * 2f) / 3f;
+                float statsW=w*.36f;
+                float landChipW = (statsW - landChipGap * 2f) / 3f;
                 snap.Header = new Rect(x, y, w, 0f);
                 snap.StatChips = new[]
                 {
@@ -135,7 +136,7 @@ namespace Lanternfall
                     new Rect(x + landChipW + landChipGap, y, landChipW, landChipH),
                     new Rect(x + (landChipW + landChipGap) * 2f, y, landChipW, landChipH)
                 };
-                snap.HazardNote = new Rect(x, y, 0f, 0f);
+                snap.HazardNote = new Rect(x+statsW+gap,y,w-statsW-gap,landChipH);
                 snap.HelpButton = new Rect(x, y, 0f, 0f);
                 snap.InfoButton = new Rect(x, y, 0f, 0f);
                 y += landChipH + gap;

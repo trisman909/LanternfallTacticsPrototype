@@ -6,12 +6,12 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6L";
+        public const string PrototypeVersion = "Prototype v0.6M";
         LanternfallGame game;
         LanternfallAudio audioLayer;
         Camera cam;
         GUIStyle title, body, button, center, small;
-        GUIStyle hudHeader, hudChip, hudMessage, hudButton, hudSkill, hudSkillCompact, hudTiny;
+        GUIStyle hudHeader, hudChip, hudMessage, hudThreat, hudButton, hudSkill, hudSkillCompact, hudTiny;
         float tile = 1f;
         sealed class TokenMotion { public Vector2 From, To; public float Started; }
         sealed class BoardEffect { public Vector2 From, To; public Color Color; public CombatEffectCue Cue; public float Started, Duration; public bool Death; public EnemyKind Enemy; }
@@ -141,6 +141,7 @@ namespace Lanternfall
             hudHeader = new GUIStyle(center){fontSize = readable.HeaderFont, fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(1f, .80f, .32f)}};
             hudChip = new GUIStyle(center){fontSize = readable.StatFont, fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
             hudMessage = new GUIStyle(center){fontSize = readable.MessageFont, fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
+            hudThreat = new GUIStyle(hudMessage){wordWrap=false,alignment=TextAnchor.MiddleLeft,clipping=TextClipping.Clip};
             hudTiny = new GUIStyle(center){fontSize = readable.MessageFont, fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
             hudButton = new GUIStyle(button){fontSize = readable.ButtonFont, fontStyle = FontStyle.Bold, alignment=TextAnchor.MiddleCenter, wordWrap = true, normal={textColor=Color.white,background=Tex(Color.clear)},hover={background=Tex(new Color(1f,1f,1f,.08f))},active={background=Tex(new Color(1f,.62f,.18f,.16f))}};
             hudSkill = new GUIStyle(button){fontSize = readable.SkillFont, fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter, normal={textColor=Color.white,background=Tex(Color.clear)},hover={background=Tex(new Color(1f,1f,1f,.08f))},active={background=Tex(new Color(1f,.62f,.18f,.16f))}};
@@ -667,9 +668,8 @@ namespace Lanternfall
             if (!AuthoredArt.DrawSkin(r, UiSkin.Tooltip,new Color(.76f,.76f,.76f))) DrawRect(r, new Color(.055f, .047f, .075f));
             DrawOutline(r, new Color(.26f, .22f, .34f), 1);
             bool phone = IsPhoneViewport();
-            string focus = game.HasFocusTile ? game.FocusThreatSummary : "";
-            string text = phone ? $"{HudText.TurnLabel(game.Turns.Phase)} - {Shorten(string.IsNullOrWhiteSpace(focus) ? game.Message : focus, 44)}" : $"{game.Theme.HazardName}: {Shorten(game.Theme.HazardRule, 58)}";
-            GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), text, hudMessage);
+            string text = phone ? game.MobileThreatSummary(Mathf.Max(18,Mathf.FloorToInt((r.width-12)/Mathf.Max(1f,hudThreat.fontSize*.52f)))) : $"{game.Theme.HazardName}: {Shorten(game.Theme.HazardRule, 58)}";
+            GUI.Label(new Rect(r.x + 6, r.y + 2, r.width - 12, r.height - 4), text, phone?hudThreat:hudMessage);
         }
 
         void DrawMessageBox(Rect r)

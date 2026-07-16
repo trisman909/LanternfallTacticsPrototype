@@ -42,6 +42,8 @@ namespace Lanternfall
         public HashSet<Vector2Int> BlockerTiles { get; private set; } = new();
         public Vector2Int? HealingPickup { get; private set; }
         public event Action Changed;
+        public string LastDamageSource { get; private set; } = "";
+        public int LastDamageAmount { get; private set; }
 
         readonly RoomGenerator generator = new();
         string pendingRoomIntro = "";
@@ -66,7 +68,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6L: mobile polish, intentional Sentinel AI, and original audio foundation.",
+            "Prototype v0.6M: exact enemy threats, advancing Sentinels, and a mobile tactical HUD.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -123,6 +125,8 @@ namespace Lanternfall
             PreviewArea.Clear();
             LastTappedTile = null;
             RejectedTile = null;
+            LastDamageSource = "";
+            LastDamageAmount = 0;
 
             int seed = (RunSeed ?? Environment.TickCount) + RoomNumber * 97;
             var r = generator.Generate(seed, RoomNumber);
@@ -174,7 +178,11 @@ namespace Lanternfall
             var details = Enemies.Where(e => e.Alive && (e.Preview.Contains(p) || e.DelayedPreview.Contains(p)))
                 .Select(e => e.Kind == EnemyKind.LanternWarden
                     ? $"{NameOf(e.Kind)}: {e.IntentLabel} {(e.Preview.Contains(p) ? $"now for {e.AttackDamage} damage" : "next turn")} - {EnemyAI.BossPhaseSummary(e)}"
-                    : $"{NameOf(e.Kind)}: {ThreatReadability.ThreatName(e.Threat)} {(e.Preview.Contains(p) ? "now" : "next turn")}")
+                    : e.Preview.Contains(p)
+                        ? $"{NameOf(e.Kind)} — {e.IntentLabel}: {e.AttackDamage} damage now after End Turn"
+                        : e.Threat==ThreatKind.HP
+                            ? $"DELAYED THREAT — {NameOf(e.Kind)} — {e.IntentLabel}: {e.AttackDamage} damage after End Turn (next enemy turn); leave marked tiles to avoid"
+                            : $"INCOMING CONTROL — {NameOf(e.Kind)} — {e.IntentLabel}: {ThreatReadability.ThreatName(e.Threat)} after End Turn")
                 .Distinct()
                 .ToList();
             if (ArmedHazardDamageTiles.Contains(p)) details.Add($"ARMED {Theme.HazardName}: this tile takes 2 damage after End Turn.");
@@ -189,6 +197,39 @@ namespace Lanternfall
             : Enemies.Any(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)) ? "WARNING: enemy intent targets your AP/MP or next tile" : "Safe tile - red spaces strike after End Turn";
         public bool HasFocusTile => LastTappedTile.HasValue;
         public string FocusThreatSummary => ThreatDetailAt(LastTappedTile ?? Player.Position);
+        public string StructuredThreatSummary
+        {
+            get
+            {
+                var sections=new List<string>();
+                var immediate=Enemies.Where(e=>e.Alive&&e.Preview.Contains(Player.Position)).Select(e=>$"{NameOf(e.Kind)} — {e.IntentLabel}: {e.AttackDamage} damage").ToArray();
+                if(immediate.Length>0)sections.Add("INCOMING NOW\n"+string.Join("; ",immediate));
+                var delayed=Enemies.Where(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)&&e.Threat==ThreatKind.HP).Select(e=>$"{NameOf(e.Kind)} — {e.IntentLabel}: {e.AttackDamage} damage after End Turn").ToArray();
+                if(delayed.Length>0)sections.Add("DELAYED THREATS\n"+string.Join("; ",delayed));
+                var control=Enemies.Where(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)&&e.Threat!=ThreatKind.HP).Select(e=>$"{NameOf(e.Kind)} — {e.IntentLabel}: {ThreatReadability.ThreatName(e.Threat)}").ToArray();
+                if(control.Length>0)sections.Add("INCOMING CONTROL\n"+string.Join("; ",control));
+                if(Player.BurnTurns>0)sections.Add($"ACTIVE EFFECTS\nBurning — 1 damage after End Turn; {Player.BurnTurns} turn(s) remaining");
+                var moving=Enemies.Where(e=>e.Alive&&!e.Preview.Contains(Player.Position)&&!e.DelayedPreview.Contains(Player.Position)).Select(e=>$"{NameOf(e.Kind)} — Advancing up to {e.MoveRange} tile(s)").ToArray();
+                if(moving.Length>0)sections.Add("ENEMY MOVEMENT\n"+string.Join("; ",moving));
+                return sections.Count>0?string.Join("   ",sections):"NO CURRENT THREAT — reposition or select a skill";
+            }
+        }
+        public string MobileThreatSummary(int maxCharacters)
+        {
+            maxCharacters=Mathf.Max(12,maxCharacters);
+            var alerts=new List<(int priority,string category,string action)>();
+            alerts.AddRange(Enemies.Where(e=>e.Alive&&e.Preview.Contains(Player.Position)).Select(e=>(0,"NOW",$"{NameOf(e.Kind)} {e.IntentLabel} {e.AttackDamage} dmg")));
+            alerts.AddRange(Enemies.Where(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)&&e.Threat==ThreatKind.HP).Select(e=>(1,"DELAYED",$"{NameOf(e.Kind)} {e.IntentLabel} {e.AttackDamage}")));
+            if(Player.BurnTurns>0)alerts.Add((2,"ACTIVE",$"Burn 1 dmg, {Player.BurnTurns}t"));
+            alerts.AddRange(Enemies.Where(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)&&e.Threat!=ThreatKind.HP).Select(e=>(3,"CONTROL",$"{NameOf(e.Kind)} {e.IntentLabel}")));
+            alerts.AddRange(Enemies.Where(e=>e.Alive&&!e.Preview.Contains(Player.Position)&&!e.DelayedPreview.Contains(Player.Position)).Select(e=>(4,"MOVE",$"{NameOf(e.Kind)} {e.MoveRange} tile")));
+            if(alerts.Count==0)return "SAFE";
+            var first=alerts.OrderBy(a=>a.priority).ThenBy(a=>a.action).First();
+            string suffix=alerts.Count>1?$" +{alerts.Count-1}":"";
+            int actionRoom=Mathf.Max(1,maxCharacters-first.category.Length-1-suffix.Length);
+            string action=first.action.Length<=actionRoom?first.action:first.action.Substring(0,Mathf.Max(1,actionRoom-1))+"…";
+            return $"{first.category} {action}{suffix}";
+        }
         public bool PlayerBiomeEffectActive=>Player!=null&&HazardTiles.Contains(Player.Position);
         public string PlayerBiomeEffectSummary=>PlayerBiomeEffectActive?$"ACTIVE {Theme.HazardName}: {Theme.HazardRule}":"";
 
@@ -383,7 +424,8 @@ namespace Lanternfall
 
         IEnumerator EnemyTurn()
         {
-            var committedTelegraphs=Enemies.Where(e=>e.Alive).ToDictionary(e=>e,e=>new HashSet<Vector2Int>(e.Preview.Concat(e.DelayedPreview)));
+            var committedImmediate=Enemies.Where(e=>e.Alive).ToDictionary(e=>e,e=>new HashSet<Vector2Int>(e.Preview));
+            var committedDelayed=Enemies.Where(e=>e.Alive).ToDictionary(e=>e,e=>new HashSet<Vector2Int>(e.DelayedPreview));
             var committedHazardTelegraph=new HashSet<Vector2Int>(ArmedHazardDamageTiles);
             Changed?.Invoke();
             yield return new WaitForSeconds(.35f);
@@ -407,19 +449,19 @@ namespace Lanternfall
                 }
                 if (e.Preview.Contains(Player.Position))
                 {
-                    if(TryDealTelegraphedDamage(NameOf(e.Kind),e.AttackDamage,committedTelegraphs[e]))
+                    if(TryDealTelegraphedDamage($"{NameOf(e.Kind)} — {e.IntentLabel}",e.AttackDamage,committedImmediate[e]))
                     {
                         e.NoProgressTurns=0;
                         HitTiles.Add(Player.Position);
-                        Message = $"{NameOf(e.Kind)} resolves its visible attack for {e.AttackDamage}.";
+                        Message = $"{NameOf(e.Kind)} — {e.IntentLabel} resolves for {e.AttackDamage} damage.";
                     }
                 }
                 else if (e.DelayedPreview.Contains(Player.Position))
                 {
-                    ApplyIntentPressureCommitted(e,committedTelegraphs[e]);
+                    ApplyIntentPressureCommitted(e,committedDelayed[e]);
                     e.NoProgressTurns=0;
                     HitTiles.Add(Player.Position);
-                    Message = $"{NameOf(e.Kind)} triggers {e.IntentLabel}.";
+                    Message = e.Threat==ThreatKind.HP?$"DELAYED THREAT resolves: {NameOf(e.Kind)} — {e.IntentLabel}, {e.AttackDamage} damage.":$"INCOMING CONTROL resolves: {NameOf(e.Kind)} — {e.IntentLabel}.";
                 }
                 else if (e.RootTurns <= 0)
                 {
@@ -501,7 +543,7 @@ namespace Lanternfall
 
         void ApplyIntentPressureCommitted(EnemyModel e,ISet<Vector2Int> committedTelegraph)
         {
-            if(e.Threat==ThreatKind.HP)TryDealTelegraphedDamage(NameOf(e.Kind),e.AttackDamage,committedTelegraph);
+            if(e.Threat==ThreatKind.HP)TryDealTelegraphedDamage($"{NameOf(e.Kind)} — {e.IntentLabel}",e.AttackDamage,committedTelegraph);
             if (e.Threat == ThreatKind.AP || e.Threat == ThreatKind.Mixed) pendingApDrain += e.Kind == EnemyKind.LanternWarden ? 2 : 1;
             if (e.Threat == ThreatKind.MP || e.Threat == ThreatKind.Mixed) pendingMpDrain += 1;
         }
@@ -537,7 +579,7 @@ namespace Lanternfall
         bool TryDealTelegraphedDamage(string source,int damage,ISet<Vector2Int> telegraphedTiles)
         {
             if(damage<=0||!CombatTelegraphValidator.AllowsDamage(source,Player.Position,telegraphedTiles))return false;
-            Player.Damage(damage); return true;
+            Player.Damage(damage);LastDamageSource=source;LastDamageAmount=damage;return true;
         }
 
         void ResolveArmedHazards(ISet<Vector2Int> committedTelegraph=null)
