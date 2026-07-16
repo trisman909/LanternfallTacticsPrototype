@@ -16,9 +16,9 @@ namespace Lanternfall
 
     public static class BoardFitLayout
     {
-        public static BoardFitSnapshot Compute(Rect area, int columns, int rows, bool compact)
+        public static BoardFitSnapshot Compute(Rect area, int columns, int rows, bool compact, bool headerless = false)
         {
-            float top = compact ? (area.height < 300f ? 28f : 42f) : 64f;
+            float top = headerless ? 0f : compact ? (area.height < 300f ? 28f : 42f) : 64f;
             columns = Mathf.Max(1, columns);
             rows = Mathf.Max(1, rows);
             float tile = Mathf.Min((area.width - 18f) / columns, (area.height - top - 10f) / rows);

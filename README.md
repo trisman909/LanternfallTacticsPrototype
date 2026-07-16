@@ -58,6 +58,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 6K.1 - tactical clarity, environmental hazard integration, and boss-room decluttering (complete)
 - Phase 6L - mobile polish, Sentinel AI correction, terrain integration, status clarity, and audio foundation (complete)
 - Phase 6M - Ashling preview parity, Sentinel movement correction, and mobile tactical threat HUD (complete)
+- Phase 6N.1 - readability-first phone HUD and larger-board layout (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -185,6 +186,8 @@ Phase 6K.1 removes the floating hazard-icon layer and blends biome-authored haza
 Phase 6L modestly strengthens future-threat borders on phones, grades props into their biome floor, clips merged threat boundaries at walls and gaps, enlarges backed status badges, and replaces invalid-target art with concise wrapped reasons. Stone Sentinels now advance unless they are genuinely controlling close space, a chokepoint, or a ranged ally; their HP rises from 6 to 7 without a damage increase. An original procedural audio foundation adds short cues, two lightweight loops, first-interaction WebGL unlock, saved master/SFX/music/mute controls, and finite-value guards at both the saved-setting and browser-audio boundaries. See [POLISH_6L.md](POLISH_6L.md).
 
 Phase 6M identifies the Ashling's confusing damage as its existing delayed Flame Sigil path, separates its purple committed tiles from immediate melee damage, records named damage sources, and gives the phone HUD structured immediate/delayed/status/control/movement sections. Stone Sentinels no longer treat a generic distance-two MP preview as permission to stall in open space; MP Bind is reserved for a real chokepoint action and ordinary frontline plans advance. See [PHASE_6M.md](PHASE_6M.md).
+
+Phase 6N.1 reorganizes phone landscape into a wide top status/title bar, a bottom three-skill bar, and a right threat/End Turn rail. This reclaims vertical board space while keeping HP/AP/MP, threats, skills, and End Turn comfortably readable with the existing Lanternfall frames, icons, colours, and typography. Desktop and portrait behavior are unchanged. See [PHASE_6N1.md](PHASE_6N1.md).
 
 
 

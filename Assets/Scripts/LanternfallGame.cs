@@ -6,6 +6,14 @@ using UnityEngine;
 
 namespace Lanternfall
 {
+    public readonly struct MobileThreatRow
+    {
+        public readonly string Category;
+        public readonly string Action;
+        public readonly ThreatKind Kind;
+        public MobileThreatRow(string category,string action,ThreatKind kind){Category=category;Action=action;Kind=kind;}
+    }
+
     public sealed class LanternfallGame : MonoBehaviour
     {
         const string BestRoomKey = "LanternfallTactics.BestRoom";
@@ -68,7 +76,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6M: exact enemy threats, advancing Sentinels, and a mobile tactical HUD.",
+            "Prototype v0.6N.1: wider phone HUD, larger board, and readable tactical hierarchy.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
@@ -229,6 +237,21 @@ namespace Lanternfall
             int actionRoom=Mathf.Max(1,maxCharacters-first.category.Length-1-suffix.Length);
             string action=first.action.Length<=actionRoom?first.action:first.action.Substring(0,Mathf.Max(1,actionRoom-1))+"…";
             return $"{first.category} {action}{suffix}";
+        }
+        public MobileThreatRow[] MobileThreatRows(int maxRows=4)
+        {
+            var rows=new List<(int priority,MobileThreatRow row)>();
+            void AddCategory(int priority,string category,ThreatKind kind,IEnumerable<string> actions)
+            {
+                var list=actions.ToList();if(list.Count==0)return;
+                string action=list[0]+(list.Count>1?$" +{list.Count-1}":"");rows.Add((priority,new MobileThreatRow(category,action,kind)));
+            }
+            AddCategory(0,"INCOMING NOW",ThreatKind.HP,Enemies.Where(e=>e.Alive&&e.Preview.Contains(Player.Position)).Select(e=>$"{NameOf(e.Kind)} · {e.IntentLabel}: {e.AttackDamage} DMG"));
+            AddCategory(1,"DELAYED",ThreatKind.HP,Enemies.Where(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)&&e.Threat==ThreatKind.HP).Select(e=>$"{NameOf(e.Kind)} · {e.IntentLabel}: {e.AttackDamage} next"));
+            if(Player.BurnTurns>0)rows.Add((2,new MobileThreatRow("ACTIVE",$"Burning · 1 DMG, {Player.BurnTurns} turns",ThreatKind.HP)));
+            AddCategory(3,"CONTROL",ThreatKind.MP,Enemies.Where(e=>e.Alive&&e.DelayedPreview.Contains(Player.Position)&&e.Threat!=ThreatKind.HP).Select(e=>$"{NameOf(e.Kind)} · {e.IntentLabel}"));
+            AddCategory(4,"MOVEMENT",ThreatKind.AP,Enemies.Where(e=>e.Alive&&!e.Preview.Contains(Player.Position)&&!e.DelayedPreview.Contains(Player.Position)).Select(e=>$"{NameOf(e.Kind)} · {e.MoveRange} tiles"));
+            return rows.OrderBy(x=>x.priority).Take(Mathf.Max(1,maxRows)).Select(x=>x.row).ToArray();
         }
         public bool PlayerBiomeEffectActive=>Player!=null&&HazardTiles.Contains(Player.Position);
         public string PlayerBiomeEffectSummary=>PlayerBiomeEffectActive?$"ACTIVE {Theme.HazardName}: {Theme.HazardRule}":"";
