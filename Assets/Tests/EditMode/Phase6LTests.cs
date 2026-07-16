@@ -67,6 +67,13 @@ namespace Lanternfall.Tests
             LanternfallAudioSettings.Master=oldMaster;LanternfallAudioSettings.Sfx=oldSfx;LanternfallAudioSettings.Music=oldMusic;LanternfallAudioSettings.Muted=oldMute;
         }
 
+        [Test] public void AudioServiceContractRemainsPlatformNeutral()
+        {
+            var contract=typeof(IAudioService);
+            foreach(var name in new[]{"PlayUiSound","PlayMovement","PlayAttack","PlayStatus","PlayBossPhase","PlayMusic","SetMasterVolume","SetSfxVolume","SetMusicVolume","SetMuted"})
+                Assert.NotNull(contract.GetMethod(name),name+" must remain available to platform backends");
+        }
+
         [Test] public void BossThreatTilesRemainWalkableAndBounded()
         {
             var g=FullGrid(11,11);var boss=new EnemyModel(EnemyKind.LanternWarden,new Vector2Int(5,5));BalanceConfig.ApplyRoomScaling(boss,5);

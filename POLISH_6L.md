@@ -19,9 +19,11 @@ Base HP increases from 6 to 7. This is the smallest integer adjustment available
 
 ## Original audio foundation
 
-Twenty-one short procedural cues cover UI, targeting, movement, attacks, statuses, healing, phase/room flow, rewards, End Turn, victory, and defeat. One exploration loop and one boss loop are synthesized at runtime from original tone sequences. No imported or copyrighted audio files are used.
+Twenty-one short procedural cues cover UI, targeting, movement, attacks, statuses, healing, phase/room flow, rewards, End Turn, victory, and defeat. One exploration loop and one boss loop are synthesized from original tone sequences through the browser's Web Audio API. No imported or copyrighted audio files are used. WebGL gameplay does not create Unity `AudioSource` or `AudioClip` objects.
 
-Saved controls cover master, SFX, music, and mute. WebGL playback remains locked until the player's first interaction. The implementation uses Unity's built-in audio module, two AudioSources, mono 22.05 kHz clips, and no streaming or external requests.
+Saved controls cover master, SFX, music, and mute. WebGL playback remains locked until the player's first interaction. A platform-neutral `IAudioService` owns the audio contract and central facade owns event-to-cue mapping, so combat and UI contain no browser calls. The WebGL backend uses short-lived Web Audio oscillators and one low-frequency ambient scheduler with no streaming or external requests.
+
+Windows, Android, and iOS are routed to a Unity Audio backend scaffold selected at compile time. It provides separate SFX/music `AudioSource` channels and an `AudioMixer` integration point; final native clips and mixer groups can be populated later without changing combat, UI, saved settings, or cue-event logic. Native players are not built in this WebGL-only milestone.
 
 ## Validation scope
 
