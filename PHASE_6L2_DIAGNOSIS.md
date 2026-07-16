@@ -1,5 +1,7 @@
 # Phase 6L.2 WebGL class ID 115 diagnosis
 
+> Historical diagnostic record. Phase 6L.6 subsequently proved that the class-ID serialization investigation was not the runtime audio cause. After a clean project-state regeneration, the production player loaded correctly; the remaining Web Audio exception was independently traced to the uninitialized ambient step documented in `POLISH_6L.md` and fixed with finite-value guards. The earlier blocked status below is retained as investigation history rather than current release status.
+
 ## Baseline
 
 - Branch: `master`

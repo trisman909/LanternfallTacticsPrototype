@@ -635,7 +635,7 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("max-width: 100%"));
             Assert.That(builder,Does.Contain("overflow: hidden"));
             Assert.That(builder,Does.Contain("env(safe-area-inset-left)"));
-            Assert.That(builder,Does.Contain("v=6L1"));
+            Assert.That(builder,Does.Contain("v=6L6"));
             Assert.That(builder,Does.Contain("Prototype v0.6L"));
         }
 
@@ -742,7 +742,7 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("window.innerHeight"));
             Assert.That(builder,Does.Contain("orientationchange"));
             Assert.That(builder,Does.Contain("lanternfall-phone-portrait"));
-            Assert.That(builder,Does.Contain("v=6L1"));
+            Assert.That(builder,Does.Contain("v=6L6"));
             Assert.That(builder,Does.Contain("Prototype v0.6L"));
         }
 

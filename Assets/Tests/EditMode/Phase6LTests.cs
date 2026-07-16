@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
@@ -72,6 +73,81 @@ namespace Lanternfall.Tests
             var contract=typeof(IAudioService);
             foreach(var name in new[]{"PlayUiSound","PlayMovement","PlayAttack","PlayStatus","PlayBossPhase","PlayMusic","SetMasterVolume","SetSfxVolume","SetMusicVolume","SetMuted"})
                 Assert.NotNull(contract.GetMethod(name),name+" must remain available to platform backends");
+        }
+
+        [Test] public void MissingAudioSettingsUseExistingDefaults()
+        {
+            WithRestoredAudioSettings(()=>
+            {
+                DeleteAudioKeys();
+                Assert.AreEqual(LanternfallAudioSettings.DefaultMaster,LanternfallAudioSettings.Master,.0001f);
+                Assert.AreEqual(LanternfallAudioSettings.DefaultSfx,LanternfallAudioSettings.Sfx,.0001f);
+                Assert.AreEqual(LanternfallAudioSettings.DefaultMusic,LanternfallAudioSettings.Music,.0001f);
+            });
+        }
+
+        [TestCase("")]
+        [TestCase("not-a-number")]
+        public void EmptyOrMalformedSavedVolumesUseExistingDefaults(string stored)
+        {
+            WithRestoredAudioSettings(()=>
+            {
+                PlayerPrefs.SetString("Lanternfall.Audio.Master",stored);PlayerPrefs.SetString("Lanternfall.Audio.Sfx",stored);PlayerPrefs.SetString("Lanternfall.Audio.Music",stored);
+                Assert.AreEqual(LanternfallAudioSettings.DefaultMaster,LanternfallAudioSettings.Master,.0001f);
+                Assert.AreEqual(LanternfallAudioSettings.DefaultSfx,LanternfallAudioSettings.Sfx,.0001f);
+                Assert.AreEqual(LanternfallAudioSettings.DefaultMusic,LanternfallAudioSettings.Music,.0001f);
+            });
+        }
+
+        [TestCase(float.NaN)]
+        [TestCase(float.PositiveInfinity)]
+        [TestCase(float.NegativeInfinity)]
+        public void NonFiniteVolumesUseChannelDefaults(float value)
+        {
+            Assert.AreEqual(LanternfallAudioSettings.DefaultMaster,LanternfallAudioSettings.SanitizeVolume(value,LanternfallAudioSettings.DefaultMaster));
+            Assert.AreEqual(LanternfallAudioSettings.DefaultSfx,LanternfallAudioSettings.SanitizeVolume(value,LanternfallAudioSettings.DefaultSfx));
+            Assert.AreEqual(LanternfallAudioSettings.DefaultMusic,LanternfallAudioSettings.SanitizeVolume(value,LanternfallAudioSettings.DefaultMusic));
+        }
+
+        [TestCase(-2f,0f)]
+        [TestCase(3f,1f)]
+        public void OutOfRangeVolumesAreClamped(float value,float expected)
+        {
+            Assert.AreEqual(expected,LanternfallAudioSettings.SanitizeVolume(value,LanternfallAudioSettings.DefaultMaster));
+        }
+
+        [Test] public void MutedStartupAndValidSettingsRemainUnchanged()
+        {
+            WithRestoredAudioSettings(()=>
+            {
+                LanternfallAudioSettings.Master=.63f;LanternfallAudioSettings.Sfx=.27f;LanternfallAudioSettings.Music=.91f;LanternfallAudioSettings.Muted=true;
+                Assert.AreEqual(.63f,LanternfallAudioSettings.Master,.0001f);Assert.AreEqual(.27f,LanternfallAudioSettings.Sfx,.0001f);Assert.AreEqual(.91f,LanternfallAudioSettings.Music,.0001f);Assert.True(LanternfallAudioSettings.Muted);
+            });
+        }
+
+        [Test] public void UnlockVolumesAreAlwaysFiniteEvenWhenPrefsContainNonFiniteValues()
+        {
+            WithRestoredAudioSettings(()=>
+            {
+                PlayerPrefs.SetFloat("Lanternfall.Audio.Master",float.NaN);PlayerPrefs.SetFloat("Lanternfall.Audio.Sfx",float.PositiveInfinity);PlayerPrefs.SetFloat("Lanternfall.Audio.Music",float.NegativeInfinity);
+                foreach(float value in new[]{LanternfallAudioSettings.Master,LanternfallAudioSettings.Sfx,LanternfallAudioSettings.Music})Assert.False(float.IsNaN(value)||float.IsInfinity(value));
+            });
+        }
+
+        [Test] public void WebAudioBoundaryInitializesStepAndGuardsEveryAudioParam()
+        {
+            string source=File.ReadAllText(Path.Combine(Application.dataPath,"Plugins/WebGL/LanternfallAudio.jslib"));
+            Assert.That(source,Does.Contain("Number.isFinite"));Assert.That(source,Does.Contain("L.step=Math.max(0,Math.floor(L.finite(L.step,0,'music step')))"));
+            Assert.That(source,Does.Contain("o.frequency.value=n"));Assert.That(source,Does.Contain("o.frequency.value=frequency"));
+            Assert.That(source,Does.Contain("L.finite(L.ctx.currentTime,0,'audio time')"));Assert.That(source,Does.Contain("L.volume(L.master*L.music*.035,0,'music gain')"));Assert.That(source,Does.Contain("L.volume(master*sfx*.11,0,'SFX gain')"));
+            Assert.That(source,Does.Contain("Invalid '+label+'; using safe default"));
+        }
+
+        static void DeleteAudioKeys(){foreach(var key in new[]{"Lanternfall.Audio.Master","Lanternfall.Audio.Sfx","Lanternfall.Audio.Music","Lanternfall.Audio.Mute"})PlayerPrefs.DeleteKey(key);}
+        static void WithRestoredAudioSettings(System.Action test)
+        {
+            float master=LanternfallAudioSettings.Master,sfx=LanternfallAudioSettings.Sfx,music=LanternfallAudioSettings.Music;bool muted=LanternfallAudioSettings.Muted;
+            try{test();}finally{LanternfallAudioSettings.Master=master;LanternfallAudioSettings.Sfx=sfx;LanternfallAudioSettings.Music=music;LanternfallAudioSettings.Muted=muted;}
         }
 
         [Test] public void BossThreatTilesRemainWalkableAndBounded()

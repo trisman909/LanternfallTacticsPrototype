@@ -30,11 +30,14 @@ namespace Lanternfall
     public static class LanternfallAudioSettings
     {
         const string MasterKey="Lanternfall.Audio.Master",SfxKey="Lanternfall.Audio.Sfx",MusicKey="Lanternfall.Audio.Music",MuteKey="Lanternfall.Audio.Mute";
-        public static float Master { get=>PlayerPrefs.GetFloat(MasterKey,.8f); set=>Save(MasterKey,value); }
-        public static float Sfx { get=>PlayerPrefs.GetFloat(SfxKey,.8f); set=>Save(SfxKey,value); }
-        public static float Music { get=>PlayerPrefs.GetFloat(MusicKey,.45f); set=>Save(MusicKey,value); }
+        public const float DefaultMaster=.8f,DefaultSfx=.8f,DefaultMusic=.45f;
+        public static float Master { get=>Read(MasterKey,DefaultMaster); set=>Save(MasterKey,value,DefaultMaster); }
+        public static float Sfx { get=>Read(SfxKey,DefaultSfx); set=>Save(SfxKey,value,DefaultSfx); }
+        public static float Music { get=>Read(MusicKey,DefaultMusic); set=>Save(MusicKey,value,DefaultMusic); }
         public static bool Muted { get=>PlayerPrefs.GetInt(MuteKey,0)==1; set {PlayerPrefs.SetInt(MuteKey,value?1:0);PlayerPrefs.Save();} }
-        static void Save(string key,float value){PlayerPrefs.SetFloat(key,Mathf.Clamp01(value));PlayerPrefs.Save();}
+        public static float SanitizeVolume(float value,float fallback)=>float.IsNaN(value)||float.IsInfinity(value)?fallback:Mathf.Clamp01(value);
+        static float Read(string key,float fallback)=>SanitizeVolume(PlayerPrefs.GetFloat(key,fallback),fallback);
+        static void Save(string key,float value,float fallback){PlayerPrefs.SetFloat(key,SanitizeVolume(value,fallback));PlayerPrefs.Save();}
         public static float Output(float channel)=>Muted?0f:Master*channel;
     }
 
