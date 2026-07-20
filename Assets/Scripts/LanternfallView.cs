@@ -145,8 +145,8 @@ namespace Lanternfall
             hudChip = new GUIStyle(center){fontSize = readable.StatFont, fontStyle = FontStyle.Bold, wordWrap = false, normal = {textColor = Color.white}};
             hudMessage = new GUIStyle(center){fontSize = readable.MessageFont, fontStyle = FontStyle.Normal, wordWrap = true, normal = {textColor = Color.white}};
             hudThreat = new GUIStyle(hudMessage){wordWrap=false,alignment=TextAnchor.MiddleLeft,clipping=TextClipping.Clip};
-            hudThreatCategory=new GUIStyle(hudThreat){fontSize=Mathf.Max(22,readable.MessageFont-10),fontStyle=FontStyle.Bold};
-            hudThreatAction=new GUIStyle(hudThreat){fontSize=Mathf.Max(24,readable.MessageFont-8)};
+            hudThreatCategory=new GUIStyle(hudThreat){fontSize=Mathf.Max(14,readable.MessageFont),fontStyle=FontStyle.Bold};
+            hudThreatAction=new GUIStyle(hudThreat){fontSize=Mathf.Max(15,readable.MessageFont)};
             hudTiny = new GUIStyle(center){fontSize = readable.MessageFont, fontStyle = FontStyle.Bold, wordWrap = true, normal = {textColor = new Color(.88f, .90f, 1f)}};
             hudButton = new GUIStyle(button){fontSize = readable.ButtonFont, fontStyle = FontStyle.Bold, alignment=TextAnchor.MiddleCenter, wordWrap = true, normal={textColor=Color.white,background=Tex(Color.clear)},hover={background=Tex(new Color(1f,1f,1f,.08f))},active={background=Tex(new Color(1f,.62f,.18f,.16f))}};
             hudSkill = new GUIStyle(button){fontSize = readable.SkillFont, fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.MiddleCenter, normal={textColor=Color.white,background=Tex(Color.clear)},hover={background=Tex(new Color(1f,1f,1f,.08f))},active={background=Tex(new Color(1f,.62f,.18f,.16f))}};

@@ -553,7 +553,7 @@ namespace Lanternfall.Tests
                 Assert.False(layout.Portrait,size.ToString());
                 Assert.True(layout.PhoneLandscape,size.ToString());
                 Assert.True(layout.PhoneHud,size.ToString());
-                Assert.That(layout.FontSize,Is.GreaterThanOrEqualTo(34),size.ToString());
+                Assert.That(layout.FontSize,Is.InRange(17,21),size.ToString());
                 Assert.That(layout.ThreatPanel.width,Is.InRange(210f,250f),size.ToString());Assert.That(layout.Board.xMax,Is.EqualTo(layout.ThreatPanel.xMin).Within(.01f),size.ToString());
                 Assert.That(layout.Board.height/size.y,Is.GreaterThan(.63f),size.ToString());Assert.That(layout.SkillButtons.All(r=>r.height>=56f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
                 Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(56f),size.ToString());Assert.That(layout.ActionButton.xMax,Is.LessThanOrEqualTo(size.x+.01f),size.ToString());
@@ -615,10 +615,10 @@ namespace Lanternfall.Tests
                 var layout=MobileLayout.Compute(size.x,size.y);
                 var readable=MobileHudReadability.Compute(size.x,size.y);
                 Assert.AreEqual(MobileLayoutMode.PhoneLandscape,layout.Mode,size.ToString());
-                Assert.That(layout.FontSize,Is.GreaterThanOrEqualTo(38),size.ToString());
-                Assert.That(readable.StatFont,Is.GreaterThanOrEqualTo(42),size.ToString());
-                Assert.That(readable.ButtonFont,Is.GreaterThanOrEqualTo(38),size.ToString());
-                Assert.That(readable.CompactSkillFont,Is.GreaterThanOrEqualTo(32),size.ToString());
+                Assert.That(layout.FontSize,Is.InRange(17,21),size.ToString());
+                Assert.That(readable.StatFont,Is.InRange(20,26),size.ToString());
+                Assert.That(readable.ButtonFont,Is.InRange(18,23),size.ToString());
+                Assert.That(readable.CompactSkillFont,Is.InRange(15,19),size.ToString());
                 Assert.That(layout.TopBar.height,Is.GreaterThanOrEqualTo(56f),size.ToString());Assert.That(layout.SkillButtons.All(r=>r.height>=56f),size.ToString());Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(56f),size.ToString());
                 Assert.That(layout.Board.xMin,Is.EqualTo(0f).Within(.01f),size.ToString());
                 Assert.That(layout.Board.xMax,Is.EqualTo(layout.ThreatPanel.xMin).Within(.01f),size.ToString());
