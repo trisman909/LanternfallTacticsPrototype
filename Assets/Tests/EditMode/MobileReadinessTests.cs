@@ -323,6 +323,14 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("height: 100dvh"));
         }
 
+        [Test] public void Phase6N1ProofPinsWebGLToCssPixelsAndExposesBuildDiagnostics()
+        {
+            string builder=File.ReadAllText("Assets/Editor/BuildPrototype.cs");
+            string view=File.ReadAllText("Assets/Scripts/LanternfallView.cs");
+            Assert.That(builder,Does.Contain("config.devicePixelRatio = 1;").And.Contain("v=6N1LHUD").And.Contain("GitShortHash"));
+            Assert.That(view,Does.Contain("Phase 6N.1 — L HUD").And.Contain("Application.version").And.Contain("lastLayoutMode").And.Contain("lastViewport"));
+        }
+
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
             Assert.AreEqual("Prototype v0.6N.1",LanternfallView.PrototypeVersion);

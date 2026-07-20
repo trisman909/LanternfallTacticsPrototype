@@ -189,6 +189,8 @@ Phase 6M identifies the Ashling's confusing damage as its existing delayed Flame
 
 Phase 6N.1 reorganizes phone landscape into a wide top status/title bar, a bottom three-skill bar, and a right threat/End Turn rail. This reclaims vertical board space while keeping HP/AP/MP, threats, skills, and End Turn comfortably readable with the existing Lanternfall frames, icons, colours, and typography. Desktop and portrait behavior are unchanged. See [PHASE_6N1.md](PHASE_6N1.md).
 
+The Phase 6N.1 provenance correction pins WebGL to CSS-pixel resolution so high-density phones reliably select that phone layout. See [PHASE_6N1_PROVENANCE.md](PHASE_6N1_PROVENANCE.md).
+
 
 
 

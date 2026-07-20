@@ -7,6 +7,7 @@ namespace Lanternfall
     public sealed class LanternfallView : MonoBehaviour
     {
         public const string PrototypeVersion = "Prototype v0.6N.1";
+        public const string BuildProofLabel = "Phase 6N.1 — L HUD";
         LanternfallGame game;
         LanternfallAudio audioLayer;
         Camera cam;
@@ -26,6 +27,8 @@ namespace Lanternfall
         string observedEffectSignature = "";
         string flowBanner = "";
         float flowBannerUntil;
+        MobileLayoutMode lastLayoutMode;
+        Vector2 lastViewport;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
@@ -165,6 +168,7 @@ namespace Lanternfall
             var guiSafe = MobileLayout.ToGuiSafeArea(Screen.height, Screen.safeArea);
             GUI.BeginGroup(guiSafe);
             var layout = MobileLayout.Compute(guiSafe.width, guiSafe.height);
+            lastLayoutMode=layout.Mode;lastViewport=new Vector2(guiSafe.width,guiSafe.height);
             if (layout.PhoneHud && layout.Portrait)
             {
                 DrawRotatePhoneScreen(new Rect(0, 0, guiSafe.width, guiSafe.height));
@@ -186,7 +190,14 @@ namespace Lanternfall
             if (game.PlaytestInfoVisible) DrawPlaytestInfoOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             if (game.BossPhasePresentationActive) DrawBossPhaseOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             if (flowBannerUntil > Time.unscaledTime && !game.HelpVisible && !game.PlaytestInfoVisible) DrawFlowBanner(new Rect(0,0,guiSafe.width,guiSafe.height));
+            DrawBuildProof(new Rect(0,0,guiSafe.width,guiSafe.height));
             GUI.EndGroup();
+        }
+
+        void DrawBuildProof(Rect area)
+        {
+            var r=new Rect(area.x+6f,area.yMax-24f,210f,20f);DrawRect(r,new Color(0f,0f,0f,.82f));
+            GUI.Label(r,BuildProofLabel,new GUIStyle(small){fontSize=Mathf.Max(13,small.fontSize-2),alignment=TextAnchor.MiddleCenter,normal={textColor=new Color(1f,.78f,.28f)}});
         }
 
         void DrawFlowBanner(Rect area)
@@ -322,6 +333,8 @@ namespace Lanternfall
                 GUI.Label(new Rect(pad, y, w, lineH), "- " + line, area.height < 500f ? small : body);
                 y += lineH + 4;
             }
+            float diagnosticH=area.height<500f?30f:42f;
+            GUI.Label(new Rect(pad,y,w,diagnosticH),$"Build {Application.version} · {lastLayoutMode} · {Mathf.RoundToInt(lastViewport.x)}×{Mathf.RoundToInt(lastViewport.y)}",area.height<500f?small:body);
             if (GUI.Button(new Rect(pad, area.height - (area.height < 500f ? 58 : 84), w, area.height < 500f ? 46 : 62), "BACK", button))
                 game.HidePlaytestInfo();
         }

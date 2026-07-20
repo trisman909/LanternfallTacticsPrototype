@@ -4,6 +4,8 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEditor.Build;
 using UnityEngine;
+using Process=System.Diagnostics.Process;
+using ProcessStartInfo=System.Diagnostics.ProcessStartInfo;
 
 namespace Lanternfall.EditorTools
 {
@@ -76,7 +78,7 @@ namespace Lanternfall.EditorTools
         {
             PlayerSettings.productName="Lanternfall Tactics Prototype";
             PlayerSettings.companyName="Lanternfall";
-            PlayerSettings.bundleVersion="0.6.15";
+            PlayerSettings.bundleVersion="0.6N.1+"+GitShortHash();
             PlayerSettings.colorSpace=ColorSpace.Gamma;
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait=true;
@@ -103,6 +105,17 @@ namespace Lanternfall.EditorTools
             PlayerSettings.stripEngineCode=true;
         }
 
+        static string GitShortHash()
+        {
+            try
+            {
+                var start=new ProcessStartInfo("git","rev-parse --short=8 HEAD"){UseShellExecute=false,RedirectStandardOutput=true,CreateNoWindow=true};
+                using var process=Process.Start(start);string hash=process.StandardOutput.ReadToEnd().Trim();process.WaitForExit();
+                return process.ExitCode==0&&hash.Length>=7?hash:"unknown";
+            }
+            catch{return "unknown";}
+        }
+
         static void PatchWebGLForResponsivePreview(string path)
         {
             var index=Path.Combine(path,"index.html");
@@ -112,10 +125,11 @@ namespace Lanternfall.EditorTools
                 if(!html.Contains("Cache-Control"))
                     html=html.Replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">","<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\">\n    <meta http-equiv=\"Pragma\" content=\"no-cache\">\n    <meta http-equiv=\"Expires\" content=\"0\">");
                 html=html.Replace("<title>Unity Web Player | Lanternfall Tactics Prototype</title>","<title>Lanternfall Tactics</title>\n    <meta name=\"description\" content=\"A compact dark-fantasy turn-based tactics prototype.\">\n    <meta name=\"theme-color\" content=\"#b9832d\">\n    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n    <meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n    <link rel=\"manifest\" href=\"manifest.webmanifest\">");
-                html=html.Replace("var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js\";","var cacheBust = \"v=6N1\";\n      var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js?\" + cacheBust;");
+                html=html.Replace("var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js\";","var cacheBust = \"v=6N1LHUD\";\n      var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js?\" + cacheBust;");
                 html=html.Replace("dataUrl: buildUrl + \"/LanternfallTactics.data\",","dataUrl: buildUrl + \"/LanternfallTactics.data?\" + cacheBust,");
                 html=html.Replace("frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js\",","frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js?\" + cacheBust,");
                 html=html.Replace("codeUrl: buildUrl + \"/LanternfallTactics.wasm\",","codeUrl: buildUrl + \"/LanternfallTactics.wasm?\" + cacheBust,");
+                html=html.Replace("// config.devicePixelRatio = 1;","config.devicePixelRatio = 1;");
                 html=html.Replace("canvas.style.width = \"960px\";","canvas.style.width = \"100%\";");
                 html=html.Replace("canvas.style.height = \"600px\";","canvas.style.height = \"100%\";");
                 html=html.Replace("height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes","height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover");
