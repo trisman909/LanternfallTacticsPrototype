@@ -190,14 +190,7 @@ namespace Lanternfall
             if (game.PlaytestInfoVisible) DrawPlaytestInfoOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             if (game.BossPhasePresentationActive) DrawBossPhaseOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             if (flowBannerUntil > Time.unscaledTime && !game.HelpVisible && !game.PlaytestInfoVisible) DrawFlowBanner(new Rect(0,0,guiSafe.width,guiSafe.height));
-            DrawBuildProof(new Rect(0,0,guiSafe.width,guiSafe.height));
             GUI.EndGroup();
-        }
-
-        void DrawBuildProof(Rect area)
-        {
-            var r=new Rect(area.x+6f,area.yMax-24f,210f,20f);DrawRect(r,new Color(0f,0f,0f,.82f));
-            GUI.Label(r,BuildProofLabel,new GUIStyle(small){fontSize=Mathf.Max(13,small.fontSize-2),alignment=TextAnchor.MiddleCenter,normal={textColor=new Color(1f,.78f,.28f)}});
         }
 
         void DrawFlowBanner(Rect area)
