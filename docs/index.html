@@ -13,9 +13,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
+    <link rel="stylesheet" href="TemplateData/style.css?v=6N1LHUD2">
   </head>
   <body>
+    <div id="lanternfall-build-proof">Phase 6N.1 — L HUD</div>
     <div id="lanternfall-rotate-overlay" aria-live="polite">
       <div class="lanternfall-rotate-card">
         <div class="lanternfall-rotate-title">Rotate your phone to play</div>
@@ -68,7 +69,7 @@
       }
 
       var buildUrl = "Build";
-      var cacheBust = "v=6N1";
+      var cacheBust = "v=6N1LHUD2";
       var loaderUrl = buildUrl + "/LanternfallTactics.loader.js?" + cacheBust;
       var config = {
         arguments: [],
@@ -78,7 +79,7 @@
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Lanternfall",
         productName: "Lanternfall Tactics Prototype",
-        productVersion: "0.6.15",
+        productVersion: "0.6N.1+d847f3f9",
         showBanner: unityShowBanner,
         // errorHandler: function(err, url, line) {
         //    alert("error " + err + " occurred at line " + line);
@@ -87,6 +88,8 @@
         //    return true;
         // },
       };
+
+      config.devicePixelRatio = (window.innerWidth <= 1200 && window.innerHeight <= 620) ? (1199 / window.innerWidth) : 1;
 
       // By default, Unity keeps WebGL canvas render target size matched with
       // the DOM size of the canvas element (scaled by window.devicePixelRatio)
@@ -116,7 +119,7 @@
 
         // To lower canvas resolution on mobile devices to gain some
         // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
+        config.devicePixelRatio = 1;
 
 
       } else {
