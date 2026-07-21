@@ -327,8 +327,8 @@ namespace Lanternfall.Tests
         {
             string builder=File.ReadAllText("Assets/Editor/BuildPrototype.cs");
             string view=File.ReadAllText("Assets/Scripts/LanternfallView.cs");
-            Assert.That(builder,Does.Contain("config.devicePixelRatio = 1;").And.Contain("v=6N2QA").And.Contain("GitShortHash"));
-            Assert.That(view,Does.Contain("Phase 6N.2 — HUD QA").And.Contain("Application.version").And.Contain("lastLayoutMode").And.Contain("lastViewport"));
+            Assert.That(builder,Does.Contain("config.devicePixelRatio = 1;").And.Contain("v=6N2R").And.Contain("GitShortHash").And.Not.Contain("lanternfall-build-proof"));
+            Assert.That(view,Does.Contain("Application.version").And.Contain("lastLayoutMode").And.Contain("lastViewport").And.Not.Contain("HUD QA"));
         }
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
@@ -603,7 +603,7 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("max-width: 100%"));
             Assert.That(builder,Does.Contain("overflow: hidden"));
             Assert.That(builder,Does.Contain("env(safe-area-inset-left)"));
-            Assert.That(builder,Does.Contain("v=6N2QA"));
+            Assert.That(builder,Does.Contain("v=6N2R"));
             Assert.That(builder,Does.Contain("Prototype v0.6N.2"));
         }
 
@@ -701,7 +701,7 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("window.innerHeight"));
             Assert.That(builder,Does.Contain("orientationchange"));
             Assert.That(builder,Does.Contain("lanternfall-phone-portrait"));
-            Assert.That(builder,Does.Contain("v=6N2QA"));
+            Assert.That(builder,Does.Contain("v=6N2R"));
             Assert.That(builder,Does.Contain("Prototype v0.6N.2"));
         }
 

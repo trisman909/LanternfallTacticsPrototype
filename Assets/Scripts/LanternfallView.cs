@@ -7,7 +7,6 @@ namespace Lanternfall
     public sealed class LanternfallView : MonoBehaviour
     {
         public const string PrototypeVersion = "Prototype v0.6N.2";
-        public const string BuildProofLabel = "Phase 6N.2 — HUD QA";
         LanternfallGame game;
         LanternfallAudio audioLayer;
         Camera cam;
