@@ -28,5 +28,16 @@ namespace Lanternfall
             float y = area.y + top + (area.height - top - height) / 2f;
             return new BoardFitSnapshot(new Rect(x, y, width, height), tile);
         }
+
+        public static BoardFitSnapshot ComputePhoneOccupied(Rect area,int columns,int rows,float effectMarginTiles=.11f,float horizontalBias=.025f)
+        {
+            columns=Mathf.Max(1,columns);rows=Mathf.Max(1,rows);effectMarginTiles=Mathf.Clamp(effectMarginTiles,.08f,.35f);
+            float tile=Mathf.Min(area.width/(columns+effectMarginTiles*2f),area.height/(rows+effectMarginTiles*2f));
+            float width=columns*tile,height=rows*tile;
+            float freeX=area.width-width,freeY=area.height-height;
+            float x=area.x+freeX*.5f+Mathf.Min(freeX*.25f,area.width*horizontalBias);
+            float y=area.y+freeY*.5f;
+            return new BoardFitSnapshot(new Rect(x,y,width,height),tile);
+        }
     }
 }

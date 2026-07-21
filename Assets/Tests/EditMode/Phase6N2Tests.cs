@@ -27,18 +27,17 @@ namespace Lanternfall.Tests
             Assert.AreEqual(3,l.StatChips.Length);Assert.AreEqual(3,l.SkillContentRects.Length);
             Assert.True(l.StatChips.All(r=>l.TopBar.Contains(r.min)&&l.TopBar.Contains(r.max)));
             Assert.True(l.StatChips.All(r=>Mathf.Abs(r.height-l.StatChips[0].height)<.01f&&Mathf.Abs(r.y-l.StatChips[0].y)<.01f));
-            for(int i=0;i<3;i++){Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].min));Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].max));Assert.GreaterOrEqual(l.SkillButtons[i].height,56f);}
+            for(int i=0;i<3;i++){Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].min));Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].max));Assert.GreaterOrEqual(l.SkillButtons[i].height,48f);}
             Assert.True(l.ActionButton.Contains(l.EndTurnArt.min)&&l.ActionButton.Contains(l.EndTurnArt.max));Assert.True(l.EndTurnArt.Contains(l.EndTurnLabel.min)&&l.EndTurnArt.Contains(l.EndTurnLabel.max));
             Assert.That(l.EndTurnArt.width/l.EndTurnArt.height,Is.EqualTo(3.35f).Within(.02f));Assert.True(l.ThreatPanel.xMin>=l.Board.xMax&&l.ThreatPanel.xMax<=width);
-            var fullAction=new Rect(l.ThreatPanel.x+8f,l.ActionButton.y,l.ThreatPanel.width-16f,l.ActionButton.height);var fullArt=MobileLayout.AspectFit(MobileLayout.Inset(fullAction,6f,5f),3.35f);
-            Assert.Greater(fullAction.width,l.ActionButton.width);Assert.True(fullAction.Contains(fullArt.min)&&fullAction.Contains(fullArt.max));
+            Assert.Greater(l.FullActionButton.width,l.ActionButton.width);Assert.True(l.FullActionButton.Contains(l.FullEndTurnArt.min)&&l.FullActionButton.Contains(l.FullEndTurnArt.max));
         }
 
         [Test] public void PhoneBoardIsExplicitlyHeaderlessAndDesktopContractIsUnchanged()
         {
             string view=File.ReadAllText("Assets/Scripts/LanternfallView.cs");string builder=File.ReadAllText("Assets/Editor/BuildPrototype.cs");
             Assert.That(view,Does.Contain("DrawBoard(layout.Board, layout.Portrait || layout.CompactLandscape, layout.PhoneLandscape)"));
-            Assert.That(view,Does.Contain("if(!phoneBoard)"));Assert.That(builder,Does.Contain("1199 / window.innerWidth"));
+            Assert.That(view,Does.Contain("if(!phoneBoard)"));Assert.That(builder,Does.Contain("config.devicePixelRatio = 1;").And.Not.Contain("1199 / window.innerWidth"));
             var desktop=MobileLayout.Compute(1920,1080);Assert.False(desktop.PhoneLandscape);Assert.AreEqual(0f,desktop.TopBar.width);Assert.AreEqual(desktop.Board.xMax,desktop.Panel.xMin,.01f);
         }
 

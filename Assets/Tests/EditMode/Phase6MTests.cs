@@ -103,7 +103,7 @@ namespace Lanternfall.Tests
         [TestCase(844f,390f)] [TestCase(932f,430f)] [TestCase(1080f,540f)]
         public void PhoneLandscapeKeepsStatsThreatsSkillsAndEndTurnVisible(float width,float height)
         {
-            var layout=MobileLayout.Compute(width,height);Assert.True(layout.PhoneLandscape);Assert.GreaterOrEqual(layout.ThreatPanel.width,200f);Assert.True(layout.SkillButtons.All(r=>r.height>=56f));Assert.GreaterOrEqual(layout.ActionButton.height,56f);Assert.LessOrEqual(layout.Board.xMax,layout.ThreatPanel.xMin);Assert.LessOrEqual(layout.Board.yMax,layout.SkillBar.yMin);
+            var layout=MobileLayout.Compute(width,height);Assert.True(layout.PhoneLandscape);Assert.GreaterOrEqual(layout.ThreatPanel.width,174f);Assert.True(layout.SkillButtons.All(r=>r.height>=48f));Assert.GreaterOrEqual(layout.ActionButton.height,48f);Assert.LessOrEqual(layout.Board.xMax,layout.ThreatPanel.xMin);Assert.LessOrEqual(layout.Board.yMax,layout.SkillBar.yMin);
         }
 
         static int Manhattan(Vector2Int a,Vector2Int b)=>Mathf.Abs(a.x-b.x)+Mathf.Abs(a.y-b.y);

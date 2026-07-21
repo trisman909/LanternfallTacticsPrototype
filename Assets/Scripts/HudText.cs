@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Lanternfall
 {
     public static class HudText
@@ -71,6 +73,14 @@ namespace Lanternfall
                 "Shield Gadget" => "SHIELD",
                 _ => skill.Name.ToUpperInvariant()
             };
+        }
+
+        public static int MobileSkillFont(string name,float width,int normal)
+        {
+            float perCharacter=width/Mathf.Max(1,name.Length);
+            if(perCharacter>=normal*.62f)return normal;
+            if(perCharacter>=normal*.52f)return Mathf.Max(14,normal-1);
+            return Mathf.Max(13,normal-2);
         }
     }
 }
