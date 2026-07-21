@@ -21,7 +21,7 @@ namespace Lanternfall.Tests
             var layout=MobileLayout.Compute(width,height);
             Assert.True(layout.SkillButtons.All(r=>r.height>=56f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget));Assert.GreaterOrEqual(layout.ActionButton.height,56f);
             Assert.True(layout.SkillButtons.All(r=>layout.SkillBar.Contains(r.min)&&layout.SkillBar.Contains(r.max)));Assert.True(layout.ActionButton.xMax<=width&&layout.ActionButton.yMax<=height);
-            Assert.Greater(layout.TopBar.width,width*.65f);Assert.That(layout.ThreatPanel.width,Is.InRange(210f,250f));
+            Assert.Greater(layout.TopBar.width,width*.65f);Assert.That(layout.ThreatPanel.width,Is.InRange(200f,228f));
         }
 
         [Test] public void ThreatRailKeepsRelevantCategoriesConciseAndCollapsesEmptyOnes()

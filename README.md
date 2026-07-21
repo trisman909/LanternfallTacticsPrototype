@@ -59,6 +59,7 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 6L - mobile polish, Sentinel AI correction, terrain integration, status clarity, and audio foundation (complete)
 - Phase 6M - Ashling preview parity, Sentinel movement correction, and mobile tactical threat HUD (complete)
 - Phase 6N.1 - readability-first phone HUD and larger-board layout (complete)
+- Phase 6N.2 - phone HUD fit, board scale, and spacing polish (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -190,6 +191,8 @@ Phase 6M identifies the Ashling's confusing damage as its existing delayed Flame
 Phase 6N.1 reorganizes phone landscape into a wide top status/title bar, a bottom three-skill bar, and a right threat/End Turn rail. This reclaims vertical board space while keeping HP/AP/MP, threats, skills, and End Turn comfortably readable with the existing Lanternfall frames, icons, colours, and typography. Desktop and portrait behavior are unchanged. See [PHASE_6N1.md](PHASE_6N1.md).
 
 The Phase 6N.1 provenance correction pins WebGL to CSS-pixel resolution so high-density phones reliably select that phone layout. See [PHASE_6N1_PROVENANCE.md](PHASE_6N1_PROVENANCE.md).
+
+Phase 6N.2 preserves the L-shaped phone HUD while making its bars slimmer, removing the duplicate board header, fitting the occupied room at the largest safe scale, containing skill labels inside consistent inner bounds, and aspect-fitting End Turn artwork inside its full-size touch target. Desktop and gameplay behavior are unchanged. See [PHASE_6N2.md](PHASE_6N2.md).
 
 
 
