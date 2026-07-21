@@ -613,7 +613,9 @@ namespace Lanternfall
             DrawPhoneSkills(layout.SkillButtons,layout.SkillContentRects);
             bool hasSkill=game.SelectedSkill.HasValue;
             if(hasSkill){AuthoredArt.DrawSkin(layout.CancelButton,UiSkin.Utility,new Color(.78f,.78f,.78f));if(GUI.Button(layout.CancelButton,"X",hudButton))game.CancelSkill();}
-            GUI.enabled=game.Turns.Phase==TurnPhase.Player;AuthoredArt.DrawSkin(layout.EndTurnArt,UiSkin.EndTurn);if(GUI.Button(layout.ActionButton,string.Empty,hudButton)){audioLayer.Play(AudioCue.EndTurn);game.WaitTurn();}GUI.Label(layout.EndTurnLabel,HudText.EndTurnButton,hudButton);GUI.enabled=true;
+            var action=hasSkill?layout.ActionButton:new Rect(layout.ThreatPanel.x+8f,layout.ActionButton.y,layout.ThreatPanel.width-16f,layout.ActionButton.height);
+            var actionArt=MobileLayout.AspectFit(MobileLayout.Inset(action,6f,5f),3.35f);var actionLabel=MobileLayout.Inset(actionArt,4f,4f);
+            GUI.enabled=game.Turns.Phase==TurnPhase.Player;AuthoredArt.DrawSkin(actionArt,UiSkin.EndTurn);if(GUI.Button(action,string.Empty,hudButton)){audioLayer.Play(AudioCue.EndTurn);game.WaitTurn();}GUI.Label(actionLabel,HudText.EndTurnButton,hudSkillCompact);GUI.enabled=true;
             DrawPhoneThreatRail(layout.ThreatPanel,cls.name);
         }
 

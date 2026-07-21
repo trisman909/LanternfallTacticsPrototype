@@ -30,6 +30,8 @@ namespace Lanternfall.Tests
             for(int i=0;i<3;i++){Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].min));Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].max));Assert.GreaterOrEqual(l.SkillButtons[i].height,56f);}
             Assert.True(l.ActionButton.Contains(l.EndTurnArt.min)&&l.ActionButton.Contains(l.EndTurnArt.max));Assert.True(l.EndTurnArt.Contains(l.EndTurnLabel.min)&&l.EndTurnArt.Contains(l.EndTurnLabel.max));
             Assert.That(l.EndTurnArt.width/l.EndTurnArt.height,Is.EqualTo(3.35f).Within(.02f));Assert.True(l.ThreatPanel.xMin>=l.Board.xMax&&l.ThreatPanel.xMax<=width);
+            var fullAction=new Rect(l.ThreatPanel.x+8f,l.ActionButton.y,l.ThreatPanel.width-16f,l.ActionButton.height);var fullArt=MobileLayout.AspectFit(MobileLayout.Inset(fullAction,6f,5f),3.35f);
+            Assert.Greater(fullAction.width,l.ActionButton.width);Assert.True(fullAction.Contains(fullArt.min)&&fullAction.Contains(fullArt.max));
         }
 
         [Test] public void PhoneBoardIsExplicitlyHeaderlessAndDesktopContractIsUnchanged()

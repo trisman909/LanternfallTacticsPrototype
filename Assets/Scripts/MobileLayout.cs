@@ -127,7 +127,7 @@ namespace Lanternfall
                     result.CancelButton=new Rect(boardW+8f,actionY+4f,Mathf.Max(0f,panelW*.25f-8f),actionH-8f);
                     result.ActionButton=new Rect(boardW+panelW*.27f,actionY+4f,panelW*.70f-8f,actionH-8f);
                     result.EndTurnArt=AspectFit(Inset(result.ActionButton,6f,5f),3.35f);
-                    result.EndTurnLabel=Inset(result.EndTurnArt,16f,6f);
+                    result.EndTurnLabel=Inset(result.EndTurnArt,4f,4f);
                     float statPad=5f,statsW=result.TopBar.width*.52f,statGap=4f,statW=(statsW-statPad*2-statGap*2)/3f;
                     result.StatChips=new[]{new Rect(statPad,4f,statW,result.TopBar.height-8f),new Rect(statPad+statW+statGap,4f,statW,result.TopBar.height-8f),new Rect(statPad+(statW+statGap)*2,4f,statW,result.TopBar.height-8f)};
                 }
