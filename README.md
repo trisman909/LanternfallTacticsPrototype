@@ -60,7 +60,8 @@ Five original class frameworks, three skills per class, AP/MP turn economy, one 
 - Phase 6M - Ashling preview parity, Sentinel movement correction, and mobile tactical threat HUD (complete)
 - Phase 6N.1 - readability-first phone HUD and larger-board layout (complete)
 - Phase 6N.2 - phone HUD fit, board scale, and spacing polish (complete)
-- Phase 6N.3 - real-device phone HUD correction (local review candidate; deployment pending physical-device approval)
+- Phase 6N.3 - real-device phone HUD correction (complete; deployed for physical-device validation)
+- Phase 6N.4 - final mobile HUD spacing, control consistency, and responsive reward-screen polish (complete)
 
 Each milestone preserves the original content limit until playtesting proves the core loop is fun.
 
@@ -70,7 +71,7 @@ The run visits The Drowned Narthex, Siltglass Observatory, The Ember Ossuary, Th
 
 ## Mobile readiness
 
-Portrait and short-landscape layouts are safe-area aware, use 48-pixel-or-larger interaction targets, and retain mouse support for editor testing. The runtime targets 30 FPS and uses no expensive visual effects. Android export settings and a build method are prepared, but this workstation does not have Unity Android Build Support installed; see [MOBILE_READINESS.md](MOBILE_READINESS.md).
+Portrait and short-landscape layouts are safe-area aware, use Apple-recommended 44-point-or-larger interaction targets, and retain mouse support for editor testing. The runtime targets 30 FPS and uses no expensive visual effects. Android export settings and a build method are prepared, but this workstation does not have Unity Android Build Support installed; see [MOBILE_READINESS.md](MOBILE_READINESS.md).
 
 iPhone settings, notch/Dynamic Island layout checks, low-end quality defaults, and an Xcode export method are prepared. Unity iOS Build Support is not installed here, and a Mac with Xcode is still required to compile, sign, and install the application. See [IOS_TESTING.md](IOS_TESTING.md).
 

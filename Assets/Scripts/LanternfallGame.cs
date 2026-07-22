@@ -76,7 +76,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6N.3: real-device phone HUD fit, stable skill cards, and a larger tactical board.",
+            "Prototype v0.6N.4: final mobile HUD spacing, premium controls, and responsive reward screens.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",

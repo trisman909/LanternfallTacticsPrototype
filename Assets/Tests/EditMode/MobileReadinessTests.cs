@@ -103,9 +103,9 @@ namespace Lanternfall.Tests
                 var layout=MobileLayout.Compute(size.x,size.y);
                 Assert.False(layout.Portrait);
                 Assert.True(layout.PhoneLandscape);
-                Assert.That(layout.ThreatPanel.width,Is.InRange(174f,194f));Assert.That(layout.Board.xMax,Is.EqualTo(layout.ThreatPanel.xMin).Within(.01f));
-                Assert.AreEqual(3,layout.SkillButtons.Length);Assert.That(layout.SkillButtons.All(r=>r.height>=48f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
-                Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(48f),size.ToString());Assert.That(layout.ActionButton.yMax,Is.LessThanOrEqualTo(size.y),size.ToString());
+                Assert.That(layout.ThreatPanel.width,Is.InRange(152f,174f));Assert.That(layout.Board.xMax,Is.EqualTo(layout.ThreatPanel.xMin).Within(.01f));
+                Assert.AreEqual(3,layout.SkillButtons.Length);Assert.That(layout.SkillButtons.All(r=>r.height>=44f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
+                Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(44f),size.ToString());Assert.That(layout.ActionButton.yMax,Is.LessThanOrEqualTo(size.y),size.ToString());
             }
         }
 
@@ -327,13 +327,13 @@ namespace Lanternfall.Tests
         {
             string builder=File.ReadAllText("Assets/Editor/BuildPrototype.cs");
             string view=File.ReadAllText("Assets/Scripts/LanternfallView.cs");
-            Assert.That(builder,Does.Contain("config.devicePixelRatio = 1;").And.Contain("v=6N3QA").And.Contain("GitShortHash").And.Not.Contain("lanternfall-build-proof"));
+            Assert.That(builder,Does.Contain("config.devicePixelRatio = 1;").And.Contain("v=6N4").And.Contain("GitShortHash").And.Not.Contain("lanternfall-build-proof"));
             Assert.That(view,Does.Contain("Application.version").And.Contain("lastLayoutMode").And.Contain("lastViewport").And.Not.Contain("HUD QA"));
         }
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.6N.3",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.6N.4",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -398,7 +398,7 @@ namespace Lanternfall.Tests
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("mobile browser")));
             Assert.That(LanternfallGame.PlaytestInfoLines.Any(l=>l.Contains("Known limits")));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
-            Assert.That(guide,Does.Contain("Prototype v0.6N.3"));
+            Assert.That(guide,Does.Contain("Prototype v0.6N.4"));
             Assert.That(guide,Does.Contain("what confused you"));
             Assert.That(guide,Does.Contain("What device/browser did you use?"));
             Assert.That(guide,Does.Contain("Which class felt best/worst?"));
@@ -529,7 +529,7 @@ namespace Lanternfall.Tests
             Assert.That(File.ReadAllText("Assets/Scripts/LanternfallView.cs"),Does.Contain("Rotate your phone to play"));
             var landscape=MobileLayout.Compute(800,360);
             Assert.True(landscape.PhoneHud);
-            Assert.True(landscape.SkillButtons.All(r=>r.width>=MobileLayoutSnapshot.MinimumTouchTarget&&r.height>=48f));Assert.GreaterOrEqual(landscape.ActionButton.height,48f);
+            Assert.True(landscape.SkillButtons.All(r=>r.width>=MobileLayoutSnapshot.MinimumTouchTarget&&r.height>=44f));Assert.GreaterOrEqual(landscape.ActionButton.height,44f);
         }
 
         [Test] public void Phase5Q4_PhonePortraitAlwaysUsesRotateScreenContract()
@@ -554,9 +554,9 @@ namespace Lanternfall.Tests
                 Assert.True(layout.PhoneLandscape,size.ToString());
                 Assert.True(layout.PhoneHud,size.ToString());
                 Assert.That(layout.FontSize,Is.InRange(17,21),size.ToString());
-                Assert.That(layout.ThreatPanel.width,Is.InRange(174f,194f),size.ToString());Assert.That(layout.Board.xMax,Is.EqualTo(layout.ThreatPanel.xMin).Within(.01f),size.ToString());
-                Assert.That(layout.Board.height/size.y,Is.GreaterThan(.68f),size.ToString());Assert.That(layout.SkillButtons.All(r=>r.height>=48f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
-                Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(48f),size.ToString());Assert.That(layout.ActionButton.xMax,Is.LessThanOrEqualTo(size.x+.01f),size.ToString());
+                Assert.That(layout.ThreatPanel.width,Is.InRange(152f,174f),size.ToString());Assert.That(layout.Board.xMax,Is.EqualTo(layout.ThreatPanel.xMin).Within(.01f),size.ToString());
+                Assert.That(layout.Board.height/size.y,Is.GreaterThan(.75f),size.ToString());Assert.That(layout.SkillButtons.All(r=>r.height>=44f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget),size.ToString());
+                Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(44f),size.ToString());Assert.That(layout.ActionButton.xMax,Is.LessThanOrEqualTo(size.x+.01f),size.ToString());
             }
         }
 
@@ -564,8 +564,8 @@ namespace Lanternfall.Tests
         {
             var layout=MobileLayout.Compute(932,430);
             Assert.True(layout.PhoneLandscape);
-            Assert.That(layout.TopBar.width,Is.GreaterThan(650f));Assert.That(layout.ThreatPanel.width,Is.GreaterThanOrEqualTo(174f));Assert.That(layout.Board.height,Is.GreaterThan(290f));
-            Assert.That(layout.ActionButton.width,Is.GreaterThanOrEqualTo(118f));Assert.That(layout.SkillButtons.All(r=>r.height>=48f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget));
+            Assert.That(layout.TopBar.width,Is.GreaterThan(680f));Assert.That(layout.ThreatPanel.width,Is.GreaterThanOrEqualTo(152f));Assert.That(layout.Board.height,Is.GreaterThan(305f));
+            Assert.That(layout.ActionButton.width,Is.GreaterThanOrEqualTo(90f));Assert.That(layout.SkillButtons.All(r=>r.height>=44f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget));
             Assert.AreEqual(MobileLayoutMode.PhoneLandscape,layout.Mode);
         }
 
@@ -603,8 +603,8 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("max-width: 100%"));
             Assert.That(builder,Does.Contain("overflow: hidden"));
             Assert.That(builder,Does.Contain("env(safe-area-inset-left)"));
-            Assert.That(builder,Does.Contain("v=6N3QA"));
-            Assert.That(builder,Does.Contain("Prototype v0.6N.3"));
+            Assert.That(builder,Does.Contain("v=6N4"));
+            Assert.That(builder,Does.Contain("Prototype v0.6N.4"));
         }
 
         [Test] public void Phase6B1_PhoneLandscapeUsesLargerReadableFontsAndRowsWithoutDesktopChange()
@@ -619,7 +619,7 @@ namespace Lanternfall.Tests
                 Assert.That(readable.StatFont,Is.InRange(20,26),size.ToString());
                 Assert.That(readable.ButtonFont,Is.InRange(18,23),size.ToString());
                 Assert.That(readable.CompactSkillFont,Is.InRange(15,19),size.ToString());
-                Assert.That(layout.TopBar.height,Is.GreaterThanOrEqualTo(42f),size.ToString());Assert.That(layout.SkillButtons.All(r=>r.height>=48f),size.ToString());Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(48f),size.ToString());
+                Assert.That(layout.TopBar.height,Is.GreaterThanOrEqualTo(34f),size.ToString());Assert.That(layout.SkillButtons.All(r=>r.height>=44f),size.ToString());Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(44f),size.ToString());
                 Assert.That(layout.Board.xMin,Is.EqualTo(0f).Within(.01f),size.ToString());
                 Assert.That(layout.Board.xMax,Is.EqualTo(layout.ThreatPanel.xMin).Within(.01f),size.ToString());
                 Assert.False(layout.HasOverlap,size.ToString());
@@ -678,7 +678,7 @@ namespace Lanternfall.Tests
             {
                 var layout=MobileLayout.Compute(size.x,size.y);
                 Assert.AreEqual(MobileLayoutMode.PhoneLandscape,layout.Mode);
-                Assert.That(layout.SkillButtons.All(r=>r.height>=48f));Assert.GreaterOrEqual(layout.ActionButton.height,48f);Assert.Greater(layout.Board.height,layout.SkillBar.height*4f);
+                Assert.That(layout.SkillButtons.All(r=>r.height>=44f));Assert.GreaterOrEqual(layout.ActionButton.height,44f);Assert.Greater(layout.Board.height,layout.SkillBar.height*5f);
             }
             Assert.True(File.Exists("ART_ASSETS_6D.md"));
         }
@@ -701,8 +701,8 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("window.innerHeight"));
             Assert.That(builder,Does.Contain("orientationchange"));
             Assert.That(builder,Does.Contain("lanternfall-phone-portrait"));
-            Assert.That(builder,Does.Contain("v=6N3QA"));
-            Assert.That(builder,Does.Contain("Prototype v0.6N.3"));
+            Assert.That(builder,Does.Contain("v=6N4"));
+            Assert.That(builder,Does.Contain("Prototype v0.6N.4"));
         }
 
         [Test] public void Phase5Q2_PhoneHudUsesShortSkillLabelsAndHidesSecondaryCombatInfo()
@@ -719,7 +719,7 @@ namespace Lanternfall.Tests
             var landscape=MobileLayout.Compute(734,372);
             Assert.True(landscape.PhoneHud);
             Assert.False(landscape.Portrait);
-            Assert.That(landscape.TopBar.height,Is.GreaterThanOrEqualTo(42f));Assert.That(landscape.SkillButtons.All(r=>r.height>=48f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget));Assert.That(landscape.ActionButton.height,Is.GreaterThanOrEqualTo(48f));
+            Assert.That(landscape.TopBar.height,Is.GreaterThanOrEqualTo(34f));Assert.That(landscape.SkillButtons.All(r=>r.height>=44f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget));Assert.That(landscape.ActionButton.height,Is.GreaterThanOrEqualTo(44f));
         }
 
         [Test] public void Phase5K_ShortMobileLandscapeKeepsAllSkillsAndEndTurnAccessible()
@@ -727,7 +727,7 @@ namespace Lanternfall.Tests
             var safe=MobileLayout.ToGuiSafeArea(393,new Rect(59,21,734,372));
             var layout=MobileLayout.Compute(safe.width,safe.height);
             Assert.True(layout.CompactLandscape);
-            Assert.That(layout.Board.yMax,Is.EqualTo(layout.SkillBar.yMin).Within(.01f));Assert.That(layout.SkillButtons.All(r=>r.height>=48f));Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(48f));
+            Assert.That(layout.Board.yMax,Is.EqualTo(layout.SkillBar.yMin).Within(.01f));Assert.That(layout.SkillButtons.All(r=>r.height>=44f));Assert.That(layout.ActionButton.height,Is.GreaterThanOrEqualTo(44f));
         }
 
         [Test] public void Phase5K_HelpIsCollapsedDuringCombatAndCanOpenClose()

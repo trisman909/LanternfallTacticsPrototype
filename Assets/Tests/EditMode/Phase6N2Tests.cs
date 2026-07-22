@@ -27,10 +27,10 @@ namespace Lanternfall.Tests
             Assert.AreEqual(3,l.StatChips.Length);Assert.AreEqual(3,l.SkillContentRects.Length);
             Assert.True(l.StatChips.All(r=>l.TopBar.Contains(r.min)&&l.TopBar.Contains(r.max)));
             Assert.True(l.StatChips.All(r=>Mathf.Abs(r.height-l.StatChips[0].height)<.01f&&Mathf.Abs(r.y-l.StatChips[0].y)<.01f));
-            for(int i=0;i<3;i++){Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].min));Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].max));Assert.GreaterOrEqual(l.SkillButtons[i].height,48f);}
-            Assert.True(l.ActionButton.Contains(l.EndTurnArt.min)&&l.ActionButton.Contains(l.EndTurnArt.max));Assert.True(l.EndTurnArt.Contains(l.EndTurnLabel.min)&&l.EndTurnArt.Contains(l.EndTurnLabel.max));
-            Assert.That(l.EndTurnArt.width/l.EndTurnArt.height,Is.EqualTo(3.35f).Within(.02f));Assert.True(l.ThreatPanel.xMin>=l.Board.xMax&&l.ThreatPanel.xMax<=width);
-            Assert.Greater(l.FullActionButton.width,l.ActionButton.width);Assert.True(l.FullActionButton.Contains(l.FullEndTurnArt.min)&&l.FullActionButton.Contains(l.FullEndTurnArt.max));
+            for(int i=0;i<3;i++){Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].min));Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].max));Assert.GreaterOrEqual(l.SkillButtons[i].height,44f);}
+            AssertContained(l.ActionButton,l.EndTurnArt);AssertContained(l.EndTurnArt,l.EndTurnLabel);
+            Assert.AreEqual(l.ActionButton,l.EndTurnArt);Assert.True(l.ThreatPanel.xMin>=l.Board.xMax&&l.ThreatPanel.xMax<=width);
+            Assert.Greater(l.FullActionButton.width,l.ActionButton.width);AssertContained(l.FullActionButton,l.FullEndTurnArt);
         }
 
         [Test] public void PhoneBoardIsExplicitlyHeaderlessAndDesktopContractIsUnchanged()
@@ -46,5 +46,7 @@ namespace Lanternfall.Tests
             var safe=MobileLayout.ToGuiSafeArea(430,new Rect(18,0,896,430));var l=MobileLayout.Compute(safe.width,safe.height);
             Assert.True(l.PhoneLandscape);Assert.True(l.TopBar.xMin>=0&&l.ThreatPanel.xMax<=safe.width);Assert.True(l.SkillBar.yMax<=safe.height&&l.ActionButton.yMax<=safe.height);
         }
+
+        static void AssertContained(Rect outer,Rect inner){Assert.GreaterOrEqual(inner.xMin,outer.xMin);Assert.GreaterOrEqual(inner.yMin,outer.yMin);Assert.LessOrEqual(inner.xMax,outer.xMax);Assert.LessOrEqual(inner.yMax,outer.yMax);}
     }
 }

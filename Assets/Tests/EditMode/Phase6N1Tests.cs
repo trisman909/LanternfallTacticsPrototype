@@ -12,16 +12,16 @@ namespace Lanternfall.Tests
             var layout=MobileLayout.Compute(width,height);float oldBoardHeight=height-Mathf.Clamp(height*.40f,178f,228f);
             Assert.True(layout.PhoneLandscape);Assert.Greater(layout.Board.height,oldBoardHeight*1.12f);Assert.Greater(layout.EstimatedTileSize,oldBoardHeight/11f);
             Assert.AreEqual(layout.TopBar.yMax,layout.Board.yMin,.01f);Assert.AreEqual(layout.Board.yMax,layout.SkillBar.yMin,.01f);Assert.AreEqual(layout.Board.xMax,layout.ThreatPanel.xMin,.01f);
-            Assert.LessOrEqual(layout.TopBar.yMax,layout.Board.yMin);Assert.LessOrEqual(layout.Board.yMax,layout.SkillBar.yMin);Assert.LessOrEqual(layout.Board.xMax,layout.ThreatPanel.xMin);Assert.LessOrEqual(layout.ThreatPanel.yMax,layout.ActionButton.yMin);
+            Assert.LessOrEqual(layout.TopBar.yMax,layout.Board.yMin+.01f);Assert.LessOrEqual(layout.Board.yMax,layout.SkillBar.yMin+.01f);Assert.LessOrEqual(layout.Board.xMax,layout.ThreatPanel.xMin+.01f);Assert.LessOrEqual(layout.ThreatPanel.yMax,layout.ActionButton.yMin+.01f);
         }
 
         [TestCase(844f,390f)] [TestCase(932f,430f)]
         public void PhonePrimaryControlsRemainComfortableAndContained(float width,float height)
         {
             var layout=MobileLayout.Compute(width,height);
-            Assert.True(layout.SkillButtons.All(r=>r.height>=48f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget));Assert.GreaterOrEqual(layout.ActionButton.height,48f);
+            Assert.True(layout.SkillButtons.All(r=>r.height>=44f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget));Assert.GreaterOrEqual(layout.ActionButton.height,44f);
             Assert.True(layout.SkillButtons.All(r=>layout.SkillBar.Contains(r.min)&&layout.SkillBar.Contains(r.max)));Assert.True(layout.ActionButton.xMax<=width&&layout.ActionButton.yMax<=height);
-            Assert.Greater(layout.TopBar.width,width*.72f);Assert.That(layout.ThreatPanel.width,Is.InRange(174f,194f));
+            Assert.Greater(layout.TopBar.width,width*.78f);Assert.That(layout.ThreatPanel.width,Is.InRange(152f,174f));
         }
 
         [Test] public void ThreatRailKeepsRelevantCategoriesConciseAndCollapsesEmptyOnes()

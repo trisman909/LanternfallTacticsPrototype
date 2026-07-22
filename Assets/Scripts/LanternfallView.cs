@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6N.3";
+        public const string PrototypeVersion = "Prototype v0.6N.4";
         LanternfallGame game;
         LanternfallAudio audioLayer;
         Camera cam;
@@ -601,24 +601,52 @@ namespace Lanternfall
         {
             if(game.Turns.Phase==TurnPhase.Reward||game.Turns.Phase==TurnPhase.Won||game.Turns.Phase==TurnPhase.Lost)
             {
-                var full=new Rect(0,0,layout.ThreatPanel.xMax,layout.SkillBar.yMax);DrawRect(full,new Color(0f,0f,0f,.72f));
-                var overlay=new Rect(full.width*.12f,full.height*.08f,full.width*.76f,full.height*.84f);DrawPanel(overlay,false);return;
+                DrawPhoneModalHud(layout);return;
             }
             DrawPanelFrame(layout.TopBar);DrawPanelFrame(layout.SkillBar);DrawPanelFrame(layout.ThreatPanel);
             DrawStatChips(layout.StatChips,layout.StatContentRects);
             var cls=ClassCatalog.Get(game.Player.ClassId);
-            GUI.Label(layout.TitleContentRect,$"{HudText.TurnLabel(game.Turns.Phase)}\n{game.Theme.Name}",hudHeader);
+            var phoneTitle=new GUIStyle(hudHeader){fontSize=Mathf.Max(15,hudHeader.fontSize-2)};
+            GUI.Label(layout.TitleContentRect,$"{HudText.TurnLabel(game.Turns.Phase)}\n{game.Theme.Name}",phoneTitle);
             DrawPhoneSkills(layout);
             bool hasSkill=game.SelectedSkill.HasValue;
-            if(hasSkill){AuthoredArt.DrawSkin(layout.CancelButton,UiSkin.Utility,new Color(.78f,.78f,.78f));if(GUI.Button(layout.CancelButton,string.Empty,hudButton))game.CancelSkill();GUI.Label(MobileLayout.Inset(layout.CancelButton,6f,5f),"X",hudButton);}
+            if(hasSkill){DrawCardFrame(layout.CancelButton,new Color(.58f,.54f,.66f),UiSkin.SkillCard);if(GUI.Button(layout.CancelButton,string.Empty,hudButton))game.CancelSkill();GUI.Label(MobileLayout.Inset(layout.CancelButton,6f,5f),"X",hudButton);}
             var action=hasSkill?layout.ActionButton:layout.FullActionButton;var actionArt=hasSkill?layout.EndTurnArt:layout.FullEndTurnArt;var actionLabel=hasSkill?layout.EndTurnLabel:layout.FullEndTurnLabel;
-            GUI.enabled=game.Turns.Phase==TurnPhase.Player;AuthoredArt.DrawSkin(actionArt,UiSkin.EndTurn);if(GUI.Button(action,string.Empty,hudButton)){audioLayer.Play(AudioCue.EndTurn);game.WaitTurn();}GUI.Label(actionLabel,HudText.EndTurnButton,hudSkillCompact);GUI.enabled=true;
+            GUI.enabled=game.Turns.Phase==TurnPhase.Player;DrawCardFrame(actionArt,new Color(.92f,.58f,.16f),UiSkin.SkillCard);if(GUI.Button(action,string.Empty,hudButton)){audioLayer.Play(AudioCue.EndTurn);game.WaitTurn();}GUI.Label(actionLabel,HudText.EndTurnButton,hudSkillCompact);GUI.enabled=true;
             DrawPhoneThreatRail(layout,cls.name);
+        }
+
+        void DrawPhoneModalHud(MobileLayoutSnapshot layout)
+        {
+            var full=new Rect(0,0,layout.ThreatPanel.xMax,layout.SkillBar.yMax);DrawRect(full,new Color(0f,0f,0f,.82f));DrawPanelFrame(layout.ModalPanel);
+            bool reward=game.Turns.Phase==TurnPhase.Reward;
+            string heading=reward?"ROOM CLEAR":game.Turns.Phase==TurnPhase.Won?"VICTORY":"DEFEAT";
+            string subtitle=reward?"CHOOSE ONE REWARD":game.Turns.Phase==TurnPhase.Won?"THE WARDEN FALLS":"THE DARK CLOSES IN";
+            GUI.Label(layout.ModalHeaderRect,heading,hudHeader);GUI.Label(layout.ModalSubtitleRect,subtitle,hudSkillCompact);
+            if(reward)
+            {
+                for(int i=0;i<layout.ModalCards.Length&&i<RewardCatalog.All.Length;i++)
+                {
+                    Rect card=layout.ModalCards[i],safe=layout.ModalCardContentRects[i];var option=RewardCatalog.Get(i);
+                    DrawCardFrame(card,new Color(1f,.62f,.18f),UiSkin.RewardCard);
+                    if(GUI.Button(card,string.Empty,hudButton)){audioLayer.Play(AudioCue.Reward);game.ChooseReward(i);}
+                    float nameH=safe.height*.30f,effectH=safe.height*.30f;
+                    GUI.Label(new Rect(safe.x,safe.y,safe.width,nameH),option.Name.ToUpper(),new GUIStyle(hudSkillCompact){fontSize=Mathf.Max(14,hudSkillCompact.fontSize)});
+                    GUI.Label(new Rect(safe.x,safe.y+nameH,safe.width,effectH),option.Effect,new GUIStyle(hudSkillCompact){fontSize=Mathf.Max(13,hudSkillCompact.fontSize-1)});
+                    GUI.Label(new Rect(safe.x,safe.y+nameH+effectH,safe.width,safe.height-nameH-effectH),option.Detail,new GUIStyle(hudMessage){fontSize=Mathf.Max(13,hudMessage.fontSize),alignment=TextAnchor.MiddleCenter});
+                }
+            }
+            AuthoredArt.DrawSkin(layout.ModalHelpButton,UiSkin.Utility,new Color(.78f,.78f,.78f));AuthoredArt.DrawSkin(layout.ModalInfoButton,UiSkin.Utility,new Color(.78f,.78f,.78f));
+            if(GUI.Button(layout.ModalHelpButton,string.Empty,hudButton))game.ShowHelp();if(GUI.Button(layout.ModalInfoButton,string.Empty,hudButton))game.ShowPlaytestInfo();
+            GUI.Label(MobileLayout.Inset(layout.ModalHelpButton,6f,4f),"?",hudButton);GUI.Label(MobileLayout.Inset(layout.ModalInfoButton,6f,4f),"i",hudButton);
+            DrawCardFrame(layout.ModalPrimaryButton,reward?new Color(.38f,.72f,.54f):new Color(.92f,.58f,.16f),UiSkin.SkillCard);
+            if(reward)GUI.Label(MobileLayout.Inset(layout.ModalPrimaryButton,10f,4f),"SAFE — CHOOSE A REWARD",hudSkillCompact);
+            else if(GUI.Button(layout.ModalPrimaryButton,"START NEW RUN",hudButton))game.Restart();
         }
 
         void DrawPhoneThreatRail(MobileLayoutSnapshot layout,string className)
         {
-            Rect r=layout.ThreatPanel;float pad=7f,headerH=32f;
+            Rect r=layout.ThreatPanel;float pad=6f,headerH=27f;
             GUI.Label(new Rect(r.x+pad,r.y+3f,r.width-pad*2,headerH),"THREATS",hudHeader);
             var rows=game.MobileThreatRows(4);float contentTop=layout.ThreatContentRect.y,contentBottom=layout.ThreatContentRect.yMax,rowH=rows.Length==0?0f:Mathf.Min(78f,(contentBottom-contentTop)/rows.Length);
             for(int i=0;i<rows.Length;i++)
