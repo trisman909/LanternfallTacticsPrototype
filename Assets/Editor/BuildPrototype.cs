@@ -71,6 +71,7 @@ namespace Lanternfall.EditorTools
             var report=BuildPipeline.BuildPlayer(new[]{"Assets/Scenes/Main.unity"},"Builds/WebGL/LanternfallTactics",BuildTarget.WebGL,options);
             if(report.summary.result!=BuildResult.Succeeded)throw new System.Exception("WebGL build failed: "+report.summary.result);
             PatchWebGLForResponsivePreview("Builds/WebGL/LanternfallTactics");
+            CopyPwaAssets("Builds/WebGL/LanternfallTactics");
             Debug.Log("WEBGL_BUILD_OK "+report.summary.totalSize);
         }
 
@@ -78,7 +79,7 @@ namespace Lanternfall.EditorTools
         {
             PlayerSettings.productName="Lanternfall Tactics Prototype";
             PlayerSettings.companyName="Lanternfall";
-            PlayerSettings.bundleVersion="0.6N.4+"+GitShortHash();
+            PlayerSettings.bundleVersion="0.6N.6+"+GitShortHash();
             PlayerSettings.colorSpace=ColorSpace.Gamma;
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait=true;
@@ -124,9 +125,9 @@ namespace Lanternfall.EditorTools
                 var html=File.ReadAllText(index);
                 if(!html.Contains("Cache-Control"))
                     html=html.Replace("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">","<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n    <meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\">\n    <meta http-equiv=\"Pragma\" content=\"no-cache\">\n    <meta http-equiv=\"Expires\" content=\"0\">");
-                html=html.Replace("<title>Unity Web Player | Lanternfall Tactics Prototype</title>","<title>Lanternfall Tactics</title>\n    <meta name=\"description\" content=\"A compact dark-fantasy turn-based tactics prototype.\">\n    <meta name=\"theme-color\" content=\"#b9832d\">\n    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n    <meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n    <link rel=\"manifest\" href=\"manifest.webmanifest\">");
-                html=html.Replace("href=\"TemplateData/style.css\"","href=\"TemplateData/style.css?v=6N4\"");
-                html=html.Replace("var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js\";","var cacheBust = \"v=6N4\";\n      var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js?\" + cacheBust;");
+                html=html.Replace("<title>Unity Web Player | Lanternfall Tactics Prototype</title>","<title>Lanternfall Tactics</title>\n    <meta name=\"description\" content=\"A compact dark-fantasy turn-based tactics prototype.\">\n    <meta name=\"theme-color\" content=\"#b9832d\">\n    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n    <meta name=\"apple-mobile-web-app-title\" content=\"Lanternfall\">\n    <meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n    <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"icons/apple-touch-icon.png\">\n    <link rel=\"manifest\" href=\"manifest.webmanifest\">");
+                html=html.Replace("href=\"TemplateData/style.css\"","href=\"TemplateData/style.css?v=6N6\"");
+                html=html.Replace("var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js\";","var cacheBust = \"v=6N6\";\n      var loaderUrl = buildUrl + \"/LanternfallTactics.loader.js?\" + cacheBust;");
                 html=html.Replace("dataUrl: buildUrl + \"/LanternfallTactics.data\",","dataUrl: buildUrl + \"/LanternfallTactics.data?\" + cacheBust,");
                 html=html.Replace("frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js\",","frameworkUrl: buildUrl + \"/LanternfallTactics.framework.js?\" + cacheBust,");
                 html=html.Replace("codeUrl: buildUrl + \"/LanternfallTactics.wasm\",","codeUrl: buildUrl + \"/LanternfallTactics.wasm?\" + cacheBust,");
@@ -136,19 +137,25 @@ namespace Lanternfall.EditorTools
                 html=html.Replace("canvas.style.height = \"600px\";","canvas.style.height = \"100%\";");
                 html=html.Replace("height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes","height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes, viewport-fit=cover");
                 html=html.Replace("<body>","<body>\n    <div id=\"lanternfall-rotate-overlay\" aria-live=\"polite\">\n      <div class=\"lanternfall-rotate-card\">\n        <div class=\"lanternfall-rotate-title\">Rotate your phone to play</div>\n        <div class=\"lanternfall-rotate-body\">Lanternfall Tactics is best played in landscape.</div>\n        <div class=\"lanternfall-rotate-note\">Add to Home Screen for more space.</div>\n      </div>\n    </div>");
-                html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics - Prototype v0.6N.4 final mobile HUD polish. Audio unlocks after your first tap. Rotate your phone to landscape; Add to Home Screen/fullscreen is best if available.</div>\n        <div id=\"unity-progress-bar-empty\">");
-                html=html.Replace("</body>","    <script>\n      (function () {\n        function updateLanternfallViewportMode() {\n          var w = Math.max(1, window.innerWidth || document.documentElement.clientWidth || screen.width || 1);\n          var h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || screen.height || 1);\n          var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;\n          var touch = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;\n          var mobileUA = /Android|iPhone|iPod|Mobile|Windows Phone/i.test(navigator.userAgent || '');\n          var likelyPhone = (coarse || touch || mobileUA) && Math.min(w, h) <= 700 && Math.max(w, h) <= 1200;\n          var portraitPhone = likelyPhone && h > w;\n          var landscapePhone = likelyPhone && w > h;\n          document.body.classList.toggle('lanternfall-phone-portrait', portraitPhone);\n          document.body.classList.toggle('lanternfall-phone-landscape', landscapePhone);\n          document.body.classList.toggle('lanternfall-desktop', !portraitPhone && !landscapePhone);\n          document.documentElement.style.setProperty('--lf-vw', w + 'px');\n          document.documentElement.style.setProperty('--lf-vh', h + 'px');\n        }\n        updateLanternfallViewportMode();\n        window.addEventListener('resize', updateLanternfallViewportMode, { passive: true });\n        window.addEventListener('orientationchange', updateLanternfallViewportMode, { passive: true });\n        document.addEventListener('visibilitychange', updateLanternfallViewportMode);\n      })();\n    </script>\n  </body>");
+                html=html.Replace("<div id=\"unity-progress-bar-empty\">","<div id=\"lanternfall-loading-copy\">Loading Lanternfall Tactics - Prototype v0.6N.6 Android/iPhone viewport correction. Audio unlocks after your first tap. Rotate your phone to landscape; Add to Home Screen/fullscreen is best if available.</div>\n        <div id=\"unity-progress-bar-empty\">");
+                html=html.Replace("</body>","    <script>\n      (function () {\n        function updateLanternfallViewportMode() {\n          var w = Math.max(1, window.innerWidth || document.documentElement.clientWidth || screen.width || 1);\n          var h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || screen.height || 1);\n          var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;\n          var touch = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;\n          var mobileUA = /Android|iPhone|iPod|Mobile|Windows Phone/i.test(navigator.userAgent || '');\n          var likelyPhone = (coarse || touch || mobileUA) && Math.min(w, h) <= 700 && Math.max(w, h) <= 1200;\n          var portraitPhone = likelyPhone && h > w;\n          var landscapePhone = likelyPhone && w > h;\n          document.body.classList.toggle('lanternfall-phone-portrait', portraitPhone);\n          document.body.classList.toggle('lanternfall-phone-landscape', landscapePhone);\n          document.body.classList.toggle('lanternfall-desktop', !portraitPhone && !landscapePhone);\n          document.documentElement.style.setProperty('--lf-vw', w + 'px');\n          document.documentElement.style.setProperty('--lf-vh', h + 'px');\n        }\n        updateLanternfallViewportMode();\n        window.addEventListener('resize', updateLanternfallViewportMode, { passive: true });\n        window.addEventListener('orientationchange', updateLanternfallViewportMode, { passive: true });\n        document.addEventListener('visibilitychange', updateLanternfallViewportMode);\n        if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('./service-worker.js', { scope: './' }); });\n      })();\n    </script>\n  </body>");
+                var generatedScriptStart=html.LastIndexOf("    <script>\n      (function () {");
+                var generatedScriptEnd=html.LastIndexOf("\n    </script>\n  </body>");
+                if(generatedScriptStart>=0&&generatedScriptEnd>generatedScriptStart)
+                {
+                    var viewportScript=File.ReadAllText(Path.Combine("PWA","viewport.js"));
+                    html=html.Substring(0,generatedScriptStart)+"    <script>\n"+viewportScript+"\n    </script>\n  </body>"+html.Substring(generatedScriptEnd+"\n    </script>\n  </body>".Length);
+                }
                 File.WriteAllText(index,html);
             }
-            File.WriteAllText(Path.Combine(path,"manifest.webmanifest"),"{\n  \"name\": \"Lanternfall Tactics\",\n  \"short_name\": \"Lanternfall\",\n  \"description\": \"A compact dark-fantasy turn-based tactics prototype.\",\n  \"start_url\": \"./\",\n  \"scope\": \"./\",\n  \"display\": \"fullscreen\",\n  \"orientation\": \"landscape\",\n  \"background_color\": \"#05040b\",\n  \"theme_color\": \"#b9832d\",\n  \"icons\": [{\"src\": \"TemplateData/favicon.ico\", \"sizes\": \"any\", \"type\": \"image/x-icon\"}]\n}\n");
             var css=Path.Combine(path,"TemplateData","style.css");
             if(File.Exists(css))
             {
                 var text=File.ReadAllText(css);
                 text += "\nhtml, body { width: 100%; max-width: 100%; height: 100%; min-height: 100dvh; margin: 0; overflow: hidden; background: #000; position: fixed; inset: 0; touch-action: manipulation; overscroll-behavior: none; }\n";
                 text += "@supports (height: 100svh) { html, body, #unity-container.unity-desktop, #unity-container.unity-mobile, #unity-canvas { min-height: 100svh; } }\n";
-                text += "#unity-container.unity-desktop, #unity-container.unity-mobile { position: fixed; left: 0; top: 0; right: 0; bottom: 0; transform: none; width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); box-sizing: border-box; overflow: hidden; }\n";
-                text += "body.lanternfall-phone-landscape #unity-container.unity-desktop, body.lanternfall-phone-landscape #unity-container.unity-mobile { height: 100dvh; width: 100%; max-width: 100%; padding-left: max(0px, env(safe-area-inset-left)); padding-right: max(0px, env(safe-area-inset-right)); }\n";
+                text += "#unity-container.unity-desktop, #unity-container.unity-mobile { position: fixed; left: 0; top: 0; transform: none; width: var(--lf-vw, 100%); max-width: 100%; height: var(--lf-vh, 100dvh); max-height: 100dvh; padding: 0; box-sizing: border-box; overflow: hidden; }\n";
+                text += "body.lanternfall-phone-landscape #unity-container.unity-desktop, body.lanternfall-phone-landscape #unity-container.unity-mobile { width: var(--lf-vw, 100%); height: var(--lf-vh, 100dvh); max-width: 100%; }\n";
                 text += "#unity-canvas { width: 100% !important; max-width: 100% !important; height: 100% !important; max-height: 100% !important; display: block; box-sizing: border-box; }\n";
                 text += "#unity-footer { display: none; }\n";
                 text += "#lanternfall-loading-copy { color: #f4d27a; font: 700 16px Arial, sans-serif; text-align: center; margin: 10px auto; max-width: 520px; line-height: 1.35; }\n";
@@ -164,6 +171,17 @@ namespace Lanternfall.EditorTools
                 text += "body.lanternfall-phone-portrait #unity-container, body.lanternfall-phone-portrait #unity-canvas { visibility: hidden !important; pointer-events: none !important; }\n";
                 File.WriteAllText(css,text);
             }
+        }
+
+        static void CopyPwaAssets(string path)
+        {
+            var source="PWA";
+            if(!Directory.Exists(source))throw new DirectoryNotFoundException("Missing PWA source directory.");
+            File.Copy(Path.Combine(source,"manifest.webmanifest"),Path.Combine(path,"manifest.webmanifest"),true);
+            File.Copy(Path.Combine(source,"service-worker.js"),Path.Combine(path,"service-worker.js"),true);
+            var iconSource=Path.Combine(source,"icons");var iconTarget=Path.Combine(path,"icons");Directory.CreateDirectory(iconTarget);
+            foreach(var name in new[]{"icon-192.png","icon-512.png","icon-maskable-192.png","icon-maskable-512.png","apple-touch-icon.png"})
+                File.Copy(Path.Combine(iconSource,name),Path.Combine(iconTarget,name),true);
         }
     }
 }

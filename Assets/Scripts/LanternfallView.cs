@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6N.4";
+        public const string PrototypeVersion = "Prototype v0.6N.6";
         LanternfallGame game;
         LanternfallAudio audioLayer;
         Camera cam;
@@ -28,6 +28,8 @@ namespace Lanternfall
         float flowBannerUntil;
         MobileLayoutMode lastLayoutMode;
         Vector2 lastViewport;
+        BrowserViewportSnapshot browserViewport;
+        int browserViewportRevision = int.MinValue;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
@@ -121,10 +123,9 @@ namespace Lanternfall
             observedRoom = game.RoomNumber; observedPhase = game.Turns.Phase;
         }
 
-        void InitStyles()
+        void InitStyles(float viewportWidth,float viewportHeight)
         {
-            bool phoneSized = Mathf.Min(Screen.width, Screen.height) < 620 && Mathf.Max(Screen.width, Screen.height) <= 1200;
-            var readable = MobileHudReadability.Compute(Screen.width, Screen.height);
+            var readable = MobileHudReadability.Compute(viewportWidth,viewportHeight);
             int s = readable.BaseFont;
             title = new GUIStyle(GUI.skin.label){fontSize = s + 5, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, wordWrap = true, normal = {textColor = new Color(1f, .78f, .28f)}};
             body = new GUIStyle(GUI.skin.label){fontSize = s, alignment = TextAnchor.MiddleLeft, wordWrap = true, normal = {textColor = Color.white}};
@@ -162,9 +163,20 @@ namespace Lanternfall
 
         void OnGUI()
         {
-            if (title == null) InitStyles();
+            var currentViewport=BrowserViewport.Read(Screen.width,Screen.height,Screen.safeArea);
+            if(currentViewport.Revision!=browserViewportRevision||browserViewport.Width<=0f||browserViewport.Height<=0f||
+               Mathf.Abs(currentViewport.Width-browserViewport.Width)>1f||Mathf.Abs(currentViewport.Height-browserViewport.Height)>1f)
+            {
+                browserViewport=currentViewport;browserViewportRevision=currentViewport.Revision;
+                title=null;
+            }
+            if (title == null) InitStyles(browserViewport.LogicalSafeArea.width,browserViewport.LogicalSafeArea.height);
             if(Event.current.type==EventType.MouseDown&&!audioLayer.Unlocked){audioLayer.Unlock(game.HasStarted&&game.RoomNumber==5);audioLayer.Play(AudioCue.UiTap);}
-            var guiSafe = MobileLayout.ToGuiSafeArea(Screen.height, Screen.safeArea);
+            var logicalSafe=browserViewport.LogicalSafeArea;
+            float scaleX=Screen.width/browserViewport.Width,scaleY=Screen.height/browserViewport.Height;
+            var previousMatrix=GUI.matrix;
+            GUI.matrix=Matrix4x4.Scale(new Vector3(scaleX,scaleY,1f));
+            var guiSafe = logicalSafe;
             GUI.BeginGroup(guiSafe);
             var layout = MobileLayout.Compute(guiSafe.width, guiSafe.height);
             lastLayoutMode=layout.Mode;lastViewport=new Vector2(guiSafe.width,guiSafe.height);
@@ -172,6 +184,7 @@ namespace Lanternfall
             {
                 DrawRotatePhoneScreen(new Rect(0, 0, guiSafe.width, guiSafe.height));
                 GUI.EndGroup();
+                GUI.matrix=previousMatrix;
                 return;
             }
 
@@ -190,6 +203,7 @@ namespace Lanternfall
             if (game.BossPhasePresentationActive) DrawBossPhaseOverlay(new Rect(0, 0, guiSafe.width, guiSafe.height));
             if (flowBannerUntil > Time.unscaledTime && !game.HelpVisible && !game.PlaytestInfoVisible) DrawFlowBanner(new Rect(0,0,guiSafe.width,guiSafe.height));
             GUI.EndGroup();
+            GUI.matrix=previousMatrix;
         }
 
         void DrawFlowBanner(Rect area)
