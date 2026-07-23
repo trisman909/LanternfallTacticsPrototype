@@ -1,4 +1,4 @@
-const CACHE_NAME = "lanternfall-pwa-6n6-1";
+const CACHE_NAME = "lanternfall-pwa-6n6-2";
 const CORE_ASSETS = [
   "./",
   "./index.html",
