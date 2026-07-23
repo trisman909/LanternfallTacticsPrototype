@@ -620,8 +620,10 @@ namespace Lanternfall
             DrawPanelFrame(layout.TopBar);DrawPanelFrame(layout.SkillBar);DrawPanelFrame(layout.ThreatPanel);
             DrawStatChips(layout.StatChips,layout.StatContentRects);
             var cls=ClassCatalog.Get(game.Player.ClassId);
-            var phoneTitle=new GUIStyle(hudHeader){fontSize=Mathf.Max(15,hudHeader.fontSize-2)};
-            GUI.Label(layout.TitleContentRect,$"{HudText.TurnLabel(game.Turns.Phase)}\n{game.Theme.Name}",phoneTitle);
+            bool ultraShort=layout.TopBar.height<30f;
+            var phoneTitle=new GUIStyle(hudHeader){fontSize=ultraShort?14:Mathf.Max(15,hudHeader.fontSize-2),wordWrap=!ultraShort};
+            string phoneHeading=ultraShort?$"{HudText.TurnLabel(game.Turns.Phase)} · {game.Theme.Name}":$"{HudText.TurnLabel(game.Turns.Phase)}\n{game.Theme.Name}";
+            GUI.Label(layout.TitleContentRect,phoneHeading,phoneTitle);
             DrawPhoneSkills(layout);
             bool hasSkill=game.SelectedSkill.HasValue;
             if(hasSkill){DrawCardFrame(layout.CancelButton,new Color(.58f,.54f,.66f),UiSkin.SkillCard);if(GUI.Button(layout.CancelButton,string.Empty,hudButton))game.CancelSkill();GUI.Label(MobileLayout.Inset(layout.CancelButton,6f,5f),"X",hudButton);}

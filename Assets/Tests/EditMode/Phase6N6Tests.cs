@@ -84,5 +84,28 @@ namespace Lanternfall.Tests
             Assert.That(view,Does.Contain("BrowserViewport.Read").And.Contain("browserViewport.LogicalSafeArea").And.Contain("Screen.width/browserViewport.Width"));
             Assert.That(view,Does.Not.Contain("MobileLayout.Compute(Screen.width, Screen.height)"));
         }
+
+        [Test]
+        public void XiaomiToolbarVisibleViewportUsesUltraShortFallbackWithoutClippingControls()
+        {
+            var layout=MobileLayout.Compute(780,250);
+            var fit=BoardFitLayout.ComputePhoneOccupied(layout.Board,9,11);
+            Assert.AreEqual(MobileLayoutMode.PhoneLandscape,layout.Mode);
+            Assert.AreEqual(28f,layout.TopBar.height);
+            Assert.AreEqual(44f,layout.SkillBar.height);
+            Assert.GreaterOrEqual(layout.ActionButton.height,40f);
+            Assert.Greater(fit.TileSize,15.7f);
+            Assert.GreaterOrEqual(fit.Bounds.height/layout.Board.height,.99f);
+            Assert.True(fit.Fits(layout.Board));
+        }
+
+        [Test]
+        public void AndroidShortBrowserViewportRequestsFullscreenOnlyFromUserGesture()
+        {
+            string source=File.ReadAllText("PWA/viewport.js");
+            Assert.That(source,Does.Contain("requestFullscreen({ navigationUI: 'hide' })"));
+            Assert.That(source,Does.Contain("pointerdown").And.Contain("once: true").And.Contain("display-mode: standalone"));
+            Assert.That(source,Does.Contain("height >= 320"));
+        }
     }
 }

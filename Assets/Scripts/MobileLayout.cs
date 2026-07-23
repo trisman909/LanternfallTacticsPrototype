@@ -137,7 +137,11 @@ namespace Lanternfall
                 float panelH=result.PhoneLandscape?height:height;
                 if(result.PhoneLandscape)
                 {
-                    float topH=Mathf.Clamp(height*.09f,34f,39f),bottomH=Mathf.Clamp(height*.12f,48f,52f),actionH=Mathf.Clamp(height*.13f,52f,58f);
+                    bool ultraShortBrowser=height<320f;
+                    float topH=ultraShortBrowser?28f:Mathf.Clamp(height*.09f,34f,39f);
+                    float bottomH=ultraShortBrowser?44f:Mathf.Clamp(height*.12f,48f,52f);
+                    float actionH=ultraShortBrowser?48f:Mathf.Clamp(height*.13f,52f,58f);
+                    if(ultraShortBrowser)panelW=Mathf.Clamp(width*.17f,142f,160f);
                     float boardW=width-panelW;
                     result.TopBar=new Rect(0,0,boardW,topH);
                     result.Board=new Rect(0,topH,boardW,height-topH-bottomH);
@@ -157,7 +161,7 @@ namespace Lanternfall
                     result.StatChips=new[]{new Rect(statPad,3f,statW,result.TopBar.height-6f),new Rect(statPad+statW+statGap,3f,statW,result.TopBar.height-6f),new Rect(statPad+(statW+statGap)*2,3f,statW,result.TopBar.height-6f)};
                     result.StatContentRects=result.StatChips.Select(r=>Inset(r,5f,3f)).ToArray();
                     result.TitleContentRect=Inset(new Rect(statsW+5f,2f,result.TopBar.width-statsW-8f,result.TopBar.height-4f),6f,2f);
-                    float utilityH=Mathf.Clamp(height*.10f,40f,44f),utilityY=result.ThreatPanel.yMax-utilityH-3f,utilityGap=4f,utilityW=(panelW-outer*2-utilityGap)/2f;
+                    float utilityH=ultraShortBrowser?44f:Mathf.Clamp(height*.10f,40f,44f),utilityY=result.ThreatPanel.yMax-utilityH-3f,utilityGap=4f,utilityW=(panelW-outer*2-utilityGap)/2f;
                     result.HelpButton=new Rect(boardW+outer,utilityY,utilityW,utilityH);
                     result.InfoButton=new Rect(result.HelpButton.xMax+utilityGap,utilityY,utilityW,utilityH);
                     result.HelpContentRect=Inset(result.HelpButton,7f,5f);result.InfoContentRect=Inset(result.InfoButton,7f,5f);

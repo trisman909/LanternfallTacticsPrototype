@@ -33,6 +33,20 @@
     viewportTimer = setTimeout(updateLanternfallViewportMode, 80);
   }
 
+  function enableAndroidGameViewport() {
+    var android = /Android/i.test(navigator.userAgent || '');
+    var standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+    var vv = window.visualViewport;
+    var width = (vv && vv.width) || window.innerWidth || 0;
+    var height = (vv && vv.height) || window.innerHeight || 0;
+    if (!android || standalone || width <= height || height >= 320 || document.fullscreenElement) return;
+    var root = document.documentElement;
+    if (root.requestFullscreen) {
+      var result = root.requestFullscreen({ navigationUI: 'hide' });
+      if (result && result.catch) result.catch(function () {});
+    }
+  }
+
   updateLanternfallViewportMode();
   window.addEventListener('resize', scheduleLanternfallViewportUpdate, { passive: true });
   window.addEventListener('orientationchange', scheduleLanternfallViewportUpdate, { passive: true });
@@ -42,5 +56,6 @@
     window.visualViewport.addEventListener('resize', scheduleLanternfallViewportUpdate, { passive: true });
     window.visualViewport.addEventListener('scroll', scheduleLanternfallViewportUpdate, { passive: true });
   }
+  window.addEventListener('pointerdown', enableAndroidGameViewport, { once: true, capture: true, passive: true });
   if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('./service-worker.js', { scope: './' }); });
 })();
