@@ -10,10 +10,12 @@
     <meta name="description" content="A compact dark-fantasy turn-based tactics prototype.">
     <meta name="theme-color" content="#b9832d">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Lanternfall">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css?v=6N4">
+    <link rel="stylesheet" href="TemplateData/style.css?v=6N6">
   </head>
   <body>
     <div id="lanternfall-rotate-overlay" aria-live="polite">
@@ -27,7 +29,7 @@
       <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
-        <div id="lanternfall-loading-copy">Loading Lanternfall Tactics - Prototype v0.6N.4 final mobile HUD polish. Audio unlocks after your first tap. Rotate your phone to landscape; Add to Home Screen/fullscreen is best if available.</div>
+        <div id="lanternfall-loading-copy">Loading Lanternfall Tactics - Prototype v0.6N.6 Android/iPhone viewport correction. Audio unlocks after your first tap. Rotate your phone to landscape; Add to Home Screen/fullscreen is best if available.</div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
@@ -68,7 +70,7 @@
       }
 
       var buildUrl = "Build";
-      var cacheBust = "v=6N4";
+      var cacheBust = "v=6N6";
       var loaderUrl = buildUrl + "/LanternfallTactics.loader.js?" + cacheBust;
       var config = {
         arguments: [],
@@ -78,7 +80,7 @@
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Lanternfall",
         productName: "Lanternfall Tactics Prototype",
-        productVersion: "0.6N.4+2d305d49",
+        productVersion: "0.6N.6+19afd332",
         showBanner: unityShowBanner,
         // errorHandler: function(err, url, line) {
         //    alert("error " + err + " occurred at line " + line);
@@ -149,27 +151,53 @@
 
     </script>
       <script>
-      (function () {
-        function updateLanternfallViewportMode() {
-          var w = Math.max(1, window.innerWidth || document.documentElement.clientWidth || screen.width || 1);
-          var h = Math.max(1, window.innerHeight || document.documentElement.clientHeight || screen.height || 1);
-          var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-          var touch = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;
-          var mobileUA = /Android|iPhone|iPod|Mobile|Windows Phone/i.test(navigator.userAgent || '');
-          var likelyPhone = (coarse || touch || mobileUA) && Math.min(w, h) <= 700 && Math.max(w, h) <= 1200;
-          var portraitPhone = likelyPhone && h > w;
-          var landscapePhone = likelyPhone && w > h;
-          document.body.classList.toggle('lanternfall-phone-portrait', portraitPhone);
-          document.body.classList.toggle('lanternfall-phone-landscape', landscapePhone);
-          document.body.classList.toggle('lanternfall-desktop', !portraitPhone && !landscapePhone);
-          document.documentElement.style.setProperty('--lf-vw', w + 'px');
-          document.documentElement.style.setProperty('--lf-vh', h + 'px');
-        }
-        updateLanternfallViewportMode();
-        window.addEventListener('resize', updateLanternfallViewportMode, { passive: true });
-        window.addEventListener('orientationchange', updateLanternfallViewportMode, { passive: true });
-        document.addEventListener('visibilitychange', updateLanternfallViewportMode);
-      })();
+(function () {
+  var viewportTimer = 0;
+  var safeProbe = document.createElement('div');
+  safeProbe.setAttribute('aria-hidden', 'true');
+  safeProbe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
+  document.body.appendChild(safeProbe);
+
+  function updateLanternfallViewportMode() {
+    viewportTimer = 0;
+    var vv = window.visualViewport;
+    var w = Math.max(1, Math.round((vv && vv.width) || window.innerWidth || document.documentElement.clientWidth || 1));
+    var h = Math.max(1, Math.round((vv && vv.height) || window.innerHeight || document.documentElement.clientHeight || 1));
+    var safe = getComputedStyle(safeProbe);
+    var next = { width:w, height:h, safeLeft:parseFloat(safe.paddingLeft)||0, safeTop:parseFloat(safe.paddingTop)||0, safeRight:parseFloat(safe.paddingRight)||0, safeBottom:parseFloat(safe.paddingBottom)||0 };
+    var prior = window.LanternfallViewport;
+    next.revision = prior ? prior.revision : 1;
+    if (!prior || Math.abs(prior.width-next.width)>1 || Math.abs(prior.height-next.height)>1 || Math.abs(prior.safeLeft-next.safeLeft)>1 || Math.abs(prior.safeTop-next.safeTop)>1 || Math.abs(prior.safeRight-next.safeRight)>1 || Math.abs(prior.safeBottom-next.safeBottom)>1) next.revision++;
+    window.LanternfallViewport = next;
+
+    var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    var touch = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;
+    var mobileUA = /Android|iPhone|iPod|Mobile|Windows Phone/i.test(navigator.userAgent || '');
+    var likelyPhone = (coarse || touch || mobileUA) && Math.min(w, h) <= 700 && Math.max(w, h) <= 1200;
+    document.body.classList.toggle('lanternfall-phone-portrait', likelyPhone && h > w);
+    document.body.classList.toggle('lanternfall-phone-landscape', likelyPhone && w > h);
+    document.body.classList.toggle('lanternfall-desktop', !likelyPhone);
+    document.documentElement.style.setProperty('--lf-vw', w + 'px');
+    document.documentElement.style.setProperty('--lf-vh', h + 'px');
+  }
+
+  function scheduleLanternfallViewportUpdate() {
+    clearTimeout(viewportTimer);
+    viewportTimer = setTimeout(updateLanternfallViewportMode, 80);
+  }
+
+  updateLanternfallViewportMode();
+  window.addEventListener('resize', scheduleLanternfallViewportUpdate, { passive: true });
+  window.addEventListener('orientationchange', scheduleLanternfallViewportUpdate, { passive: true });
+  document.addEventListener('visibilitychange', scheduleLanternfallViewportUpdate);
+  document.addEventListener('fullscreenchange', scheduleLanternfallViewportUpdate);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', scheduleLanternfallViewportUpdate, { passive: true });
+    window.visualViewport.addEventListener('scroll', scheduleLanternfallViewportUpdate, { passive: true });
+  }
+  if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('./service-worker.js', { scope: './' }); });
+})();
+
     </script>
   </body>
 </html>

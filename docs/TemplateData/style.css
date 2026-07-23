@@ -17,8 +17,8 @@ body { padding: 0; margin: 0 }
 
 html, body { width: 100%; max-width: 100%; height: 100%; min-height: 100dvh; margin: 0; overflow: hidden; background: #000; position: fixed; inset: 0; touch-action: manipulation; overscroll-behavior: none; }
 @supports (height: 100svh) { html, body, #unity-container.unity-desktop, #unity-container.unity-mobile, #unity-canvas { min-height: 100svh; } }
-#unity-container.unity-desktop, #unity-container.unity-mobile { position: fixed; left: 0; top: 0; right: 0; bottom: 0; transform: none; width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); box-sizing: border-box; overflow: hidden; }
-body.lanternfall-phone-landscape #unity-container.unity-desktop, body.lanternfall-phone-landscape #unity-container.unity-mobile { height: 100dvh; width: 100%; max-width: 100%; padding-left: max(0px, env(safe-area-inset-left)); padding-right: max(0px, env(safe-area-inset-right)); }
+#unity-container.unity-desktop, #unity-container.unity-mobile { position: fixed; left: 0; top: 0; transform: none; width: var(--lf-vw, 100%); max-width: 100%; height: var(--lf-vh, 100dvh); max-height: 100dvh; padding: 0; box-sizing: border-box; overflow: hidden; }
+body.lanternfall-phone-landscape #unity-container.unity-desktop, body.lanternfall-phone-landscape #unity-container.unity-mobile { width: var(--lf-vw, 100%); height: var(--lf-vh, 100dvh); max-width: 100%; }
 #unity-canvas { width: 100% !important; max-width: 100% !important; height: 100% !important; max-height: 100% !important; display: block; box-sizing: border-box; }
 #unity-footer { display: none; }
 #lanternfall-loading-copy { color: #f4d27a; font: 700 16px Arial, sans-serif; text-align: center; margin: 10px auto; max-width: 520px; line-height: 1.35; }
