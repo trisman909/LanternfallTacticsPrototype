@@ -24,12 +24,12 @@ namespace Lanternfall.Tests
         public void PhonePremiumActionGroupUsesSkillFrameGeometryAndAppleTouchTargets(float width,float height)
         {
             var layout=MobileLayout.Compute(width,height);
-            Assert.AreEqual(layout.ActionButton,layout.EndTurnArt);Assert.AreEqual(layout.FullActionButton,layout.FullEndTurnArt);
+            AssertContained(layout.ActionButton,layout.EndTurnArt);Assert.AreEqual(layout.ActionButton,layout.FullActionButton);Assert.AreEqual(layout.EndTurnArt,layout.FullEndTurnArt);
             AssertContained(layout.EndTurnArt,layout.EndTurnLabel);AssertContained(layout.FullEndTurnArt,layout.FullEndTurnLabel);
             Assert.False(layout.CancelButton.Overlaps(layout.ActionButton));Assert.GreaterOrEqual(layout.CancelButton.width,44f);Assert.GreaterOrEqual(layout.CancelButton.height,44f);
             Assert.GreaterOrEqual(layout.ActionButton.width,44f);Assert.GreaterOrEqual(layout.ActionButton.height,44f);
             string view=File.ReadAllText("Assets/Scripts/LanternfallView.cs");
-            Assert.That(view,Does.Contain("DrawCardFrame(layout.CancelButton").And.Contain("DrawCardFrame(actionArt").And.Contain("UiSkin.SkillCard"));
+            Assert.That(view,Does.Contain("DrawCardFrame(layout.CancelArt").And.Contain("DrawCardFrame(actionArt").And.Contain("UiSkin.SkillCard"));
         }
 
         [TestCase(844f,390f)] [TestCase(932f,430f)]

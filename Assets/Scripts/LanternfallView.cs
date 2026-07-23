@@ -6,7 +6,7 @@ namespace Lanternfall
 {
     public sealed class LanternfallView : MonoBehaviour
     {
-        public const string PrototypeVersion = "Prototype v0.6N.6";
+        public const string PrototypeVersion = "Prototype v0.6N.7";
         LanternfallGame game;
         LanternfallAudio audioLayer;
         Camera cam;
@@ -626,8 +626,8 @@ namespace Lanternfall
             GUI.Label(layout.TitleContentRect,phoneHeading,phoneTitle);
             DrawPhoneSkills(layout);
             bool hasSkill=game.SelectedSkill.HasValue;
-            if(hasSkill){DrawCardFrame(layout.CancelButton,new Color(.58f,.54f,.66f),UiSkin.SkillCard);if(GUI.Button(layout.CancelButton,string.Empty,hudButton))game.CancelSkill();GUI.Label(MobileLayout.Inset(layout.CancelButton,6f,5f),"X",hudButton);}
-            var action=hasSkill?layout.ActionButton:layout.FullActionButton;var actionArt=hasSkill?layout.EndTurnArt:layout.FullEndTurnArt;var actionLabel=hasSkill?layout.EndTurnLabel:layout.FullEndTurnLabel;
+            if(hasSkill){DrawCardFrame(layout.CancelArt,new Color(.58f,.54f,.66f),UiSkin.SkillCard);if(GUI.Button(layout.CancelButton,string.Empty,hudButton))game.CancelSkill();GUI.Label(layout.CancelLabel,"X",hudButton);}
+            var action=layout.ActionButton;var actionArt=layout.EndTurnArt;var actionLabel=layout.EndTurnLabel;
             GUI.enabled=game.Turns.Phase==TurnPhase.Player;DrawCardFrame(actionArt,new Color(.92f,.58f,.16f),UiSkin.SkillCard);if(GUI.Button(action,string.Empty,hudButton)){audioLayer.Play(AudioCue.EndTurn);game.WaitTurn();}GUI.Label(actionLabel,HudText.EndTurnButton,hudSkillCompact);GUI.enabled=true;
             DrawPhoneThreatRail(layout,cls.name);
         }
@@ -646,10 +646,9 @@ namespace Lanternfall
                     Rect card=layout.ModalCards[i],safe=layout.ModalCardContentRects[i];var option=RewardCatalog.Get(i);
                     DrawCardFrame(card,new Color(1f,.62f,.18f),UiSkin.RewardCard);
                     if(GUI.Button(card,string.Empty,hudButton)){audioLayer.Play(AudioCue.Reward);game.ChooseReward(i);}
-                    float nameH=safe.height*.30f,effectH=safe.height*.30f;
-                    GUI.Label(new Rect(safe.x,safe.y,safe.width,nameH),option.Name.ToUpper(),new GUIStyle(hudSkillCompact){fontSize=Mathf.Max(14,hudSkillCompact.fontSize)});
-                    GUI.Label(new Rect(safe.x,safe.y+nameH,safe.width,effectH),option.Effect,new GUIStyle(hudSkillCompact){fontSize=Mathf.Max(13,hudSkillCompact.fontSize-1)});
-                    GUI.Label(new Rect(safe.x,safe.y+nameH+effectH,safe.width,safe.height-nameH-effectH),option.Detail,new GUIStyle(hudMessage){fontSize=Mathf.Max(13,hudMessage.fontSize),alignment=TextAnchor.MiddleCenter});
+                    GUI.Label(layout.ModalCardNameRects[i],option.Name.ToUpper(),new GUIStyle(hudSkillCompact){fontSize=Mathf.Max(14,hudSkillCompact.fontSize)});
+                    GUI.Label(layout.ModalCardEffectRects[i],option.Effect,new GUIStyle(hudSkillCompact){fontSize=Mathf.Max(13,hudSkillCompact.fontSize-1)});
+                    GUI.Label(layout.ModalCardDetailRects[i],option.Detail,new GUIStyle(hudMessage){fontSize=Mathf.Max(13,hudMessage.fontSize),alignment=TextAnchor.MiddleCenter});
                 }
             }
             AuthoredArt.DrawSkin(layout.ModalHelpButton,UiSkin.Utility,new Color(.78f,.78f,.78f));AuthoredArt.DrawSkin(layout.ModalInfoButton,UiSkin.Utility,new Color(.78f,.78f,.78f));
@@ -871,9 +870,9 @@ namespace Lanternfall
 
         void DrawCardFrame(Rect r, Color accent, UiSkin skin = UiSkin.SkillCard)
         {
-            if (!AuthoredArt.DrawSkin(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), skin,new Color(.80f,.80f,.80f)))
-                DrawRect(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), new Color(0f, 0f, 0f, .35f));
-            DrawOutline(new Rect(r.x - 2, r.y - 2, r.width + 4, r.height + 4), accent, 2);
+            if (!AuthoredArt.DrawSkin(r,skin,new Color(.80f,.80f,.80f)))
+                DrawRect(r,new Color(0f,0f,0f,.35f));
+            DrawOutline(MobileLayout.Inset(r,1f,1f),accent,2);
         }
 
         void DrawUnitSymbol(Rect r, PlayerClassId? cls, EnemyKind? enemyKind, bool boss)

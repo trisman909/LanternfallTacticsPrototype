@@ -20,7 +20,7 @@ namespace Lanternfall.Tests
         {
             var layout=MobileLayout.Compute(width,height);
             Assert.True(layout.SkillButtons.All(r=>r.height>=44f&&r.width>=MobileLayoutSnapshot.MinimumTouchTarget));Assert.GreaterOrEqual(layout.ActionButton.height,44f);
-            Assert.True(layout.SkillButtons.All(r=>layout.SkillBar.Contains(r.min)&&layout.SkillBar.Contains(r.max)));Assert.True(layout.ActionButton.xMax<=width&&layout.ActionButton.yMax<=height);
+            Assert.True(layout.SkillButtons.All(r=>r.xMin>=layout.SkillBar.xMin&&r.yMin>=layout.SkillBar.yMin&&r.xMax<=layout.SkillBar.xMax&&r.yMax<=layout.SkillBar.yMax));Assert.True(layout.ActionButton.xMax<=width&&layout.ActionButton.yMax<=height);
             Assert.Greater(layout.TopBar.width,width*.78f);Assert.That(layout.ThreatPanel.width,Is.InRange(152f,174f));
         }
 

@@ -27,7 +27,7 @@ namespace Lanternfall.Tests
             var l=MobileLayout.Compute(width,height);
             AssertContained(l.ActionButton,l.EndTurnArt);AssertContained(l.EndTurnArt,l.EndTurnLabel);AssertContained(l.FullActionButton,l.FullEndTurnArt);AssertContained(l.FullEndTurnArt,l.FullEndTurnLabel);
             Assert.False(l.CancelButton.Overlaps(l.ActionButton));Assert.GreaterOrEqual(l.CancelButton.width,44f);Assert.GreaterOrEqual(l.CancelButton.height,44f);Assert.GreaterOrEqual(l.ActionButton.height,44f);
-            Assert.AreEqual(l.ActionButton,l.EndTurnArt);Assert.AreEqual(l.FullActionButton,l.FullEndTurnArt);
+            Assert.AreEqual(l.ActionButton,l.FullActionButton);Assert.AreEqual(l.EndTurnArt,l.FullEndTurnArt);Assert.AreEqual(l.EndTurnLabel,l.FullEndTurnLabel);
         }
 
         [TestCase(844f,390f)] [TestCase(932f,430f)]

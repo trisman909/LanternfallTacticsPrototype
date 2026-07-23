@@ -327,13 +327,13 @@ namespace Lanternfall.Tests
         {
             string builder=File.ReadAllText("Assets/Editor/BuildPrototype.cs");
             string view=File.ReadAllText("Assets/Scripts/LanternfallView.cs");
-            Assert.That(builder,Does.Contain("config.devicePixelRatio = 1;").And.Contain("v=6N6").And.Contain("GitShortHash").And.Not.Contain("lanternfall-build-proof"));
+            Assert.That(builder,Does.Contain("config.devicePixelRatio = 1;").And.Contain("v=6N7").And.Contain("GitShortHash").And.Not.Contain("lanternfall-build-proof"));
             Assert.That(view,Does.Contain("Application.version").And.Contain("lastLayoutMode").And.Contain("lastViewport").And.Not.Contain("HUD QA"));
         }
 
         [Test] public void Phase5G_PlaytestReleaseFilesAndVersionLabelArePrepared()
         {
-            Assert.AreEqual("Prototype v0.6N.6",LanternfallView.PrototypeVersion);
+            Assert.AreEqual("Prototype v0.6N.7",LanternfallView.PrototypeVersion);
             Assert.True(File.Exists("PLAYTEST_GUIDE.md"));
             var guide=File.ReadAllText("PLAYTEST_GUIDE.md");
             Assert.That(guide,Does.Contain("https://trisman909.github.io/LanternfallTacticsPrototype/"));
@@ -603,8 +603,8 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("max-width: 100%"));
             Assert.That(builder,Does.Contain("overflow: hidden"));
             Assert.That(builder,Does.Contain("env(safe-area-inset-left)"));
-            Assert.That(builder,Does.Contain("v=6N6"));
-            Assert.That(builder,Does.Contain("Prototype v0.6N.6"));
+            Assert.That(builder,Does.Contain("v=6N7"));
+            Assert.AreEqual("Prototype v0.6N.7",LanternfallView.PrototypeVersion);
         }
 
         [Test] public void Phase6B1_PhoneLandscapeUsesLargerReadableFontsAndRowsWithoutDesktopChange()
@@ -701,8 +701,8 @@ namespace Lanternfall.Tests
             Assert.That(builder,Does.Contain("window.innerHeight"));
             Assert.That(builder,Does.Contain("orientationchange"));
             Assert.That(builder,Does.Contain("lanternfall-phone-portrait"));
-            Assert.That(builder,Does.Contain("v=6N6"));
-            Assert.That(builder,Does.Contain("Prototype v0.6N.6"));
+            Assert.That(builder,Does.Contain("v=6N7"));
+            Assert.AreEqual("Prototype v0.6N.7",LanternfallView.PrototypeVersion);
         }
 
         [Test] public void Phase5Q2_PhoneHudUsesShortSkillLabelsAndHidesSecondaryCombatInfo()

@@ -20,6 +20,8 @@ namespace Lanternfall
         public Rect SkillBar;
         public Rect ThreatPanel;
         public Rect CancelButton;
+        public Rect CancelArt;
+        public Rect CancelLabel;
         public Rect[] StatChips;
         public Rect[] StatContentRects;
         public Rect TitleContentRect;
@@ -45,6 +47,9 @@ namespace Lanternfall
         public Rect ModalSubtitleRect;
         public Rect[] ModalCards;
         public Rect[] ModalCardContentRects;
+        public Rect[] ModalCardNameRects;
+        public Rect[] ModalCardEffectRects;
+        public Rect[] ModalCardDetailRects;
         public Rect ModalHelpButton;
         public Rect ModalInfoButton;
         public Rect ModalPrimaryButton;
@@ -150,13 +155,16 @@ namespace Lanternfall
                     result.Panel=result.ThreatPanel;
                     float actionY=height-actionH;
                     float outer=4f,cancelW=44f,gap=4f;
-                    result.CancelButton=new Rect(boardW+outer,actionY+4f,cancelW,actionH-8f);
-                    result.ActionButton=new Rect(result.CancelButton.xMax+gap,actionY+4f,panelW-outer*2-cancelW-gap,actionH-8f);
-                    result.FullActionButton=new Rect(boardW+outer,actionY+4f,panelW-outer*2,actionH-8f);
-                    result.EndTurnArt=result.ActionButton;
+                    float actionInset=ultraShortBrowser?2f:4f;
+                    result.CancelButton=new Rect(boardW+outer,actionY+actionInset,cancelW,actionH-actionInset*2f);
+                    result.CancelArt=Inset(result.CancelButton,2f,2f);
+                    result.CancelLabel=Inset(result.CancelArt,6f,4f);
+                    result.ActionButton=new Rect(result.CancelButton.xMax+gap,actionY+actionInset,panelW-outer*2-cancelW-gap,actionH-actionInset*2f);
+                    result.FullActionButton=result.ActionButton;
+                    result.EndTurnArt=AspectFit(Inset(result.ActionButton,2f,2f),2.8f);
                     result.EndTurnLabel=Inset(result.EndTurnArt,8f,4f);
-                    result.FullEndTurnArt=result.FullActionButton;
-                    result.FullEndTurnLabel=Inset(result.FullEndTurnArt,10f,4f);
+                    result.FullEndTurnArt=result.EndTurnArt;
+                    result.FullEndTurnLabel=result.EndTurnLabel;
                     float statPad=4f,statsW=result.TopBar.width*.48f,statGap=3f,statW=(statsW-statPad*2-statGap*2)/3f;
                     result.StatChips=new[]{new Rect(statPad,3f,statW,result.TopBar.height-6f),new Rect(statPad+statW+statGap,3f,statW,result.TopBar.height-6f),new Rect(statPad+(statW+statGap)*2,3f,statW,result.TopBar.height-6f)};
                     result.StatContentRects=result.StatChips.Select(r=>Inset(r,5f,3f)).ToArray();
@@ -179,13 +187,16 @@ namespace Lanternfall
                     float cardsY=result.ModalSubtitleRect.yMax+4f,cardsH=modalUtilityY-cardsY-6f,cardW=(result.ModalPanel.width-12f-modalGap*2f)/3f;
                     result.ModalCards=new[]{new Rect(result.ModalPanel.x+6f,cardsY,cardW,cardsH),new Rect(result.ModalPanel.x+6f+cardW+modalGap,cardsY,cardW,cardsH),new Rect(result.ModalPanel.x+6f+(cardW+modalGap)*2f,cardsY,cardW,cardsH)};
                     result.ModalCardContentRects=result.ModalCards.Select(r=>Inset(r,Mathf.Max(8f,r.width*.05f),8f)).ToArray();
+                    result.ModalCardNameRects=result.ModalCardContentRects.Select(r=>new Rect(r.x,r.y,r.width,r.height*.25f)).ToArray();
+                    result.ModalCardEffectRects=result.ModalCardContentRects.Select(r=>new Rect(r.x,r.y+r.height*.25f,r.width,r.height*.25f)).ToArray();
+                    result.ModalCardDetailRects=result.ModalCardContentRects.Select(r=>new Rect(r.x,r.y+r.height*.50f,r.width,r.height*.50f)).ToArray();
                 }
                 else {result.Board=new Rect(0,0,width-panelW,height);result.Panel=new Rect(width-panelW,0,panelW,height);}
                 float pad=10,y=result.PhoneLandscape?result.Panel.y+58f:result.CompactLandscape?94:198,h=result.PhoneLandscape?Mathf.Max(60f,(panelH-82f)*.45f):result.CompactLandscape?50:68;
                 if(result.PhoneLandscape)
                 {
-                    float gap=4,bw=(result.SkillBar.width-4f*2-gap*2)/3f,sy=result.SkillBar.y+2f;
-                    result.SkillButtons=new[]{new Rect(result.SkillBar.x+4f,sy,bw,result.SkillBar.height-4f),new Rect(result.SkillBar.x+4f+bw+gap,sy,bw,result.SkillBar.height-4f),new Rect(result.SkillBar.x+4f+(bw+gap)*2,sy,bw,result.SkillBar.height-4f)};
+                    float gap=4,bw=(result.SkillBar.width-4f*2-gap*2)/3f,sy=result.SkillBar.y;
+                    result.SkillButtons=new[]{new Rect(result.SkillBar.x+4f,sy,bw,result.SkillBar.height),new Rect(result.SkillBar.x+4f+bw+gap,sy,bw,result.SkillBar.height),new Rect(result.SkillBar.x+4f+(bw+gap)*2,sy,bw,result.SkillBar.height)};
                     result.SkillContentRects=result.SkillButtons.Select(r=>Inset(r,Mathf.Max(8f,r.width*.045f),3f)).ToArray();
                     result.SkillNameRects=result.SkillContentRects.Select(r=>new Rect(r.x,r.y,r.width*.68f,r.height*.56f)).ToArray();
                     result.SkillCostRects=result.SkillContentRects.Select(r=>new Rect(r.x+r.width*.69f,r.y,r.width*.31f,r.height*.56f)).ToArray();

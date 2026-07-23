@@ -29,8 +29,9 @@ namespace Lanternfall.Tests
             Assert.True(l.StatChips.All(r=>Mathf.Abs(r.height-l.StatChips[0].height)<.01f&&Mathf.Abs(r.y-l.StatChips[0].y)<.01f));
             for(int i=0;i<3;i++){Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].min));Assert.True(l.SkillButtons[i].Contains(l.SkillContentRects[i].max));Assert.GreaterOrEqual(l.SkillButtons[i].height,44f);}
             AssertContained(l.ActionButton,l.EndTurnArt);AssertContained(l.EndTurnArt,l.EndTurnLabel);
-            Assert.AreEqual(l.ActionButton,l.EndTurnArt);Assert.True(l.ThreatPanel.xMin>=l.Board.xMax&&l.ThreatPanel.xMax<=width);
-            Assert.Greater(l.FullActionButton.width,l.ActionButton.width);AssertContained(l.FullActionButton,l.FullEndTurnArt);
+            Assert.Greater(l.EndTurnArt.width/l.EndTurnArt.height,l.ActionButton.width/l.ActionButton.height);
+            Assert.True(l.ThreatPanel.xMin>=l.Board.xMax&&l.ThreatPanel.xMax<=width);
+            Assert.AreEqual(l.FullActionButton,l.ActionButton);AssertContained(l.FullActionButton,l.FullEndTurnArt);
         }
 
         [Test] public void PhoneBoardIsExplicitlyHeaderlessAndDesktopContractIsUnchanged()

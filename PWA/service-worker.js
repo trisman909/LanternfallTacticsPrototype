@@ -1,9 +1,9 @@
-const CACHE_NAME = "lanternfall-pwa-6n6-2";
+const CACHE_NAME = "lanternfall-pwa-6n7-1";
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./TemplateData/style.css?v=6N6",
+  "./TemplateData/style.css?v=6N7",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-maskable-192.png",

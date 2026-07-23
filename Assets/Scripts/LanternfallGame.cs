@@ -76,7 +76,7 @@ namespace Lanternfall
 
         public static readonly string[] PlaytestInfoLines =
         {
-            "Prototype v0.6N.6: consistent mobile browser viewport and occupied-board scaling.",
+            "Prototype v0.6N.7: final mobile layout stabilization.",
             "Best tested on a desktop browser first; mobile browser is experimental.",
             "Please note what confused you, what felt fun, and if anything broke.",
             "Useful feedback: device/browser, board size, HUD readability, AP/MP, skill targets.",
